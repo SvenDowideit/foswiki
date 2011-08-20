@@ -1,0 +1,12 @@
+
+---++ Foswiki 2.0 Store refactor prototype
+
+We think that the Store <-> Object codebase is too convoluted, and can be done better for the next release of Foswiki.
+
+Key performance indicators for acceptance of this major re-write will be:
+   1 faster
+   2 more complete test suite
+   3 simpler and more useable API for both the core, and store backend
+   4 faster :)
+   
+see http://foswiki.org/Development/SimplifyTheStoreMetaSemantics for _my_ ideas and direction.
