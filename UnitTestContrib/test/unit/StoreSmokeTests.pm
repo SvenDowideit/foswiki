@@ -81,9 +81,7 @@ sub tear_down {
 sub verify_notopic {
     my $this  = shift;
     my $topic = "UnitTest1";
-    my $m =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "UnitTest1" );
-    my $rev = $m->getLatestRev();
+
     $this->assert(
         !$this->{session}->topicExists( $this->{test_web}, $topic ) );
     $this->assert_num_equals( 0, $rev );
@@ -98,13 +96,13 @@ sub verify_checkin {
     $this->assert(
         !$this->{session}->topicExists( $this->{test_web}, $topic ) );
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic, $text );
+      Foswiki::Store->create( address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>$text} );
     $meta->save( user => $user );
     my $rev = $meta->getLatestRev();
     $this->assert_num_equals( 1, $rev );
 
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $topic, 0 );
+      Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$topic} );
     my $text1 = $meta->text;
 
     $text1 =~ s/[\s]*$//go;
@@ -115,22 +113,21 @@ sub verify_checkin {
     $this->assert_num_equals( 1, $info->{version},
         "Rev from meta data should be 1 when first created $info->{version}" );
 
-    $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+    $meta = Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$topic} );
     $info = $meta->getRevisionInfo();
     $this->assert_num_equals( 1, $info->{version} );
 
     # Check-in with different text, under different user (to force change)
-    $this->{session}->finish();
-    $this->{session} = new Foswiki($testUser2);
+    $this->createNewFoswikiSession($testUser2);
     $text = "bye";
-    $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+    $meta = Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$topic} );
     $info = $meta->getRevisionInfo();
     $meta->save();
     $this->assert_num_equals( 2, $meta->getLatestRev() );
 
     # Force reload
-    $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $topic, 0 );
+    $this->createNewFoswikiSession($testUser2);
+    $meta = Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$topic} );
     $info = $meta->getRevisionInfo();
     $this->assert_num_equals( 2, $info->{version},
         "Rev from meta should be 2 after one change" );
@@ -145,7 +142,7 @@ sub verify_checkin_attachment {
     my $user  = $testUser1;
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic, $text );
+      Foswiki::Store->create( address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>$text} );
     $meta->save( user => $user );
 
     # ensure pub directory for topic exists (SMELL surely not needed?)
@@ -204,8 +201,7 @@ sub verify_rename {
     my $user     = $testUser1;
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $oldWeb, $oldTopic,
-        "Elucidate the goose" );
+      Foswiki::Store->create( address=>{web=>$oldWeb, topic=>$oldTopic}, data=>{_text=>'Elucidate the goose'} );
     $meta->save( user => $user );
     $this->assert( !$this->{session}->topicExists( $newWeb, $newTopic ) );
 
@@ -244,8 +240,6 @@ sub verify_rename {
 sub verify_releaselocksonsave {
     my $this  = shift;
     my $topic = "MultiEditTopic";
-    my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
 
     # create rev 1 as TestUser1
     my $query = new Unit::Request(
@@ -257,7 +251,7 @@ sub verify_releaselocksonsave {
     );
     $query->path_info("/$this->{test_web}/$topic");
 
-    $this->{session} = new Foswiki( $testUser1, $query );
+    $this->createNewFoswikiSession( $testUser1, $query );
     try {
         $this->captureWithKey( save => $UI_FN, $this->{session} );
     }
@@ -271,7 +265,9 @@ sub verify_releaselocksonsave {
     };
 
     # get the date
-    my $m = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $topic );
+    my $m = #Foswiki::Meta->load( $this->{session}, $this->{test_web}, $topic );
+          Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$topic} );
+
     my $t1 = $m->getRevisionInfo()->{date};
 
     # create rev 2 as TestUser1
@@ -284,8 +280,8 @@ sub verify_releaselocksonsave {
         }
     );
     $query->path_info("/$this->{test_web}/$topic");
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $testUser1, $query );
+
+    $this->createNewFoswikiSession( $testUser1, $query );
     try {
         $this->captureWithKey( save => $UI_FN, $this->{session} );
     }
@@ -309,8 +305,8 @@ sub verify_releaselocksonsave {
     );
 
     $query->path_info("/$this->{test_web}/$topic");
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $testUser2, $query );
+    
+    $this->createNewFoswikiSession( $testUser2, $query );
     try {
         $this->captureWithKey( save => $UI_FN, $this->{session} );
         $this->annotate(
