@@ -322,24 +322,16 @@ sub addUser {
         )
       )
     {
-
         # Load existing users topic
-        $usersTopicObject = Foswiki::Meta->load(
-            $this->{session},
-            $Foswiki::cfg{UsersWebName},
-            $Foswiki::cfg{UsersTopicName}
-        );
+        $usersTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName}});
     }
     else {
 
         # Construct a new users topic from the template
-        my $templateTopicObject =
-          Foswiki::Meta->load( $this->{session}, $Foswiki::cfg{SystemWebName},
-            'UsersTemplate' );
-        $usersTopicObject = Foswiki::Meta->new(
-            $this->{session},              $Foswiki::cfg{UsersWebName},
-            $Foswiki::cfg{UsersTopicName}, $templateTopicObject->text()
-        );
+        my $templateTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{SystemWebName}, topic=>'UsersTemplate'});
+
+        $usersTopicObject = Foswiki::Store::load(create=>1, address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName}});
+        $usersTopicObject->text($templateTopicObject->text());
 
         $usersTopicObject->copyFrom($templateTopicObject);
     }
@@ -646,9 +638,7 @@ sub eachGroupMember {
         $expanding{$group} = 1;
 
         #        print "Expanding $group \n";
-        my $groupTopicObject =
-          Foswiki::Meta->load( $this->{session}, $Foswiki::cfg{UsersWebName},
-            $group );
+        my $groupTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$group});
 
         if ( !$expand ) {
             $singleGroupMembers =
@@ -840,8 +830,7 @@ sub addUserToGroup {
 
     if ( $usersObj->isGroup($groupName) ) {
 
-        $groupTopicObject =
-          Foswiki::Meta->load( $this->{session}, $groupWeb, $groupName );
+        $groupTopicObject = Foswiki::Store::load(address=>{web=>$groupWeb, topic=>$groupName});
 
         if ( !$groupTopicObject->haveAccess( 'CHANGE', $user ) ) {
 
@@ -882,7 +871,7 @@ sub addUserToGroup {
           );
 
         $groupTopicObject =
-          Foswiki::Meta->load( $this->{session}, $groupWeb, 'GroupTemplate' );
+          Foswiki::Meta->new( $this->{session}, $groupWeb, 'GroupTemplate' );
 
         # expand the GroupTemplate as best we can.
         $this->{session}->{request}
@@ -1020,7 +1009,7 @@ sub removeUserFromGroup {
             return 0;    # user not in group - report that it failed
         }
         my $groupTopicObject =
-          Foswiki::Meta->load( $this->{session}, $Foswiki::cfg{UsersWebName},
+          Foswiki::Meta->new( $this->{session}, $Foswiki::cfg{UsersWebName},
             $groupName );
         if ( !$groupTopicObject->haveAccess( 'CHANGE', $user ) ) {
             return 0;    #can't change topic.
@@ -1246,7 +1235,7 @@ from Wiki topics.
 sub mapper_getEmails {
     my ( $session, $user ) = @_;
 
-    my $topicObject = Foswiki::Meta->load(
+    my $topicObject = Foswiki::Meta->new(
         $session,
         $Foswiki::cfg{UsersWebName},
         $session->{users}->getWikiName($user)
@@ -1292,7 +1281,7 @@ sub mapper_setEmails {
     my $user = $session->{users}->getWikiName($cUID);
 
     my $topicObject =
-      Foswiki::Meta->load( $session, $Foswiki::cfg{UsersWebName}, $user );
+      Foswiki::Meta->new( $session, $Foswiki::cfg{UsersWebName}, $user );
 
     if ( $topicObject->get('FORM') ) {
 
@@ -1496,6 +1485,9 @@ sub _getListOfGroups {
         # Temporarily set the user to admin, otherwise it cannot see groups
         # where %USERSWEB% is protected from view
         local $this->{session}->{user} = $Foswiki::cfg{SuperAdminGroup};
+        #$this->{store}->changeDefaultUser($this->{session}->{user});
+die 'set store cuid to undef';
+        local undef $Foswiki::Store::singleton->{cuid};
 
         $this->{session}->search->searchWeb(
             _callback => \&_collateGroups,
@@ -1544,7 +1536,7 @@ sub _loadMapping {
             )
           )
         {
-            my $usersTopicObject = Foswiki::Meta->load(
+            my $usersTopicObject = Foswiki::Meta->new(
                 $session,
                 $Foswiki::cfg{UsersWebName},
                 $Foswiki::cfg{UsersTopicName}
