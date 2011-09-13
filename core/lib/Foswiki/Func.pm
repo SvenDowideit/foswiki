@@ -1751,7 +1751,8 @@ sub createWeb {
     }
     ASSERT($Foswiki::Plugins::SESSION) if DEBUG;
 
-    my $baseObject = Foswiki::Store->load( address=>{web=>$baseweb} );
+    my $baseObject;
+    $baseweb = Foswiki::Store->load( address=>{web=>$baseweb} ) if (defined($baseweb));
     my $webObject = Foswiki::Store->create( address=>{web=>$web} );
     $webObject->populateNewWeb($baseweb);
 }

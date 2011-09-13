@@ -327,7 +327,7 @@ sub saveAttachment {
 }
 
 sub saveTopic {
-    my ( $this, %args, $options ) = @_;
+    my ( $this, %args ) = @_;
     ASSERT( $args{address}->isa('Foswiki::Meta') ) if DEBUG;
     ASSERT($args{cuid}) if DEBUG;
 
@@ -342,9 +342,12 @@ sub saveTopic {
     $ti->{author} = $args{cuid};
 
     $handler->addRevisionFromText( $args{address}->getEmbeddedStoreForm(),
-        'save topic', $args{cuid}, $options->{forcedate} );
+        'save topic', $args{cuid}, $args{forcedate} );
 
-    my $extra = $options->{minor} ? 'minor' : '';
+    # just in case they are not sequential
+    my $nextRev = $handler->getLatestRevisionID();
+
+    my $extra = $args{minor} ? 'minor' : '';
     $handler->recordChange( $args{cuid}, $nextRev, $extra );
 
     $this->tellListeners( verb => $verb, newmeta => $args{address} );
@@ -353,7 +356,7 @@ sub saveTopic {
 }
 
 sub repRev {
-    my ( $this, %args, %options ) = @_;
+    my ( $this, %args ) = @_;
     ASSERT( $args{address}->isa('Foswiki::Meta') ) if DEBUG;
     ASSERT($args{cuid}) if DEBUG;
     my $info    = $args{address}->getRevisionInfo();
