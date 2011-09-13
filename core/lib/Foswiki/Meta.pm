@@ -839,9 +839,10 @@ sub populateNewWeb {
 
     # Validate that template web exists, or error should be thrown
     if ($templateWeb) {
+        $templateWeb = Foswiki::Address->new(address=>{web=>$templateWeb}) if (ref($templateWeb) eq '');
         unless ( Foswiki::Store->exists(address=>{web=>$templateWeb}) ) {
             throw Error::Simple(
-                'Template web ' . $templateWeb . ' does not exist' );
+                'Template web ' . $templateWeb->web . ' does not exist' );
         }
     }
 
