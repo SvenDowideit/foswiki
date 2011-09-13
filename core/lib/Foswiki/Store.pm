@@ -122,7 +122,7 @@ sub load {
     $args{address} = $singleton->getResourceAddressOrCachedResource($args{address});
     die "recursion? - load(".$singleton->{count}{load}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{load}{$args{address}->getPath()}++ > 10);
 
-    print STDERR "-call: load ".($args{address}->getPath())."\n";
+    #print STDERR "-call: load ".($args{address}->getPath())."\n";
 
 
     if (ref($args{address}) eq 'Foswiki::Meta') {
@@ -625,7 +625,7 @@ sub template_function {
     $args{address} = $singleton->getResourceAddressOrCachedResource($args{address});
     die "recursion? - $functionname(".$singleton->{count}{$functionname}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{$functionname}{$args{address}->getPath()}++ > 10);
 
-    print STDERR "-call: $functionname: ".($args{address}->getPath())."\n";
+    #print STDERR "-call: $functionname: ".($args{address}->getPath())."\n";
 
 
 #    if (ref($args{address}) eq 'Foswiki::Meta') {
@@ -666,7 +666,7 @@ sub template_function {
                     ($functionname eq 'atomicLockInfo') or 
                     ($functionname eq 'atomicLock')
                     ) {
-            print STDERR "-$functionname => ".(defined($result)?$result:'undef')."\n";
+            #print STDERR "-$functionname => ".(defined($result)?$result:'undef')."\n";
             return $result ;
         }
         throw DoesNotExist(%args)
@@ -709,7 +709,7 @@ sub cacheResource {
     my %args = @_;
     
     #ASSERT(defined($obj->{_text})) if DEBUG; if itsa topic.
-    print STDERR "cacheResource(".$args{functionname}.", ".$args{return}->getPath().") \n";
+    #print STDERR "cacheResource(".$args{functionname}.", ".$args{return}->getPath().") \n";
     
     return unless ($args{functionname} eq 'load');
     
@@ -737,7 +737,7 @@ sub getResourceAddressOrCachedResource {
 sub finish {
     undef $singleton->{cache};
     undef $singleton;
-    print STDERR "--------------------------------- end Store singleton\n";
+    #print STDERR "--------------------------------- end Store singleton\n";
 }
 
 
