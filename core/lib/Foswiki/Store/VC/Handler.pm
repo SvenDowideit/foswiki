@@ -650,8 +650,6 @@ Move/rename a topic.
 sub moveTopic {
     my ( $this, $store, $newWeb, $newTopic ) = @_;
 
-    ASSERT( $store->isa('Foswiki::Store') ) if DEBUG;
-
     my $oldWeb   = $this->{web};
     my $oldTopic = $this->{topic};
 

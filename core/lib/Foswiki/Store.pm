@@ -136,13 +136,6 @@ sub load {
               ->haveAccess( $access_type, $args{cuid}, $args{address}, 
                   dontload => 1 ) ));
           
-#       if ( defined( $args{from} ) ) {
-#
-#            #load will throw exceptions if things go wrong
-#            $args{from} = load( address => $args{from} )
-#              unless ( $args{from}->isa('Foswiki::Address') );
-#        }
-
     #$cfg::Foswiki{Stores} is an ordered list, managed by configure that prioritises the cache stores first.
         foreach my $impl ( @{ $singleton->{stores} } ) {
 
@@ -414,8 +407,10 @@ sub getVersionInfo {
 
 =pod
 
-=head2 ClassMethod atomicLockInfo( address=>$address ) -> ($cUID, $time)
+=head2 ClassMethod atomicLockInfo( address=>$address ) -> \($cUID, $time)
 If there is a lock on the topic, return it.
+
+NOTE: this has changed to an arrayref
 
 =cut
 
@@ -661,6 +656,7 @@ sub template_function {
             last if ( defined($result) );
         }
         if (
+                    ($functionname eq 'move') or 
                     ($functionname eq 'exists') or 
                     ($functionname eq 'getLease') or 
                     ($functionname eq 'atomicLockInfo') or 
