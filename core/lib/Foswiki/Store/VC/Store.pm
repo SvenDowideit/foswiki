@@ -312,15 +312,15 @@ sub getVersionInfo {
 
 sub saveAttachment {
     my ( $this, %args ) = @_;
-    my $handler    = $this->getHandler( $args{address}, $args{name} );
+    my $handler    = $this->getHandler( $args{address}, $args{attachment} );
     my $currentRev = $handler->getLatestRevisionID();
     my $nextRev    = $currentRev + 1;
-    my $verb = ( $args{address}->hasAttachment($args{name}) ) ? 'update' : 'insert';
+    my $verb = ( $args{address}->hasAttachment($args{attachment}) ) ? 'update' : 'insert';
     $handler->addRevisionFromStream( $args{stream}, $args{comment}, $args{cuid} );
     $this->tellListeners(
         verb          => $verb,
         newmeta       => $args{address},
-        newattachment => $args{name}
+        newattachment => $args{attachment}
     );
     $handler->recordChange( $args{cuid}, $nextRev );
     return $nextRev;
@@ -607,6 +607,7 @@ sub save {
     if ($type eq 'webpath') {
         return $this->saveWeb($args{address}->web);
     } elsif ($type eq 'topic') {
+        return $this->saveAttachment(%args) if (defined($args{attachment}));
         return $this->saveTopic(%args);
     } 
     die "can't call save(".$args{address}->getPath().")" if DEBUG;
@@ -617,10 +618,12 @@ sub exists {
     my %args = @_;
     ASSERT($args{address}) if DEBUG;
     my $type = $args{address}->type();
-#    ASSERT($type) if DEBUG;
+
+    ASSERT($type) if DEBUG;
     if ($type eq 'webpath') {
         return $this->webExists($args{address}->web);
     } elsif ($type eq 'topic') {
+        return $this->attachmentExists(%args) if (defined($args{attachment}));
         return $this->topicExists($args{address}->web, $args{address}->topic);
     } 
     die "can't call exists(".$args{address}->getPath().") cos its type = $type " if DEBUG;
