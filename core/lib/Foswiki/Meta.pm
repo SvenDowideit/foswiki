@@ -2700,7 +2700,7 @@ sub attach {
         my $error;
         try {
             Foswiki::Store
-              ->saveAttachment( address=>$this, attachment=>$opts{name}, stream=>$opts{stream},
+              ->save( address=>$this, attachment=>$opts{name}, stream=>$opts{stream},
                 cuid=>($opts{author} || $this->{_session}->{user}) );
         }
         finally {
@@ -2741,7 +2741,7 @@ sub attach {
         $this->text($text);
     }
 
-    $this->saveAs() unless $opts{notopicchange};
+    $this->save() unless $opts{notopicchange};
 
     my @extras = ( $opts{name} );
     push( @extras, 'dontlog' ) if $opts{dontlog};    # no statistics
@@ -2770,7 +2770,7 @@ sub hasAttachment {
     my ( $this, $name ) = @_;
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
-    return Foswiki::Store->attachmentExists( address=>$this, attachment=>$name );
+    return Foswiki::Store->exists( address=>$this, attachment=>$name );
 }
 
 =begin TML
