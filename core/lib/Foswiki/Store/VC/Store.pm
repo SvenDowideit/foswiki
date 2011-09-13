@@ -393,7 +393,8 @@ sub delRev {
 sub atomicLockInfo {
     my ( $this, %args ) = @_;
     my $handler = $this->getHandler($args{address});
-    return $handler->isLocked();
+    my @info = $handler->isLocked();
+    return \@info;
 }
 
 # It would be nice to use flock to do this, but the API is unreliable
@@ -634,6 +635,22 @@ sub create {
         return $newResource;
     } 
     die "can't call load($type)" if DEBUG;
+}
+
+
+sub move {
+    my $this = shift;
+    my %args = @_;
+    ASSERT($args{address}) if DEBUG;
+    my $type = $args{address}->type();
+#    ASSERT($type) if DEBUG;
+    if ($type eq 'webpath') {
+        return $this->moveWeb(%args);
+    } elsif ($type eq 'topic') {
+        return $this->moveAttachment(%args) if (defined($args{attachment}));
+        return $this->moveTopic(%args);
+    } 
+    die "can't call save(".$args{address}->getPath().")" if DEBUG;
 }
 
 sub load {

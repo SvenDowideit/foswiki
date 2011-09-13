@@ -1995,9 +1995,10 @@ sub _atomicLock {
     if ( $this->{topic} ) {
         my $logger = $this->{_session}->logger();
         while (1) {
-            my ( $user, $time ) =
-              Foswiki::Store->atomicLockInfo(address=>$this);
+            my $info = Foswiki::Store->atomicLockInfo(address=>$this);
+            my ( $user, $time ) = @$info;
             last if ( !$user || $cUID eq $user );
+            ASSERT(defined($time)) if DEBUG;
             $logger->log( 'warning',
                     'Lock on '
                   . $this->getPath() . ' for '
@@ -2075,7 +2076,7 @@ object $to. %opts may include:
 sub move {
     my ( $this, $to, %opts ) = @_;
     ASSERT( $this->{web}, 'this is not a movable object' ) if DEBUG;
-    ASSERT( $to->isa('Foswiki::Meta') && $to->{web},
+    ASSERT( $to->isa('Foswiki::Address') && $to->{web},
         'to is not a moving target' )
       if DEBUG;
 
@@ -2111,13 +2112,12 @@ sub move {
                 }
             );
             # save the metadata change without logging
-            $this->saveAs(
-                $this->{web}, $this->{topic},
+            $this->save(
                 dontlog => 1, # no statistics
             );
-            Foswiki::Store->moveTopic( from=>$from, address=>$to, cuid=>$cUID );
-            $to->loadVersion();
-            ASSERT( defined($to) and defined( $to->{_loadedRev} ) ) if DEBUG;
+            Foswiki::Store->move( from=>$from, address=>$to, user=>$cUID );
+            $to = Foswiki::Store->load( address=>$to );
+            ASSERT( defined($to) ) if DEBUG;
         }
         finally {
             $from->_atomicUnlock($cUID);
