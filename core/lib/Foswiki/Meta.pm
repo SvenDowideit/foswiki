@@ -2595,7 +2595,7 @@ sub attach {
       if DEBUG;
 
     # make sure we don't save a half-loaded topic stub...which indeed - smell - is possible
-    $this->loadVersion() unless $this->latestIsLoaded();
+    #$this->loadVersion() unless $this->latestIsLoaded();
 
     if ( $opts{file} && !$opts{stream} ) {
 
@@ -2695,7 +2695,7 @@ sub attach {
         }
 
         # Force reload of the latest version
-        $this = $this->load() unless $this->latestIsLoaded();
+        #$this = $this->load() unless $this->latestIsLoaded();
 
         my $error;
         try {
