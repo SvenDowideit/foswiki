@@ -836,14 +836,13 @@ sub populateNewWeb {
             throw Error::Simple( 'Parent web ' . $parent . ' does not exist' );
         }
     }
-
     # Validate that template web exists, or error should be thrown
     if ($templateWeb) {
         $templateWeb = Foswiki::Address->new(address=>{web=>$templateWeb}) if (ref($templateWeb) eq '');
-#        unless ( Foswiki::Store->exists(address=>{web=>$templateWeb}) ) {
-#            throw Error::Simple(
-#                'Template web ' . $templateWeb->web . ' does not exist' );
-#        }
+        unless ( Foswiki::Store->exists(address=>$templateWeb) ) {
+            throw Error::Simple(
+                'Template web ' . $templateWeb->web . ' does not exist' );
+        }
     }
 
     # Make sure there is a preferences topic; this is how we know it's a web
@@ -861,10 +860,10 @@ sub populateNewWeb {
     }
 
     if ($templateWeb) {
-        my $tWebObject = $this->new( $session, $templateWeb );
+        my $tWebObject = Foswiki::Store->load(address=>$templateWeb );
         require Foswiki::WebFilter;
         my $sys =
-          Foswiki::WebFilter->new('template')->ok( $session, $templateWeb );
+          Foswiki::WebFilter->new('template')->ok( $session, $templateWeb->web() );
         my $it = $tWebObject->eachTopic();
         while ( $it->hasNext() ) {
             my $topic = $it->next();

@@ -158,7 +158,7 @@ sub load {
             $result = create(%args);
         }
 
-        throw DoesNotExist(%args)
+        throw Error::Simple('Cannot load: '.$args{address}->stringify())
           unless ( defined($result) );
       }
 

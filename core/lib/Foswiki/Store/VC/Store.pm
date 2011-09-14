@@ -38,6 +38,7 @@ our @ISA = ('Foswiki::Store::Interfaces::Store');
 
 use Assert;
 use Error qw( :try );
+use Error::Simple ();
 
 use Foswiki          ();
 use Foswiki::Meta    ();
@@ -679,6 +680,7 @@ sub load {
     my $type = $args{address}->type();
     ASSERT($type) if DEBUG;
     if ($type eq 'webpath') {
+        return undef unless ($this->exists(%args));
         my $newResource =  Foswiki::Meta->NEWnew( @_ );
         return $newResource;
     } elsif ($type eq 'topic') {
