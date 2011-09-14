@@ -507,6 +507,19 @@ sub eachTopic {
     return template_function( 'eachTopic', @_ );
 }
 
+
+=pod
+
+=head2 ClassMethod eachAttachment( address=>$address) -> $iterator
+
+Get an iterator over the list of all elements of type '$type' that are sub elements of the addressed one
+
+=cut
+
+sub eachAttachment {
+    return template_function( 'eachAttachment', @_ );
+}
+
 =pod
 
 =head2 ClassMethod query($query, $inputTopicSet, $session, \%options) -> $outputTopicSet

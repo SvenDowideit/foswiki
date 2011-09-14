@@ -615,6 +615,8 @@ sub save {
     } elsif ($type eq 'topic') {
         return $this->saveAttachment(%args) if (defined($args{attachment}));
         return $this->saveTopic(%args);
+    } elsif ($type eq 'attachment') {
+        return $this->saveAttachment(%args);
     } 
     die "can't call save(".$args{address}->getPath().")" if DEBUG;
 }
@@ -631,6 +633,8 @@ sub exists {
     } elsif ($type eq 'topic') {
         return $this->attachmentExists(%args) if (defined($args{attachment}));
         return $this->topicExists($args{address}->web, $args{address}->topic);
+    } elsif ($type eq 'attachment') {
+        return $this->attachmentExists(%args);
     } 
     die "can't call exists(".$args{address}->getPath().") cos its type = $type " if DEBUG;
 }
@@ -662,6 +666,8 @@ sub move {
     } elsif ($type eq 'topic') {
         return $this->moveAttachment(%args) if (defined($args{attachment}));
         return $this->moveTopic(%args);
+    } elsif ($type eq 'attachment') {
+        return $this->moveAttachment(%args);
     } 
     die "can't call save(".$args{address}->getPath().")" if DEBUG;
 }

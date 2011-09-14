@@ -59,7 +59,7 @@ sub new {
     if ( UNIVERSAL::isa( $web, 'Foswiki::Address' ) ) {
 
         # $web refers to a meta object
-        $attachment = $topic;
+        $attachment = $web->attachment() || $topic;
         $topic      = $web->topic();
         $web        = $web->web();
     }
