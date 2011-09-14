@@ -81,9 +81,15 @@ sub read {
     $result =~ s/^%META:([^{]+){(.*)}%\n/push(@{$output{$1}}, _readKeyValues($2));''/gem;
     
     #correct the META for which there can be only one. (ignore all but first)
+    my $mcount=0;
     map {
-         $output{$_} = [$output{$_}[0]] if (defined($output{$_}));
+        if (defined($output{$_})) {
+            $output{$_} = [$output{$_}[0]];
+            $mcount++;
+        }
      } qw(TOPICINFO TOPICPARENT TOPICMOVED);
+     
+    $result =~ s/\n$// if (scalar(keys(%output)) >= $mcount);
     
     $output{_text} = $result;
 

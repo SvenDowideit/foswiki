@@ -840,10 +840,10 @@ sub populateNewWeb {
     # Validate that template web exists, or error should be thrown
     if ($templateWeb) {
         $templateWeb = Foswiki::Address->new(address=>{web=>$templateWeb}) if (ref($templateWeb) eq '');
-        unless ( Foswiki::Store->exists(address=>{web=>$templateWeb}) ) {
-            throw Error::Simple(
-                'Template web ' . $templateWeb->web . ' does not exist' );
-        }
+#        unless ( Foswiki::Store->exists(address=>{web=>$templateWeb}) ) {
+#            throw Error::Simple(
+#                'Template web ' . $templateWeb->web . ' does not exist' );
+#        }
     }
 
     # Make sure there is a preferences topic; this is how we know it's a web
@@ -879,8 +879,8 @@ sub populateNewWeb {
     # we are creating a new web here.
     if ($opts) {
         my $prefsTopicObject =
-          Foswiki::Meta->load( $this->{_session}, $this->{web},
-            $Foswiki::cfg{WebPrefsTopicName} );
+          Foswiki::Store->load( address=>{web=>$this->{web},
+            topic=>$Foswiki::cfg{WebPrefsTopicName}} );
         my $text = $prefsTopicObject->text;
         foreach my $key ( keys %$opts ) {
 

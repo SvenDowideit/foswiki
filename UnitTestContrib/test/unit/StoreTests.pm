@@ -43,13 +43,12 @@ sub set_up {
 
     $this->SUPER::set_up();
 
-    my $testWebObj = Foswiki::Meta->new( $this->{session}, $web );
+    my $testWebObj = Foswiki::Store->create( address=>{web=>$web} );
     $testWebObj->populateNewWeb();
 
     #  Store doesn't do access checks anyway, so run as admin
     #  so that Func:: works
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $Foswiki::cfg{AdminUserLogin} );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
 
     open( FILE, ">$Foswiki::cfg{TempfileDir}/testfile.gif" );
     print FILE "one two three";
@@ -77,7 +76,7 @@ sub verify_CreateEmptyWeb {
     my $this = shift;
 
     #create an empty web
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
+    my $webObject = Foswiki::Store->load( create=>1, address=>{web=>$web} );
     $webObject->populateNewWeb();
     $this->assert( $this->{session}->webExists($web) );
     my @topics = $webObject->eachTopic()->all();
@@ -85,14 +84,16 @@ sub verify_CreateEmptyWeb {
     $this->assert_equals( 1, scalar(@topics), $tops )
       ;    #we expect there to be only the preferences topic
     $this->assert_equals($Foswiki::cfg{WebPrefsTopicName}, $tops);
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
 }
 
 # Create a web using _default template
 sub verify_CreateWeb {
     my $this = shift;
 
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
+#create a web using _default
+#TODO how should this fail if we are testing a store impl that does not have a _deault web ?
+    my $webObject = Foswiki::Store->load( create=>1, address=>{web=>$web} );
     $webObject->populateNewWeb( '_default',
         { WEBBGCOLOR => '#123432', SITEMAPLIST => 'on' } );
     $this->assert( $this->{session}->webExists($web) );
@@ -100,7 +101,7 @@ sub verify_CreateWeb {
     $this->assert_equals( 'on',      $webObject->getPreference('SITEMAPLIST') );
     my $it     = $webObject->eachTopic();
     my @topics = $it->all();
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
     $webObject = Foswiki::Meta->new( $this->{session}, '_default' );
     $it = $webObject->eachTopic();
     my @defaultTopics = $it->all();
@@ -133,39 +134,15 @@ sub verify_CreateSimpleTextTopic {
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
     $meta->save();
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my ( $date, $user, $rev, $comment ) =
+      Foswiki::Func::getRevisionInfo( $web, $topic );
+    $this->assert( $rev == 1 );
+
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     $this->assert_str_equals( $text, $readMeta->text );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
-}
-
-# Create a simple topic containing meta-data
-sub verify_CreateSimpleMetaTopic {
-    my $this = shift;
-
-    Foswiki::Func::createWeb( $web, '_default' );
-    $this->assert( $this->{session}->webExists($web) );
-    $this->assert( !$this->{session}->topicExists( $web, $topic ) );
-
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, '' );
-    $meta->putKeyed( 'FIELD', { name => 'fieldname', value => 'meta' } );
-    $meta->save();
-    $this->assert( $this->{session}->topicExists( $web, $topic ) );
-
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
-    $this->assert_equals( '', $readMeta->text );
-
-    # Clear out stuff that blocks assert_deep_equals
-    $meta->remove('TOPICINFO');
-    $readMeta->remove('TOPICINFO');
-    foreach my $m ( $meta, $readMeta ) {
-        $m->{_preferences} = $m->{_session} = $m->{_latestIsLoaded} =
-          $m->{_loadedRev} = undef;
-    }
-    $this->assert_deep_equals( $meta, $readMeta );
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
     $webObject->removeFromStore();
 }
@@ -187,14 +164,14 @@ sub verify_noForceRev_RepRev {
     $this->assert_num_equals( 0, $rev ); # topic does not exist
 
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
-    $meta->save();
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
+    $meta->save( forcenewrevision => 1 );
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
     ( $date, $user, $rev, $comment ) =
       Foswiki::Func::getRevisionInfo( $web, $topic );
     $this->assert_num_equals( 1, $rev );
 
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     $this->assert_str_equals( $text, $readMeta->text );
 
     $text = "new text";
@@ -207,7 +184,7 @@ sub verify_noForceRev_RepRev {
 
     #cleanup
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
 }
 
 # Save a topic, forcing a new revision. Should increment the rev number.
@@ -224,19 +201,20 @@ sub verify_ForceRev {
     $this->assert_num_equals( 0, $rev ); # doesn't exist yet
 
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
     $meta->save( forcenewrevision => 1 );
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
     ( $date, $user, $rev, $comment ) =
       Foswiki::Func::getRevisionInfo( $web, $topic );
     $this->assert_num_equals( 1, $rev );
 
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     $this->assert_str_equals( $text, $readMeta->text );
 
     $text = "new text";
     $meta->text($text);
     $meta->save( forcenewrevision => 1 );
+
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
     ( $date, $user, $rev, $comment ) =
       Foswiki::Func::getRevisionInfo( $web, $topic );
@@ -244,7 +222,38 @@ sub verify_ForceRev {
 
     #cleanup
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
+}
+
+# Create a simple topic containing meta-data
+sub verify_CreateSimpleMetaTopic {
+    my $this = shift;
+
+    Foswiki::Func::createWeb( $web, '_default' );
+    $this->assert( $this->{session}->webExists($web) );
+    $this->assert( !$this->{session}->topicExists( $web, $topic ) );
+
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>''} );
+    $meta->putKeyed( 'FIELD', { name => 'fieldname', value => 'meta' } );
+    $meta->save();
+    $this->assert( $this->{session}->topicExists( $web, $topic ) );
+    my ( $date, $user, $rev, $comment ) =
+      Foswiki::Func::getRevisionInfo( $web, $topic );
+    $this->assert_num_equals( 2, $rev );
+
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    $this->assert_equals( '', $readMeta->text );
+
+    # Clear out stuff that blocks assert_deep_equals
+    $meta->remove('TOPICINFO');
+    $readMeta->remove('TOPICINFO');
+    foreach my $m ( $meta, $readMeta ) {
+        $m->{_preferences} = $m->{_session} = $m->{_latestIsLoaded} =
+          $m->{_loadedRev} = undef;
+    }
+    $this->assert_deep_equals( $meta, $readMeta );
+    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
+    Foswiki::Store->remove(address=>$webObject);
 }
 
 # Get the revision info of the latest rev of the topic.
@@ -255,7 +264,7 @@ sub verify_getRevisionInfo {
 
     $this->assert( $this->{session}->webExists($web) );
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
     $meta->save();
     $this->assert_equals( 1, $meta->getLatestRev() );
 
@@ -263,7 +272,7 @@ sub verify_getRevisionInfo {
     $meta->text($text);
     $meta->save( forcenewrevision => 1 );
 
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     my $readText = $readMeta->text;
 
     # ignore whitespace at end of data
@@ -277,7 +286,7 @@ sub verify_getRevisionInfo {
  #TODO
  #getRevisionDiff (  $web, $topic, $rev1, $rev2, $contextLines  ) -> \@diffArray
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
 }
 
 # Move a topic to another name in the same web
@@ -287,7 +296,7 @@ sub verify_moveTopic {
     Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
     $meta->save( user => $this->{test_user_login} );
 
     $text =
@@ -315,7 +324,7 @@ sub verify_moveTopic {
     #compare number of refering topics?
     #compare list of references to moved topic
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
 
 }
 
@@ -326,7 +335,7 @@ sub verify_leases {
     Foswiki::Func::createWeb( $web, '_default' );
     my $testtopic = $Foswiki::cfg{HomeTopicName};
 
-    my $m = Foswiki::Meta->new( $this->{session}, $web, $testtopic );
+    my $m = Foswiki::Store->create(address=>{web=> $web, topic=>$testtopic} );
     my $lease = $m->getLease( $web, $testtopic );
     $this->assert_null($lease);
 
@@ -346,7 +355,7 @@ sub verify_leases {
     $lease = $m->getLease( $web, $testtopic );
     $this->assert_null($lease);
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
 }
 
 # Handler used in next test
@@ -383,12 +392,12 @@ sub verify_beforeSaveHandlerChangeText {
     );
 
     my $text = 'CHANGETEXT';
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
     $meta->putKeyed( "FIELD", $args );
     $meta->save( user => $this->{test_user_login} );
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
 
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     my $readText = $readMeta->text;
 
     # ignore whitspace at end of data
@@ -404,7 +413,7 @@ sub verify_beforeSaveHandlerChangeText {
     $meta->putKeyed( 'FIELD', { name => 'fieldname', value => 'text' } );
     $this->assert_str_equals( $meta->stringify(), $readMeta->stringify() );
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
 }
 
 # Ensure the beforeSaveHandler is called when saving meta changes
@@ -428,27 +437,41 @@ sub verify_beforeSaveHandlerChangeMeta {
     );
 
     my $text = 'CHANGEMETA';
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
     $meta->putKeyed( "FIELD", $args );
     $meta->save( user => $this->{test_user_login} );
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     my $readText = $readMeta->text;
 
     # ignore whitspace at end of data
-    $readText =~ s/\s*$//s;
+    #$readText =~ s/\s*$//s;
 
     $this->assert_equals( $text, $readText );
+    $this->assert_equals( $text, $meta->text() );
 
     # set expected meta
-    $meta->putKeyed( 'FIELD', { name => 'fieldname', value => 'meta' } );
+    #$meta->putKeyed( 'FIELD', { name => 'fieldname', value => 'meta' } );
     foreach my $fld (qw(rev version date)) {
         delete $meta->get('TOPICINFO')->{$fld};
         delete $readMeta->get('TOPICINFO')->{$fld};
     }
+    
+$this->assert_str_equals( <<'HERE', $readMeta->stringify() );
+TemporaryTestStoreWeb.TestStoreTopic 
+%META:TOPICINFO{author="BaseUserMapping_333" format="1.1"}%
+CHANGEMETA
+%META:FIELD{name="fieldname" value="meta"}%
+HERE
+
+$this->assert_str_equals( <<'HERE', $meta->stringify() );
+TemporaryTestStoreWeb.TestStoreTopic 
+%META:TOPICINFO{author="BaseUserMapping_333" format="1.1"}%
+CHANGEMETA
+%META:FIELD{name="fieldname" value="meta"}%
+HERE
+    
     $this->assert_str_equals( $meta->stringify(), $readMeta->stringify() );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
 }
 
 # Ensure the beforeSaveHandler is called when saving text and meta changes
@@ -472,12 +495,12 @@ sub verify_beforeSaveHandlerChangeBoth {
     );
 
     my $text = 'CHANGEMETA CHANGETEXT';
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
     $meta->putKeyed( "FIELD", $args );
     $meta->save( user => $this->{test_user_login} );
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
 
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     my $readText = $readMeta->text;
 
     # ignore whitspace at end of data
@@ -494,7 +517,7 @@ sub verify_beforeSaveHandlerChangeBoth {
     }
     $this->assert_str_equals( $meta->stringify(), $readMeta->stringify() );
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
+    Foswiki::Store->remove(address=>$webObject);
 }
 
 # Handler used in next test
