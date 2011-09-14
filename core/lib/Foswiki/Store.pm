@@ -520,6 +520,20 @@ sub eachAttachment {
     return template_function( 'eachAttachment', @_ );
 }
 
+
+=pod
+
+=head2 ClassMethod openAttachment( address=>$address) -> $iterator
+
+open the attachments
+TODO: sven would like to replace this with a F::O::Attachment class - we'll see
+
+=cut
+
+sub openAttachment {
+    return template_function( 'openAttachment', @_ );
+}
+
 =pod
 
 =head2 ClassMethod query($query, $inputTopicSet, $session, \%options) -> $outputTopicSet
