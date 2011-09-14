@@ -1737,11 +1737,10 @@ sub createWeb {
     ($web) = _validateWTA($web);
     if ( defined $baseweb ) {
         ($baseweb) = _validateWTA($baseweb);
+        $baseweb = Foswiki::Store->load( address=>{web=>$baseweb} );
     }
     ASSERT($Foswiki::Plugins::SESSION) if DEBUG;
 
-    my $baseObject;
-    $baseweb = Foswiki::Store->load( address=>{web=>$baseweb} ) if (defined($baseweb));
     my $webObject = Foswiki::Store->create( address=>{web=>$web} );
     $webObject->populateNewWeb($baseweb);
 }

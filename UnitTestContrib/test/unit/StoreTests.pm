@@ -99,7 +99,11 @@ sub test_CreateWeb {
 
 sub test_CreateWebWithNonExistantBaseWeb {
     my $this = shift;
-    my $web  = 'FailToCreate';
+    my $web  = 'TemporaryTestFailToCreate';
+
+    #make sure the web doesn't exist
+    $this->assert( not Foswiki::Store->exists(address=>{web=>$web} ));
+    $this->assert( not Foswiki::Store->exists(address=>{web=>'DoesNotExists'} ));
 
     #create a web using non-existent Web
     my $ok = 0;
@@ -107,9 +111,12 @@ sub test_CreateWebWithNonExistantBaseWeb {
         Foswiki::Func::createWeb( $web, 'DoesNotExists' );
     }
     catch Error::Simple with {
+        my $e = shift;
+        #print STDERR "catchit: ".$e->stringify()."\n";
         $ok = 1;
     };
     $this->assert($ok);
+    $this->assert( not Foswiki::Store->exists(address=>{web=>$web} ));
     $this->assert( !$this->{session}->webExists($web) );
 }
 
@@ -142,7 +149,7 @@ sub test_noForceRev {
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
     ( $date, $user, $rev, $comment ) =
       Foswiki::Func::getRevisionInfo( $web, $topic );
-    $this->assert( $rev == 1 );
+    $this->assert( $rev == 1, $rev );
 
     #cleanup
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
