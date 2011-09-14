@@ -747,6 +747,7 @@ sub getResourceAddressOrCachedResource {
     my $self = shift;
     my $address = shift;
 
+#TODO: this should be in the Foswiki::Address constructor
     $address = Foswiki::Address->new( string=>$address )
       if (ref($address) eq '');   #justa string/scalar
     $address = Foswiki::Address->new( @$address )
