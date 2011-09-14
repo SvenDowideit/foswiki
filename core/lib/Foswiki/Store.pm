@@ -658,6 +658,7 @@ sub template_function {
         if (
                     ($functionname eq 'move') or 
                     ($functionname eq 'exists') or 
+                    ($functionname eq 'setLease') or 
                     ($functionname eq 'getLease') or 
                     ($functionname eq 'atomicLockInfo') or 
                     ($functionname eq 'atomicLock')

@@ -579,7 +579,7 @@ sub setLease {
     my ( $this, %args ) = @_;
 
     my $handler = $this->getHandler($args{address});
-    $handler->setLease($args{lease});
+    $handler->setLease($args{length});
 }
 
 sub removeSpuriousLeases {
