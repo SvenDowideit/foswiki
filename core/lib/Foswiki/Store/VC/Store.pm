@@ -294,7 +294,7 @@ sub getRevisionDiff {
         $args{contextLines} );
 }
 
-sub getAttachmentVersionInfo {
+sub DELETED_getAttachmentVersionInfo {
     my ( $this, %args ) = @_;
     my $handler = $this->getHandler( $args{address}, $args{attachment} );
     return $handler->getInfo( $args{rev} || 0 );
@@ -302,8 +302,13 @@ sub getAttachmentVersionInfo {
 
 sub getVersionInfo {
     my ( $this, %args ) = @_;
-    my $handler = $this->getHandler($args{address});
-    return $handler->getInfo( $args{address}->getLoadedRev() );
+    if ($this->exists(%args)) {
+        my $handler = $this->getHandler($args{address}, $args{attachment});
+        return $handler->getInfo( $args{address}{rev} || 0  );
+    }
+    #TODO: push the default for 'does not exist' into the API, rather than the store impl
+    use Foswiki::Users::BaseUserMapping;
+    return {comment=>'', date=>0, version=>0, author=>$Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID };
 }
 
 sub saveAttachment {
@@ -636,7 +641,6 @@ sub create {
     } 
     die "can't call load($type)" if DEBUG;
 }
-
 
 sub move {
     my $this = shift;
