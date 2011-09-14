@@ -1562,18 +1562,7 @@ sub getRevisionInfo {
 
     ASSERT($Foswiki::Plugins::SESSION) if DEBUG;
 
-    my $topicObject;
-    my $info;
-    if ($attachment) {
-        $topicObject =
-          Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
-        $info = $topicObject->getAttachmentRevisionInfo( $attachment, $rev );
-    }
-    else {
-        $topicObject =
-          Foswiki::Store->load( address=>{web=>$web, topic=>$topic, rev=>$rev} );
-        $info = $topicObject->getRevisionInfo();
-    }
+    my $info = Foswiki::Store->getVersionInfo( address=>{web=>$web, topic=>$topic, attachment=>$attachment,rev=>$rev} );
     return ( $info->{date},
         $Foswiki::Plugins::SESSION->{users}->getWikiName( $info->{author} ),
         $info->{version}, $info->{comment} );

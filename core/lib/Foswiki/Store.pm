@@ -658,12 +658,14 @@ sub template_function {
         if (
                     ($functionname eq 'move') or 
                     ($functionname eq 'exists') or 
+                    ($functionname eq 'getVersionInfo') or 
                     ($functionname eq 'setLease') or 
                     ($functionname eq 'getLease') or 
                     ($functionname eq 'atomicLockInfo') or 
                     ($functionname eq 'atomicLock')
                     ) {
-            #print STDERR "-$functionname => ".(defined($result)?$result:'undef')."\n";
+            #use Data::Dumper;
+            #print STDERR "-$functionname => ".(defined($result)?Dumper($result):'undef')."\n";
             return $result ;
         }
         throw DoesNotExist(%args)
