@@ -838,10 +838,22 @@ sub populateNewWeb {
     }
     # Validate that template web exists, or error should be thrown
     if ($templateWeb) {
-        $templateWeb = Foswiki::Address->new(address=>{web=>$templateWeb}) if (ref($templateWeb) eq '');
+#use Data::Dumper;
+#print STDERR "templateWeb == ".Dumper($templateWeb)." ref() == ".ref($templateWeb)."\n";
+#TODO: this should be in the Foswiki::Address constructor
+        $templateWeb = Foswiki::Address->new( web=>$templateWeb )
+          if (ref($templateWeb) eq '');   #justa string/scalar
+        $templateWeb = Foswiki::Address->new( @$templateWeb )
+          if (ref($templateWeb) eq 'ARRAY');
+        $templateWeb = Foswiki::Address->new( %$templateWeb )
+          if (ref($templateWeb) eq 'HASH');
+
+#print STDERR "POST templateWeb == ".Dumper($templateWeb)." ref() == ".ref($templateWeb)."\n";
+
+
         unless ( Foswiki::Store->exists(address=>$templateWeb) ) {
             throw Error::Simple(
-                'Template web ' . $templateWeb->web . ' does not exist' );
+                'Template web ' . $templateWeb->web() . ' does not exist' );
         }
     }
 
@@ -860,7 +872,7 @@ sub populateNewWeb {
     }
 
     if ($templateWeb) {
-        my $tWebObject = Foswiki::Store->load(address=>$templateWeb );
+        my $tWebObject = Foswiki::Store->load(address=>$templateWeb);
         require Foswiki::WebFilter;
         my $sys =
           Foswiki::WebFilter->new('template')->ok( $session, $templateWeb->web() );
