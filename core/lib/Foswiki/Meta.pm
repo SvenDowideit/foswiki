@@ -1846,8 +1846,7 @@ sub save {
 
             # Create a new object to parse the changed text
             my $after =
-              new Foswiki::Meta( $this->{_session}, $this->{web},
-                $this->{topic}, $text );
+               Foswiki::Store::create(address=>$this, data=>Foswiki::Serialise::deserialise($this->{session}, $text, 'Embedded'));
             unless ( $this->stringify() ne $premeta ) {
 
                 # Meta-data changes in the object take priority over
