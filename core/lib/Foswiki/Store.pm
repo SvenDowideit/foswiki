@@ -474,7 +474,7 @@ sub getApproxRevTime {
 
 =pod
 
-=head2 ClassMethod eachChange( address=>$address, $time ) -> $iterator
+=head2 ClassMethod eachChange( address=>$address, time=>$time ) -> $iterator
 
 Get an iterator over the list of all the changes in the given web between
 =$time= and now. $time is a time in seconds since 1st Jan 1970, and is not

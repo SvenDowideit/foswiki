@@ -459,10 +459,10 @@ sub getApproxRevTime {
 }
 
 sub eachChange {
-    my ( $this, $webObject, $time ) = @_;
+    my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($webObject);
-    return $handler->eachChange($time);
+    my $handler = $this->getHandler($args{address});
+    return $handler->eachChange($args{time});
 }
 
 sub eachAttachment {

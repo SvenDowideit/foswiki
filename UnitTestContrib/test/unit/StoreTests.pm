@@ -733,20 +733,20 @@ sub test_eachChange {
     sleep(1);
     my $start = time();
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $web, "ClutterBuck", "One" );
+      Foswiki::Store->create(address=>{web=>$web, topic=>"ClutterBuck"}, data=>{_text=>"One"} );
     $meta->save();
-    $meta = Foswiki::Meta->new( $this->{session}, $web, "PiggleNut", "One" );
+    $meta = Foswiki::Store->create(address=>{web=>$web, topic=>"PiggleNut"}, data=>{_text=>"One"} );
     $meta->save();
 
     # Wait a second
     sleep(1);
     my $mid = time();
-    $meta = Foswiki::Meta->new( $this->{session}, $web, "ClutterBuck", "One" );
+    $meta = Foswiki::Store->create(address=>{web=>$web, topic=>"ClutterBuck"}, data=>{_text=>"One"} );
     $meta->save( forcenewrevision => 1 );
-    $meta = Foswiki::Meta->new( $this->{session}, $web, "PiggleNut", "Two" );
+    $meta = Foswiki::Store->create(address=>{web=>$web, topic=>"PiggleNut"}, data=>{_text=>"Two"} );
     $meta->save( forcenewrevision => 1 );
     my $change;
-    my $it = Foswiki::Store->eachChange( $meta, $start );
+    my $it = Foswiki::Store->eachChange( address=>$meta, time=>$start );
     $this->assert( $it->hasNext() );
     $change = $it->next();
     $this->assert_str_equals( "PiggleNut", $change->{topic} );
@@ -764,7 +764,7 @@ sub test_eachChange {
     $this->assert_str_equals( "ClutterBuck", $change->{topic} );
     $this->assert_equals( 1, $change->{revision} );
     $this->assert( !$it->hasNext() );
-    $it = Foswiki::Store->eachChange( $meta, $mid );
+    $it = Foswiki::Store->eachChange( address=>$meta, time=>$mid );
     $this->assert( $it->hasNext() );
     $change = $it->next();
     $this->assert_str_equals( "PiggleNut", $change->{topic} );
