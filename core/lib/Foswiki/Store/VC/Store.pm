@@ -651,7 +651,12 @@ sub move {
     my $this = shift;
     my %args = @_;
     ASSERT($args{address}) if DEBUG;
+    ASSERT($args{from}) if DEBUG;
+    ASSERT(ref($args{from}) eq 'Foswiki::Meta') if DEBUG;
+
     my $type = $args{address}->type();
+    
+   
 #    ASSERT($type) if DEBUG;
     if ($type eq 'webpath') {
         return $this->moveWeb(%args);

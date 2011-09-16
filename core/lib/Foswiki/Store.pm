@@ -158,7 +158,8 @@ sub load {
             $result = create(%args);
         }
 
-        throw Error::Simple('Cannot load: '.$args{address}->stringify())
+        #throw Error::Simple('Cannot load: '.$args{address}->stringify())
+        die 'okok'
           unless ( defined($result) );
       }
 
@@ -269,7 +270,13 @@ sub remove {
 =cut
 
 sub move {
-    return template_function( 'move', @_ );
+    shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
+    my %args = ( cuid=>$singleton->{cuid}, @_ );
+    
+    if (ref($args{from}) ne 'Foswiki::Meta') {
+        $args{from} = Foswiki::Store->load(writeable=>1, address=>$args{from});
+    }
+    return template_function( 'move', %args );
 }
 
 =pod

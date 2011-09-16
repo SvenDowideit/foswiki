@@ -230,6 +230,7 @@ sub test_CreateSimpleMetaTopic {
     foreach my $m ( $meta, $readMeta ) {
         $m->{_preferences} = $m->{_session} = $m->{_latestIsLoaded} =
           $m->{_loadedRev} = undef;
+          #$m->{_indices} = undef;
     }
     $this->assert_deep_equals( $meta, $readMeta );
     my $webObject = Foswiki::Meta->new( $this->{session}, $web );
@@ -331,23 +332,23 @@ sub test_moveTopic {
     $text =
 "This is some test text\n   * some list\n   * $topic\n   * content\n :) :)";
     $meta =
-      Foswiki::Meta->new( $this->{session}, $web, $topic . 'a', $text, $meta );
+      Foswiki::Store->create( address=>{web=>$web, topic=>$topic . 'a'}, data=>{%$meta, _text=>$text} );
     $meta->save( user => $this->{test_user_login} );
     $text =
 "This is some test text\n   * some list\n   * $topic\n   * content\n :) :)";
     $meta =
-      Foswiki::Meta->new( $this->{session}, $web, $topic . 'b', $text, $meta );
+      Foswiki::Store->create( address=>{web=>$web, topic=>$topic . 'b'}, data=>{%$meta, _text=>$text} );
     $meta->save( user => $this->{test_user_login} );
     $text =
 "This is some test text\n   * some list\n   * $topic\n   * content\n :) :)";
     $meta =
-      Foswiki::Meta->new( $this->{session}, $web, $topic . 'c', $text, $meta );
+      Foswiki::Store->create( address=>{web=>$web, topic=>$topic . 'c'}, data=>{%$meta, _text=>$text} );
     $meta->save( user => $this->{test_user_login} );
 
-    Foswiki::Store->moveTopic(
-        Foswiki::Meta->new( $this->{session}, $web, $topic ),
-        Foswiki::Meta->new( $this->{session}, $web, 'TopicMovedToHere' ),
-        $this->{test_user_cuid}
+    Foswiki::Store->move(
+        from=>{web=>$web, topic=>$topic},
+        address=>{web=>$web, topic=>'TopicMovedToHere'},
+        user=>$this->{test_user_cuid}
     );
 
     #compare number of refering topics?

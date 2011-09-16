@@ -67,6 +67,7 @@ sub new {
     # Reuse is good
     my $id = ( $web || 0 ) . '/' . ( $topic || 0 ) . '/' . ( $attachment || 0 );
     if ( $store->{handler_cache} && $store->{handler_cache}->{$id} ) {
+        ASSERT(defined($store->{handler_cache}->{$id}->{rcsFile})) if DEBUG;
         return $store->{handler_cache}->{$id};
     }
 
@@ -108,6 +109,7 @@ sub new {
               . $topic
               . '.txt,v';
         }
+        ASSERT(defined($this->{rcsFile})) if DEBUG;
     }
 
     # Default to remembering changes for a month
