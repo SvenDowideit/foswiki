@@ -90,8 +90,8 @@ sub test_CreateWeb {
     my $it     = $webObject->eachTopic();
     my @topics = $it->all();
     Foswiki::Store->remove(address=>$webObject);
-    $webObject = Foswiki::Meta->new( $this->{session}, '_default' );
-    $it = $webObject->eachTopic();
+
+    $it = Foswiki::Store->eachTopic(address=>{web=>'_default'});
     my @defaultTopics = $it->all();
     $this->assert_equals( $#topics, $#defaultTopics,
         join( ",", @topics ) . " != " . join( ',', @defaultTopics ) );
@@ -152,8 +152,7 @@ sub test_noForceRev {
     $this->assert( $rev == 1, $rev );
 
     #cleanup
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 sub test_ForceRev {
@@ -188,8 +187,7 @@ sub test_ForceRev {
     $this->assert( $rev == 2 );
 
     #cleanup
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 sub test_CreateSimpleTextTopic {
@@ -205,8 +203,7 @@ sub test_CreateSimpleTextTopic {
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
     my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     $this->assert_str_equals( $text, $readMeta->text );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 sub test_CreateSimpleMetaTopic {
@@ -233,8 +230,7 @@ sub test_CreateSimpleMetaTopic {
           #$m->{_indices} = undef;
     }
     $this->assert_deep_equals( $meta, $readMeta );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 sub test_getRevisionInfo {
@@ -265,8 +261,7 @@ sub test_getRevisionInfo {
 
  #TODO
  #getRevisionDiff (  $web, $topic, $rev1, $rev2, $contextLines  ) -> \@diffArray
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 sub test_getRevisionInfoNoRcsFile {
@@ -353,8 +348,7 @@ sub test_moveTopic {
 
     #compare number of refering topics?
     #compare list of references to moved topic
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 
 }
 
@@ -383,8 +377,7 @@ sub test_leases {
     $m->clearLease( $web, $testtopic );
     $lease = $m->getLease( $web, $testtopic );
     $this->assert_null($lease);
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 # Handler used in next test
@@ -440,8 +433,7 @@ sub test_beforeSaveHandlerChangeText {
     # set expected meta
     $meta->putKeyed( 'FIELD', { name => 'fieldname', value => 'text' } );
     $this->assert_str_equals( $meta->stringify(), $readMeta->stringify() );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 sub test_beforeSaveHandlerChangeMeta {
@@ -542,8 +534,7 @@ sub test_beforeSaveHandlerChangeBoth {
         delete $readMeta->get('TOPICINFO')->{$fld};
     }
     $this->assert_str_equals( $meta->stringify(), $readMeta->stringify() );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    Foswiki::Store->remove(address=>$webObject);
+    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 # Handler used in next test
