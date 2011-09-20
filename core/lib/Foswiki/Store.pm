@@ -159,7 +159,7 @@ sub load {
         }
 
         #throw Error::Simple('Cannot load: '.$args{address}->stringify())
-        die 'okok'
+        die 'cant load '.$args{address}->getPath()
           unless ( defined($result) );
       }
 
@@ -204,13 +204,116 @@ sub load {
    * from=>address (like copy, but without commit)
    * cuid=>$cuid (canonical user id) - if undefined, presume 'admin' (or no perms check) access
    * writeable=>1
-
+   
 returns an object of the appropriate type from the Foswiki::Object:: hieracy
 
 =cut
 
 sub create {
     return template_function( 'create', @_ );
+}
+
+=begin TML
+
+---++ ObjectMethod __internal_save( %options  ) -> $rev
+
+Save the current topic to a store location. Only works on topics.
+*without* invoking plugins handlers.
+   * =%options= - Hash of options, may include:
+      * =forcenewrevision= - force an increment in the revision number,
+        even if content doesn't change.
+      * =dontlog= - don't include this change in statistics
+      * =minor= - don't notify this change
+      * =savecmd= - Save command (core use only)
+      * =forcedate= - force the revision date to be this (core only)
+      * =author= - cUID of author of change (core only - default current user)
+
+Note that the %options are passed on verbatim from Foswiki::Func::saveTopic,
+so an extension author can in fact use all these options. However those
+marked "core only" are for core use only and should *not* be used in
+extensions.
+
+Returns the saved revision number.
+
+=cut
+
+# SMELL: arguably save should only be permitted if the loaded rev
+# of the object is the same as the latest rev.
+sub save {
+    shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
+
+    ASSERT( scalar(@_) % 2 == 0 ) if DEBUG;
+    my %args = @_;
+    my $cUID = $args{author} || $args{cuid} || $singleton->{cuid};
+
+    if ($args{address}->type() ne 'topic') {
+        #attachments don't have reprev mess?
+        return _Simple_save(%args);
+    }
+
+    unless ( $args{address}->{topic} eq $Foswiki::cfg{WebPrefsTopicName} ) {
+
+        # Don't verify web existance for WebPreferences, as saving
+        # WebPreferences creates the web.
+        unless ( Foswiki::Store->exists(address=> {web=> $args{address}->web()}  )) {
+            throw Error::Simple( 'Unable to save topic '
+                  . $args{address}->{topic}
+                  . ' - web '
+                  . $args{address}->{web}
+                  . ' does not exist' );
+        }
+    }
+
+    $args{address}->_atomicLock($cUID);
+    my $i = Foswiki::Store->getRevisionHistory(address=>$args{address});
+    my $currentRev = $i->hasNext() ? $i->next() : 1;
+    try {
+        if ( $currentRev && !$args{forcenewrevision} ) {
+            # See if we want to replace the existing top revision
+            my $mtime1 =
+              Foswiki::Store->getApproxRevTime( address=>$args{address} );
+            my $mtime2 = time();
+            my $dt     = abs( $mtime2 - $mtime1 );
+
+            if ( $dt < $Foswiki::cfg{ReplaceIfEditedAgainWithin} ) {
+                my $info = Foswiki::Store->getVersionInfo(address=>$args{address});
+                # same user?
+                if ( $info->{author} eq $cUID ) {
+
+                    # reprev is required so we can tell when a merge is
+                    # based on something that is *not* the original rev
+                    # where another users' edit started.
+                    $info->{reprev} = $info->{version};
+                    $info->{date} = $args{forcedate} || time();
+                    $args{address}->setRevisionInfo(%$info);
+                    Foswiki::Store->repRev( address=>$args{address}, cuid=>$cUID, %args );
+                    $args{address}->{_loadedRev} = $currentRev;
+                    return $currentRev;
+                }
+            }
+        }
+        my $nextRev = Foswiki::Store->getNextRevision(address=>$args{address});
+        $args{address}->setRevisionInfo(
+            date => $args{forcedate} || time(),
+            author  => $cUID,
+            version => $nextRev,
+        );
+
+        my $checkSave =
+          Foswiki::Store->_Simple_save( address=>$args{address}, cuid=>$cUID, %args );
+        ASSERT( $checkSave == $nextRev, "$checkSave != $nextRev" ) if DEBUG;
+        $args{address}->{_loadedRev} = $nextRev;
+    }
+    finally {
+        $args{address}->_atomicUnlock($cUID);
+        $args{address}->fireDependency();
+    };
+    return $args{address}->{_loadedRev};
+}
+
+#TODO: kill this. make it a param to save.
+sub repRev {
+    return template_function( 'repRev', @_ );
 }
 
 =pod
@@ -232,7 +335,7 @@ Returns the new revision identifier.
 
 =cut
 
-sub save {
+sub _Simple_save {
     return template_function( 'save', @_ );
 }
 
@@ -297,6 +400,7 @@ sub move {
 =cut
 
 sub copy {
+    die 'is there a good reason to do this?';
     return template_function( 'copy', @_ );
 }
 
@@ -656,7 +760,7 @@ sub template_function {
 
     my $result;
     $args{address} = $singleton->getResourceAddressOrCachedResource($args{address});
-    die "recursion? - $functionname(".$singleton->{count}{$functionname}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{$functionname}{$args{address}->getPath()}++ > 10);
+    #die "recursion? - $functionname(".$singleton->{count}{$functionname}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{$functionname}{$args{address}->getPath()}++ > 10);
 
     #print STDERR "-call: $functionname: ".($args{address}->getPath())."\n";
 
@@ -700,7 +804,11 @@ sub template_function {
                     ($functionname eq 'setLease') or 
                     ($functionname eq 'getLease') or 
                     ($functionname eq 'atomicLockInfo') or 
-                    ($functionname eq 'atomicLock')
+                    ($functionname eq 'atomicLock') or
+                    ($functionname eq 'eachWeb') or
+                    ($functionname eq 'eachTopic') or
+                    ($functionname eq 'eachAttachment') or
+                    1==0
                     ) {
             #use Data::Dumper;
             #print STDERR "-$functionname => ".(defined($result)?Dumper($result):'undef')."\n";

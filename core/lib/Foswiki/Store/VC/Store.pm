@@ -318,15 +318,20 @@ sub getVersionInfo {
 
 sub saveAttachment {
     my ( $this, %args ) = @_;
-    my $handler    = $this->getHandler( $args{address}, $args{attachment} );
+    
+    $args{address}->attachment($args{attachment}) if (defined($args{attachment}));
+    
+    my $handler    = $this->getHandler( $args{address} );
     my $currentRev = $handler->getLatestRevisionID();
     my $nextRev    = $currentRev + 1;
-    my $verb = ( $args{address}->hasAttachment($args{attachment}) ) ? 'update' : 'insert';
-    $handler->addRevisionFromStream( $args{stream}, $args{comment}, $args{cuid} );
+    #my $verb = ( $args{address}->hasAttachment($args{attachment}) ) ? 'update' : 'insert';
+    my $verb = ( exists($args{address}) ) ? 'update' : 'insert';
+
+    $handler->addRevisionFromStream( $args{stream}, 'save attachment', $args{cuid} );
     $this->tellListeners(
         verb          => $verb,
         newmeta       => $args{address},
-        newattachment => $args{attachment}
+        newattachment => $args{address}->attachment()
     );
     $handler->recordChange( $args{cuid}, $nextRev );
     return $nextRev;
@@ -459,9 +464,9 @@ sub topicExists {
 }
 
 sub getApproxRevTime {
-    my ( $this, $web, $topic ) = @_;
+    my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler( $web, $topic );
+    my $handler = $this->getHandler($args{address});
     return $handler->getLatestRevisionTime();
 }
 
@@ -482,9 +487,11 @@ sub eachAttachment {
 }
 
 sub eachTopic {
-    my ( $this, $webObject ) = @_;
+    my ( $this, %args ) = @_;
+    
+    ASSERT($args{address}->type() eq 'webpath') if DEBUG;
 
-    my $handler = $this->getHandler($webObject);
+    my $handler = $this->getHandler($args{address});
     my @list    = $handler->getTopicNames();
 
     require Foswiki::ListIterator;
@@ -638,20 +645,48 @@ sub exists {
     die "can't call exists(".$args{address}->getPath().") cos its type = $type " if DEBUG;
 }
 
+#create a writeable item that might not exist? - need to give the func a better name i think
+#atm create really only is coded for a new, non-existant obj that will be created
 sub create {
     my $this = shift;
     my %args = @_;
     ASSERT($args{address}) if DEBUG;
+    #print STDERR "create ".$args{address}->getPath()."\n";
+    ASSERT(not $this->exists(address=>$args{address})) if DEBUG;
+    
     my $type = $args{address}->type();
+    
+    #make sure we're trying to default the values from the same type of obj.
+    if (defined($args{from})) {
+        if (ref($args{from}) ne 'Foswiki::Meta') {
+            #need to do this to allow copying from another store backend
+            $args{from} = Foswiki::Store->load(address=>$args{from});
+        }
+
+        ASSERT($type eq $args{from}->type()) if DEBUG;
+        #now copy the 'data' ..
+        #use slices?
+        #TODO: move this from manipulation into Foswiki::Store??...
+        
+        if (defined($args{data})) {
+            my %data = %{$args{data}};
+            #%{$args{data}} = (%{$args{from}}, %{$args{data}});
+            @{$args{data}}{keys(%{$args{from}})} = values(%{$args{from}});
+            @{$args{data}}{keys(%data)} = values(%data);
+        } else {
+            $args{data} = {};
+        }
+    }
+    
     ASSERT($type) if DEBUG;
     if ($type eq 'webpath') {
-        my $newResource =  Foswiki::Meta->NEWnew( @_ );
+        my $newResource =  Foswiki::Meta->NEWnew( %args );
         return $newResource;
     } elsif ($type eq 'topic') {
-        my $newResource =  Foswiki::Meta->NEWnew( @_ );
+        my $newResource =  Foswiki::Meta->NEWnew( %args );
         return $newResource;
     } 
-    die "can't call load($type)" if DEBUG;
+    die "can't call create($type)" if DEBUG;
 }
 
 sub move {
@@ -727,7 +762,7 @@ sub log {
 __END__
 Module of Foswiki Enterprise Collaboration Platform, http://Foswiki.org/
 
-Copyright (C) 2008-2010 Foswiki Contributors. All Rights Reserved.
+Copyright (C) 2008-2011 Foswiki Contributors. All Rights Reserved.
 Foswiki Contributors are listed in the AUTHORS file in the root of
 this distribution. NOTE: Please extend that file, not this notice.
 
