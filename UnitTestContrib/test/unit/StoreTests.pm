@@ -87,6 +87,9 @@ sub verify_CreateEmptyWeb {
     $this->assert_equals( 1, scalar(@topics), $tops )
       ;    #we expect there to be only the preferences topic
     $this->assert_equals($Foswiki::cfg{WebPrefsTopicName}, $tops);
+    
+    #this is not a fixture, so we need to remove it ourselves
+    Foswiki::Store->remove( address=>{web=>$emptyweb} );
 }
 
 # Create a web using _default template
@@ -137,7 +140,6 @@ sub verify_CreateWebWithNonExistantBaseWeb {
 sub verify_CreateSimpleTextTopic {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -151,8 +153,6 @@ sub verify_CreateSimpleTextTopic {
 
     my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     $this->assert_str_equals( $text, $readMeta->text );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $web );
-    $webObject->removeFromStore();
 }
 
 # Save a second version of a topic, without forcing a new revision. Should
@@ -222,23 +222,6 @@ sub verify_ForceRev {
     ( $date, $user, $rev, $comment ) =
       Foswiki::Func::getRevisionInfo( $web, $topic );
     $this->assert_num_equals( 2, $rev );
-
-    #cleanup
-}
-
-sub test_CreateSimpleTextTopic {
-    my $this = shift;
-
-    $this->assert( $this->{session}->webExists($web) );
-    $this->assert( !$this->{session}->topicExists( $web, $topic ) );
-
-    my $text = "This is some test text\n   * some list\n   * content\n :) :)";
-    my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
-    $meta->save();
-    $this->assert( $this->{session}->topicExists( $web, $topic ) );
-    my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
-    $this->assert_str_equals( $text, $readMeta->text );
-    #Foswiki::Store->remove(address=>{web=>$web});
 }
 
 # Create a simple topic containing meta-data
@@ -254,7 +237,7 @@ sub verify_CreateSimpleMetaTopic {
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
     my ( $date, $user, $rev, $comment ) =
       Foswiki::Func::getRevisionInfo( $web, $topic );
-    $this->assert_num_equals( 2, $rev );
+    $this->assert_num_equals( 1, $rev );
 
     my $readMeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     $this->assert_equals( '', $readMeta->text );
