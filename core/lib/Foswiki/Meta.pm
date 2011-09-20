@@ -445,6 +445,7 @@ sub NEWnew {
     #copy the Foswiki::Address obj (which by this time it is :/)
     my $this = (ref($class) || $class)->SUPER::new( $args{address} );
     #TODO: fix the Foswiki::Address constructor to allow inheritance
+    #TODO: should only copy the keys that are registered data
     @{$this}{keys(%{$args{data}})} = values(%{$args{data}}) if (defined($args{data}));
     
     #TODO: remove this.
@@ -881,8 +882,9 @@ sub populateNewWeb {
             my $topic = $it->next();
             next unless ( $sys || $topic =~ /^Web/ );
             my $to =
-              Foswiki::Meta->load( $this->{_session}, $templateWeb, $topic );
-            $to->saveAs( $this->{web}, $topic, ( forcenewrevision => 1 ) );
+              Foswiki::Store->load( create=>1, address=>{web=>$this->web(), topic=>$topic}, from=>{web=>$templateWeb->web(), topic=>$topic} );
+            $to->save( forcenewrevision => 1);
+            #$to->saveAs( $this->{web}, $topic, ( forcenewrevision => 1 ) );
         }
     }
 
@@ -1861,7 +1863,7 @@ sub save {
     my $signal;
     my $newRev;
     try {
-        $newRev = $this->__internal_save( %opts );
+        $newRev = Foswiki::Store->save(%opts, address=>$this);
     }
     catch Error::Simple with {
         $signal = shift;
@@ -1890,103 +1892,6 @@ sub save {
     );
 
     return $newRev;
-}
-
-=begin TML
-
----++ ObjectMethod __internal_save( %options  ) -> $rev
-
-Save the current topic to a store location. Only works on topics.
-*without* invoking plugins handlers.
-   * =%options= - Hash of options, may include:
-      * =forcenewrevision= - force an increment in the revision number,
-        even if content doesn't change.
-      * =dontlog= - don't include this change in statistics
-      * =minor= - don't notify this change
-      * =savecmd= - Save command (core use only)
-      * =forcedate= - force the revision date to be this (core only)
-      * =author= - cUID of author of change (core only - default current user)
-
-Note that the %options are passed on verbatim from Foswiki::Func::saveTopic,
-so an extension author can in fact use all these options. However those
-marked "core only" are for core use only and should *not* be used in
-extensions.
-
-Returns the saved revision number.
-
-=cut
-
-# SMELL: arguably save should only be permitted if the loaded rev
-# of the object is the same as the latest rev.
-sub __internal_save {
-    my $this = shift;
-    ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
-      if DEBUG;
-    ASSERT( scalar(@_) % 2 == 0 ) if DEBUG;
-    my %opts = @_;
-    my $cUID = $opts{author} || $this->{_session}->{user};
-    ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
-      if DEBUG;
-
-    unless ( $this->{topic} eq $Foswiki::cfg{WebPrefsTopicName} ) {
-
-        # Don't verify web existance for WebPreferences, as saving
-        # WebPreferences creates the web.
-        unless ( Foswiki::Store->exists(address=> {web=> $this->web()}  )) {
-            throw Error::Simple( 'Unable to save topic '
-                  . $this->{topic}
-                  . ' - web '
-                  . $this->{web}
-                  . ' does not exist' );
-        }
-    }
-
-    $this->_atomicLock($cUID);
-    my $i = Foswiki::Store->getRevisionHistory(address=>$this);
-    my $currentRev = $i->hasNext() ? $i->next() : 1;
-    try {
-        if ( $currentRev && !$opts{forcenewrevision} ) {
-
-            # See if we want to replace the existing top revision
-            my $mtime1 =
-              Foswiki::Store->getApproxRevTime( address=>$this );
-            my $mtime2 = time();
-            my $dt     = abs( $mtime2 - $mtime1 );
-            if ( $dt < $Foswiki::cfg{ReplaceIfEditedAgainWithin} ) {
-                my $info = Foswiki::Store->getVersionInfo(address=>$this);
-
-                # same user?
-                if ( $info->{author} eq $cUID ) {
-
-                    # reprev is required so we can tell when a merge is
-                    # based on something that is *not* the original rev
-                    # where another users' edit started.
-                    $info->{reprev} = $info->{version};
-                    $info->{date} = $opts{forcedate} || time();
-                    $this->setRevisionInfo(%$info);
-                    Foswiki::Store->repRev( address=>$this, cuid=>$cUID, %opts );
-                    $this->{_loadedRev} = $currentRev;
-                    return $currentRev;
-                }
-            }
-        }
-        my $nextRev = Foswiki::Store->getNextRevision(address=>$this);
-        $this->setRevisionInfo(
-            date => $opts{forcedate} || time(),
-            author  => $cUID,
-            version => $nextRev,
-        );
-
-        my $checkSave =
-          Foswiki::Store->save( address=>$this, cuid=>$cUID, %opts );
-        ASSERT( $checkSave == $nextRev, "$checkSave != $nextRev" ) if DEBUG;
-        $this->{_loadedRev} = $nextRev;
-    }
-    finally {
-        $this->_atomicUnlock($cUID);
-        $this->fireDependency();
-    };
-    return $this->{_loadedRev};
 }
 
 # An atomic lock will cause other
@@ -2124,8 +2029,9 @@ sub move {
             # save the metadata change without logging
             $this->save(
                 dontlog => 1, # no statistics
+                cuid=>$cUID
             );
-            Foswiki::Store->move( from=>$from, address=>$to, user=>$cUID );
+            Foswiki::Store->move( from=>$from, address=>$to, cuid=>$cUID );
             $to = Foswiki::Store->load( address=>$to );
             ASSERT( defined($to) ) if DEBUG;
         }
@@ -2710,7 +2616,8 @@ sub attach {
         my $error;
         try {
             Foswiki::Store
-              ->save( address=>$this, attachment=>$opts{name}, stream=>$opts{stream},
+#              ->save( address=>$this, attachment=>$opts{name}, stream=>$opts{stream},
+              ->save( address=>Foswiki::Address->new(web=>$this->web(), topic=>$this->topic(), attachment=>$opts{name}), stream=>$opts{stream},
                 cuid=>($opts{author} || $this->{_session}->{user}) );
         }
         finally {

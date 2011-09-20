@@ -65,15 +65,18 @@ sub tear_down {
 # tests
 sub test_CreateEmptyWeb {
     my $this = shift;
+    
+    my $emptyweb = $web.'__empty';
 
     #create an empty web
-    my $webObject = Foswiki::Store->load( create=>1, address=>{web=>$web} );
+    my $webObject = Foswiki::Store->load( create=>1, address=>{web=>$emptyweb} );
+    $this->assert( not $this->{session}->webExists($emptyweb) );
     $webObject->populateNewWeb();
-    $this->assert( $this->{session}->webExists($web) );
+    $this->assert( $this->{session}->webExists($emptyweb) );
     my @topics = $webObject->eachTopic()->all();
-    $this->assert_equals( 1, scalar(@topics), join( " ", @topics ) )
+    $this->assert_equals( 1, scalar(@topics), 'topics: ('.join( " ", @topics ).')' )
       ;    #we expect there to be only the home topic
-    Foswiki::Store->remove(address=>$webObject);
+    #Foswiki::Store->remove(address=>$webObject);
 }
 
 sub test_CreateWeb {
@@ -89,7 +92,6 @@ sub test_CreateWeb {
     $this->assert_equals( 'on',      $webObject->getPreference('SITEMAPLIST') );
     my $it     = $webObject->eachTopic();
     my @topics = $it->all();
-    Foswiki::Store->remove(address=>$webObject);
 
     $it = Foswiki::Store->eachTopic(address=>{web=>'_default'});
     my @defaultTopics = $it->all();
@@ -123,7 +125,6 @@ sub test_CreateWebWithNonExistantBaseWeb {
 sub test_noForceRev {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -150,15 +151,11 @@ sub test_noForceRev {
     ( $date, $user, $rev, $comment ) =
       Foswiki::Func::getRevisionInfo( $web, $topic );
     $this->assert( $rev == 1, $rev );
-
-    #cleanup
-    Foswiki::Store->remove(address=>{web=>$web});
 }
 
 sub test_ForceRev {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -193,7 +190,6 @@ sub test_ForceRev {
 sub test_CreateSimpleTextTopic {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -209,7 +205,6 @@ sub test_CreateSimpleTextTopic {
 sub test_CreateSimpleMetaTopic {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -235,8 +230,6 @@ sub test_CreateSimpleMetaTopic {
 
 sub test_getRevisionInfo {
     my $this = shift;
-
-    Foswiki::Func::createWeb( $web, '_default' );
 
     $this->assert( $this->{session}->webExists($web) );
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
@@ -267,7 +260,6 @@ sub test_getRevisionInfo {
 sub test_getRevisionInfoNoRcsFile {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
 
     my $ttext = <<DONE;
@@ -318,7 +310,6 @@ DONE
 sub test_moveTopic {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
     my $meta = Foswiki::Store->create( address=>{web=>$web, topic=>$topic}, data=>{_text=>$text} );
@@ -355,7 +346,6 @@ sub test_moveTopic {
 sub test_leases {
     my $this = shift;
 
-    Foswiki::Func::createWeb( $web, '_default' );
     my $testtopic = $Foswiki::cfg{HomeTopicName};
 
     my $m = Foswiki::Store->create(address=>{web=> $web, topic=>$testtopic} );
@@ -400,7 +390,6 @@ sub test_beforeSaveHandlerChangeText {
         value => "fieldvalue",
     };
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -443,7 +432,6 @@ sub test_beforeSaveHandlerChangeMeta {
         value => "fieldvalue",
     };
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -500,7 +488,6 @@ sub test_beforeSaveHandlerChangeBoth {
         value => "fieldvalue",
     };
 
-    Foswiki::Func::createWeb( $web, '_default' );
     $this->assert( $this->{session}->webExists($web) );
     $this->assert( !$this->{session}->topicExists( $web, $topic ) );
 
@@ -637,7 +624,6 @@ sub test_attachmentSaveHandlers_file {
     print FILE "call call call";
     close(FILE);
 
-    Foswiki::Func::createWeb( $web, '_default' );
     my $meta = Foswiki::Store->create(address=>{web=>$web, topic=>$topic}, data=>{_text=>''});
     $meta->save();
 
@@ -665,7 +651,6 @@ sub test_attachmentSaveHandlers_stream {
     print FILE "call call call";
     close(FILE);
 
-    Foswiki::Func::createWeb( $web, '_default' );
     my $meta = Foswiki::Store->create(address=>{web=>$web, topic=>$topic}, data=>{_text=>''});
     $meta->save();
 
@@ -694,7 +679,6 @@ sub test_attachmentSaveHandlers_file_and_stream {
     print FILE "call call call";
     close(FILE);
 
-    Foswiki::Func::createWeb( $web, '_default' );
     my $meta = Foswiki::Store->create(address=>{web=>$web, topic=>$topic}, data=>{_text=>''});
     $meta->save();
 
@@ -719,7 +703,7 @@ sub test_attachmentSaveHandlers_file_and_stream {
 
 sub test_eachChange {
     my $this = shift;
-    Foswiki::Func::createWeb($web);
+
     $Foswiki::cfg{Store}{RememberChangesFor} = 5;    # very bad memory
     sleep(1);
     my $start = time();
@@ -732,9 +716,9 @@ sub test_eachChange {
     # Wait a second
     sleep(1);
     my $mid = time();
-    $meta = Foswiki::Store->create(address=>{web=>$web, topic=>"ClutterBuck"}, data=>{_text=>"One"} );
+    $meta = Foswiki::Store->load(address=>{web=>$web, topic=>"ClutterBuck"}, data=>{_text=>"One"} );
     $meta->save( forcenewrevision => 1 );
-    $meta = Foswiki::Store->create(address=>{web=>$web, topic=>"PiggleNut"}, data=>{_text=>"Two"} );
+    $meta = Foswiki::Store->load(address=>{web=>$web, topic=>"PiggleNut"}, data=>{_text=>"Two"} );
     $meta->save( forcenewrevision => 1 );
     my $change;
     my $it = Foswiki::Store->eachChange( address=>$meta, time=>$start );
@@ -777,7 +761,7 @@ sub test_eachAttachment {
     );
 
     my $meta =
-        Foswiki::Store->create( address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>'One'} );
+        Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>'One'} );
     $meta->attach(
         name    => "testfile.gif",
         file    => "$Foswiki::cfg{TempfileDir}/testfile.gif",

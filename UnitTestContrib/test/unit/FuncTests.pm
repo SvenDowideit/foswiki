@@ -148,6 +148,30 @@ END
         "Test should have created the web" );
 }
 
+sub test_CreateWebShouldFailIfWebExists {
+    my $this = shift;
+    use Error qw( :try );
+    use Foswiki::AccessControlException;
+
+    $this->{session}->finish();
+    $this->{session} = new Foswiki( $Foswiki::cfg{AdminUserLogin} );
+
+    $this->assert( Foswiki::Func::webExists( $this->{test_web} ));
+
+    my $asserted = 0;
+    try {
+        Foswiki::Func::createWeb( $this->{test_web} );
+    }
+    catch Error::Simple with {
+        my $e = shift;
+        $this->assert_matches(
+            qr/^web TemporaryFuncTestWebFunc exists.*/,
+            $e, "Unexpected error $e" );
+            $asserted = 1;
+    }
+    $this->assert( $asserted );
+}
+
 sub test_Item9021 {
     my $this = shift;
     use Error qw( :try );

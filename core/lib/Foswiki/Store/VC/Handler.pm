@@ -340,7 +340,6 @@ sub getTopicNames {
     my $dh;
     opendir( $dh, "$Foswiki::cfg{DataDir}/$this->{web}" )
       or return ();
-
     # the name filter is used to ensure we don't return filenames
     # that contain illegal characters as topic names.
     my @topicList =
@@ -838,7 +837,7 @@ sub moveFile {
 # Used by subclasses
 sub saveFile {
     my ( $this, $name, $text ) = @_;
-
+    
     $this->mkPathTo($name);
     my $fh;
     open( $fh, '>', $name )
