@@ -2236,7 +2236,7 @@ sub inlineAlert {
 
     # web and topic can be anything; they are not used
     my $topicObject =
-      Foswiki::Meta->new( $this, $this->{webName}, $this->{topicName} );
+      Foswiki::Store->create( address=>{web=>$this->{webName}, topic=>$this->{topicName}} );
     my $text = $this->templates->readTemplate( 'oops' . $template );
     if ($text) {
         my $blah = $this->templates->expandTemplate($def);
@@ -3418,7 +3418,7 @@ sub _renderZone {
 
     unless ( defined $topicObject ) {
         $topicObject =
-          Foswiki::Meta->new( $this, $this->{webName}, $this->{topicName} );
+          Foswiki::Store->load( address=>{web=>$this->{webName}, topic=>$this->{topicName}} );
     }
 
     # Loop through the vertices of the graph, in any order, initiating

@@ -142,7 +142,7 @@ sub upgradeCategoryTable {
             }
         }
         my $prefs     = $session->{prefs};
-        my $webObject = Foswiki::Meta->new( $session, $web );
+        my $webObject = Foswiki::Store->load( address=>{web=>$web} );
         my $listForms = $webObject->getPreference('WEBFORMS');
         $listForms =~ s/^\s*//go;
         $listForms =~ s/\s*$//go;
