@@ -189,6 +189,13 @@ sub set_up {
 	    topicsout => ""
 	},
 
+	# Item11138: no trailing space after : incorrectly results in subscribe to all
+	{
+	    email => "email10\@example.com",
+	    entry => "email10\@example.com :",
+	    topicsout => ""
+	},
+
 	{
 	    email => "jeltz\@vogsphere.com",
 	    entry => "ProstectnicVogonJeltz - jeltz\@vogsphere.com",
@@ -883,6 +890,29 @@ sub test_changeSubscription_and_isSubScribedTo_API {
         !Foswiki::Contrib::MailerContrib::isSubscribedTo(
             $defaultWeb, $who, 'SomethingElse'
         )
+    );
+
+    # Tests for Item11131: unsubscribe a member of a group by adding a negative subscription
+
+    Foswiki::Contrib::MailerContrib::changeSubscription( $defaultWeb, 'TestGroup',
+        $topicList, $unsubscribe );
+
+    # Should be subscribed due to the group
+    $this->assert(
+        Foswiki::Contrib::MailerContrib::isSubscribedTo(
+            $defaultWeb, 'TestUser3', 'WebIndex'
+        )
+    );
+    $unsubscribe = '-';
+    Foswiki::Contrib::MailerContrib::changeSubscription( $defaultWeb, 'TestUser3',
+        $topicList, $unsubscribe );
+
+    # Cannot be unsubscribed as an exception to the group
+    $this->assert(
+        Foswiki::Contrib::MailerContrib::isSubscribedTo(
+            $defaultWeb, 'TestUser3', 'WebIndex'
+        ),
+        'User should still be subscribed as a group member'
     );
 
     #TODO: not quite implemented - needs a 'covers' test

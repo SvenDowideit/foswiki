@@ -64,7 +64,7 @@ sub finish {
 }
 
 # SMELL: this module does not respect $Foswiki::inUnitTestMode; tests
-# just sit on top of the store which is configured in the current LocalSite.
+# just sit on top of the store which is configured in the current $Foswiki::cfg.
 # Most of the time this is ok, as store listeners will be told that
 # the store is in test mode, so caches should be unaffected. However
 # it's very untidy, potentially risky, and causes grief when unit tests
@@ -107,19 +107,23 @@ sub readTopic {
     $text =~ s/\r//g;    # Remove carriage returns
     $args{address}->setEmbeddedStoreForm($text);
 
+    unless ($handler->noCheckinPending()) {
+	# If a checkin is pending, fix the TOPICINFO
+        my $ri = $args{address}->get('TOPICINFO');
+	my $truth = $handler->getInfo($args{rev});
+	for my $i qw(author version date) {
+	    $ri->{$i} = $truth->{$i};
+	}
+    }
+
     $gotRev = $args{rev};
     unless ( defined $gotRev ) {
 
-        # First try the just-loaded text for the revision
+        # First try the just-loaded for the revision.
         my $ri = $args{address}->get('TOPICINFO');
-        if ( defined($ri) ) {
-
-            # SMELL: this can end up overriding a correct rev no (the one
-            # requested) with an incorrect one (the one in the TOPICINFO)
-            $gotRev = $ri->{version};
-        }
+	$gotRev = $ri->{version} if defined $ri;
     }
-    if ( !$gotRev ) {
+    if ( !defined $gotRev ) {
 
         # No revision from any other source; must be latest
         $gotRev = $handler->getLatestRevisionID();
@@ -318,7 +322,7 @@ sub saveAttachment {
     my $currentRev = $handler->getLatestRevisionID();
     my $nextRev    = $currentRev + 1;
     my $verb = ( $args{address}->hasAttachment($args{attachment}) ) ? 'update' : 'insert';
-    $handler->addRevisionFromStream( $args{stream}, 'save attachment', $args{cuid} );
+    $handler->addRevisionFromStream( $args{stream}, $args{comment}, $args{cuid} );
     $this->tellListeners(
         verb          => $verb,
         newmeta       => $args{address},
@@ -337,11 +341,14 @@ sub saveTopic {
 
     my $verb = ( $args{address}->existsInStore() ) ? 'update' : 'insert';
 
+    # just in case they are not sequential
+    my $nextRev = $handler->getNextRevisionID();
+    my $ti = $args{address}->get('TOPICINFO');
+    $ti->{version} = $nextRev;
+    $ti->{author} = $args{cuid};
+
     $handler->addRevisionFromText( $args{address}->getEmbeddedStoreForm(),
         'save topic', $args{cuid}, $args{forcedate} );
-
-    # just in case they are not sequential
-    my $nextRev = $handler->getLatestRevisionID();
 
     my $extra = $args{minor} ? 'minor' : '';
     $handler->recordChange( $args{cuid}, $nextRev, $extra );
@@ -359,7 +366,7 @@ sub repRev {
     my $info    = $args{address}->getRevisionInfo();
     my $handler = $this->getHandler($args{address});
     $handler->replaceRevision( $args{address}->getEmbeddedStoreForm(),
-        'reprev', $info->{author}, $info->{date} );
+        'reprev', $args{cuid}, $info->{date} );
     $args{rev} = $handler->getLatestRevisionID();
     $handler->recordChange( $args{cuid}, $args{rev}, 'minor, reprev' );
 

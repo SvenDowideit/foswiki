@@ -8,6 +8,7 @@ use File::Path();
 use File::Copy();
 use File::Spec();
 use FindBin();
+use Cwd();
 
 my $usagetext = <<'EOM';
 pseudo-install extensions into a SVN (or git) checkout
@@ -24,42 +25,49 @@ by default). The default path includes current working directory & its parent.
 
 Usage: pseudo-install.pl -[G|C][feA][l|c|u] [all|default|developer|<module>
                                             |git://a.git/url, a@g.it:/url etc.]
-   -C[onfig]    - path to config file (default $HOME/.buildcontrib, or envar
-                                               $FOSWIKI_PSEUDOINSTALL_CONFIG)
-   -G[enerate]  - generate default psuedo-install config in $HOME/.buildcontrib
-   -f[orce]     - force an action to complete even if there are warnings
-   -e[nable]    - automatically enable installed plugins in LocalSite.cfg
-                  (default)
-   -m[anual]    - do not automatically enable installed plugins in LocalSite.cfg
-   -l[ink]      - create links %linkByDefault%
-   -c[opy]      - copy instead of linking %copyByDefault%
-   -u[ninstall] - self explanatory (doesn't remove dirs)
-   core         - install core (create and link derived objects)
-   all          - install core + all extensions (big job)
-   default      - install core + extensions listed in lib/MANIFEST
-   developer    - core + default + key developer environment
-   <module>...  - one or more extensions to install (by name or git URL)
-   -[A]utoconf  - make a simplistic LocalSite.cfg, using just the defaults in lib/Foswiki.spec
+  -C[onfig]    - path to config file (default $HOME/.buildcontrib, or envar
+                                              $FOSWIKI_PSEUDOINSTALL_CONFIG)
+  -G[enerate]  - generate default psuedo-install config in $HOME/.buildcontrib
+  -f[orce]     - force an action to complete even if there are warnings
+  -e[nable]    - automatically enable installed plugins in LocalSite.cfg
+                 (default)
+  -m[anual]    - do not automatically enable installed plugins in LocalSite.cfg
+  -l[ink]      - create links %linkByDefault%
+  -c[opy]      - copy instead of linking %copyByDefault%
+  -u[ninstall] - self explanatory (doesn't remove dirs)
+  core         - install core (create and link derived objects)
+  all          - install core + all extensions (big job)
+  default      - install core + extensions listed in lib/MANIFEST
+  developer    - core + default + key developer environment
+  <module>...  - one or more extensions to install (by name or git URL)
+  -[A]utoconf  - make a simplistic LocalSite.cfg, using just the defaults in lib/Foswiki.spec
 
 Examples:
-   softlink and enable FirstPlugin and SomeContrib
-       perl pseudo-install.pl -force -enable -link FirstPlugin SomeContrib
+  softlink and enable FirstPlugin and SomeContrib
+      perl pseudo-install.pl -force -enable -link FirstPlugin SomeContrib
    
-   check out a new trunk, create a default LocalSite.cfg, install and enable
-   all the plugins for the default distribution (and then run the unit tests)
-       svn co http://svn.foswiki.org/trunk
-       cd trunk/core
-       ./pseudo-install.pl -A developer
-       cd test/unit
-       ../bin/TestRunner.pl -clean FoswikiSuite.pm
+  Check out a new trunk, create a default LocalSite.cfg, install and enable
+  all the plugins for the default distribution (and then run the unit tests)
+      svn co http://svn.foswiki.org/trunk
+      cd trunk/core
+      ./pseudo-install.pl -A developer
+      cd test/unit
+      ../bin/TestRunner.pl -clean FoswikiSuite.pm
 
-   check out a new trunk using git, then install and enable an extension from
-   an abritrary git repository
-       git clone git://github.com/foswiki/core.git
-       cd core
-       ./pseudo-install.pl -A developer
-       ./pseudo-install.pl -e git@github.com:/me/MyPlugin.git
+  Create a git-repo-per-extension checkout: start by cloning core,
+      git clone git://github.com/foswiki/core.git
+      cd core
+  Then, install extensions (missing modules automatically cloned & configured
+  for git-svn against svn.foswiki.org; 'master' branch is svn's trunk, see [1]):
+      ./pseudo-install.pl developer
+  Install & enable an extension from an abritrary git repo
+      ./pseudo-install.pl -e git@github.com:/me/MyPlugin.git
+
+  * When using git clean, add the -x modifier to clean ignored files.  See [1]
+  * Each module's root has a .gitignore maintained w/list of derived files [1]
+  * [1] http://foswiki.org/Development/GitAndPseudoInstall
 EOM
+my %generated_files;
 my $install;
 my $basedir;
 my $CAN_LINK;
@@ -117,7 +125,8 @@ my %default_config = (
                 },
                 'Release01x00' => { path => 'branches/Release01x00' },
                 'Release01x01' => { path => 'branches/Release01x01' },
-                'trunk'        => { path => 'trunk' }
+                'trunk'        => { path => 'trunk' },
+                'scratch'      => { path => 'branches/scratch' }
             }
         },
         {
@@ -140,7 +149,7 @@ sub init {
     $FindBin::Bin =~ /(.*)/;    # core dir
     $basedir = $1;
     use re 'taint';
-    $parentdir             = "$basedir/..";
+    $parentdir = File::Spec->catdir( $basedir, '..' );
     $fetchedExtensionsPath = $parentdir;
     my $n = 0;
     $n++ while ( -e "testtgt$n" || -e "testlink$n" );
@@ -148,12 +157,17 @@ sub init {
       or die "$basedir is not writable: $!";
     print $testfile "";
     close $testfile;
-    eval {
+    $CAN_LINK = eval {
         symlink( "testtgt$n", "testlink$n" );
-        $CAN_LINK = 1;
+        1;
     };
+    if ($CAN_LINK) {
+        $install = \&just_link;
+    }
+    else {
+        $install = \&copy_in;
+    }
     unlink( "testtgt$n", "testlink$n" );
-    $install = $CAN_LINK ? \&just_link : \&copy_in;
 
     return;
 }
@@ -329,10 +343,10 @@ sub usage {
 
 sub findRelativeTo {
     my ( $startdir, $name ) = @_;
-    my @path = split( /[\\\/]+/, $startdir );
+    my @path = File::Spec->splitdir($startdir);
 
     while ( scalar(@path) > 0 ) {
-        my $found = join( '/', @path ) . '/' . $name;
+        my $found = File::Spec->catfile( @path, $name );
         return $found if -e $found;
         pop(@path);
     }
@@ -345,8 +359,10 @@ sub findModuleDir {
     my $moduleDir;
 
     foreach my $dir (@extensions_path) {
-        if ( -d "$dir/$module/" ) {
-            $moduleDir = "$dir/$module";
+        my $testDir = File::Spec->catdir( $dir, $module );
+
+        if ( -d $testDir ) {
+            $moduleDir = $testDir;
             last;
         }
     }
@@ -408,15 +424,20 @@ sub installModuleByName {
         warn "--> Could not find $module\n";
         return;
     }
-    $manifest =
-      findRelativeTo( "$moduleDir/lib/Foswiki/$subdir/$module/", 'MANIFEST' );
-    if ( !-e $manifest ) {
-        $manifest =
-          findRelativeTo( "$moduleDir/lib/TWiki/$subdir/$module/", 'MANIFEST' );
+    $moduleDir = Cwd::realpath($moduleDir);
+    $manifest  = findRelativeTo(
+        File::Spec->catdir( $moduleDir, 'lib', 'Foswiki', $subdir, $module ),
+        'MANIFEST' );
+    if ( not -e $manifest ) {
+        $manifest = findRelativeTo(
+            File::Spec->catdir( $moduleDir, 'lib', 'TWiki', $subdir, $module ),
+            'MANIFEST'
+        );
         $libDir = 'TWiki';
     }
     if ( -e $manifest ) {
         installFromMANIFEST( $module, $moduleDir, $manifest, $ignoreBlock );
+        update_gitignore_file($moduleDir);
     }
     else {
         $libDir = undef;
@@ -562,7 +583,7 @@ sub cloneModuleByName {
     my ($module)  = @_;
     my $cloned    = 0;
     my $repoIndex = 0;
-    my $moduleDir = "$config{clone_dir}/$module";
+    my $moduleDir = File::Spec->catdir( $config{clone_dir}, $module );
 
     while ( not $cloned and ( $repoIndex < scalar( @{ $config{repos} } ) ) ) {
         if ( $config{repos}->[$repoIndex]->{type} eq 'git' ) {
@@ -594,7 +615,8 @@ sub cloneModuleByName {
         print "It seems your 'core' checkout isn't connected to a svn repo... ";
         if ($svnRepo) {
             print "connecting\n";
-            connectGitRepoToSVNByRepoURL( 'core', "$config{clone_dir}/core",
+            connectGitRepoToSVNByRepoURL( 'core',
+                File::Spec->catdir( $config{clone_dir}, 'core' ),
                 $svnRepo->{url} );
         }
         else {
@@ -629,9 +651,10 @@ sub getSVNRepoByModuleBranchName {
 
 sub checkModuleByNameHasSVNBranch {
     my ( $module, $branch ) = @_;
+    my $moduleDir = File::Spec->catdir( $config{clone_dir}, $module );
 
     return do_commands(<<"HERE") ? 1 : 0;
-cd $config{clone_dir}/$module
+cd $moduleDir
 git config --get svn-remote.$branch.url
 HERE
 }
@@ -646,8 +669,8 @@ sub cloneModuleByURL {
 
 sub gitCloneFromURL {
     my ( $target, $source ) = @_;
-    my $command   = "cd $target && git clone $source";
-    my $moduleDir = "$target/" . urlToModuleName($source);
+    my $command = "cd $target && git clone $source";
+    my $moduleDir = File::Spec->catdir( $target, urlToModuleName($source) );
 
     if ( not -d $moduleDir ) {
         print "Trying clone from $source...\n";
@@ -666,47 +689,50 @@ sub installFromMANIFEST {
 
     trace "Using manifest from $manifest";
 
-    open( my $df, '<', $manifest ) or die $!;
+    open( my $df, '<', $manifest )
+      or die "Cannot open manifest $manifest for reading: $!";
     foreach my $file (<$df>) {
         chomp($file);
         next unless $file =~ /^\w+/;
         $file =~ s/\s.*$//;
-        next if -d "$moduleDir/$file";
+        next if -d File::Spec->catdir( $moduleDir, $file );
         $file = untaint($file);
-        my $dir = $file;
-        $dir =~ s/\/[^\/]*$//;
+        my ( undef, $dir ) = File::Spec->splitpath($file);
         $install->( $moduleDir, $dir, $file, $ignoreBlock );
+
+        # Unlink zip generated by compression. This is inefficient, but
+        # the alternative is comparing file dates, which is hard work.
+        if ( -f File::Spec->catfile( $moduleDir, $file ) && $file =~ /\.gz$/ ) {
+            unlink _cleanPath( File::Spec->catfile( $moduleDir, $file ) );
+        }
 
         if ($installing) {
 
-            # Unlink zip generated by compression. This is inefficient, but
-            # the alternative is comparing file dates, which is hard work.
-            if ( -f "$moduleDir/$file" && $file =~ /\.gz$/ ) {
-                unlink _cleanPath("$moduleDir/$file");
-            }
-
             # Special cases for derived objects created by compression and/or
             # zipping.
-            my $found = -f "$moduleDir/$file";
+            my $found = -f File::Spec->catfile( $moduleDir, $file );
 
             unless ($found) {
                 $found = generateAlternateVersion( $moduleDir, $dir, $file,
                     $CAN_LINK );
             }
             unless ($found) {
-                warn
-                  "WARNING: Cannot find source file for $moduleDir/#/$file\n";
+                warn 'WARNING: Cannot find source file for '
+                  . File::Spec->catfile( $moduleDir, $file ) . "\n";
             }
         }
     }
     close $df;
 
-    if ( -d "$moduleDir/test/unit/$module" ) {
-        opendir( $df, "$moduleDir/test/unit/$module" );
+    if ( -d File::Spec->catdir( $moduleDir, 'test', 'unit', $module ) ) {
+        opendir( $df,
+            File::Spec->catdir( $moduleDir, 'test', 'unit', $module ) );
         foreach my $f ( grep { /\.pm$/ } readdir($df) ) {
             $f = untaint($f);
             $install->(
-                $moduleDir, "test/unit/$module", "test/unit/$module/$f",
+                $moduleDir,
+                File::Spec->catdir( 'test', 'unit', $module ),
+                File::Spec->catfile( 'test', 'unit', $module, $f ),
                 $ignoreBlock
             );
         }
@@ -748,7 +774,8 @@ sub installFromMANIFEST {
     if ( $installing and $autoconf ) {
 
         # Read current LocalSite.cfg to see if the current module is enabled
-        my $localSiteCfg = $basedir . '/lib/LocalSite.cfg';
+        my $localSiteCfg =
+          File::Spec->catfile( $basedir, 'lib', 'LocalSite.cfg' );
         open my $lsc, '<', $localSiteCfg
           or die "Cannot open $localSiteCfg for reading: $!";
         my $enabled = 0;
@@ -767,7 +794,8 @@ sub installFromMANIFEST {
                     my $moduleName = $2;
                     $moduleName =~ s#::#/#g;
                     $moduleName =~ s#'##g;
-                    $spec = "$basedir/lib/$moduleName/Config.spec";
+                    $spec = File::Spec->catfile( $basedir, 'lib', $moduleName,
+                        'Config.spec' );
                 }
             }
         }
@@ -799,34 +827,50 @@ sub installFromMANIFEST {
     return;
 }
 
+sub package_exists {
+    my ($mod) = @_;
+    local @INC = @INC;
+    my @curdir = File::Spec->splitdir( File::Spec->curdir() );
+
+    # Add ./lib to front of INC path
+    unshift( @INC, File::Spec->catdir( @curdir, 'lib' ) );
+
+    # Add ./lib/CPAN/lib to end of INC path
+    push( @INC, File::Spec->catdir( @curdir, qw(lib CPAN lib) ) );
+    no re 'taint';
+    $mod =~ /^([\w:]+)$/;
+    $mod = $1;
+    use re 'taint';
+
+    {
+        local $SIG{__WARN__};
+        return eval "require $mod; 1"
+    }
+}
+
 sub satisfyDependency {
     my ( $mod, $cond, $type, $mess ) = @_;
 
     # First see if we can find it in the install or @INC path
-    my $f = $mod;
-    $f =~ s#::#/#g;
-    foreach my $dir ( './lib', @INC, './lib/CPAN/lib' ) {
-        if ( -e "$dir/$f.pm" ) {
-
-            # Found it
-            # TODO: check the version
-            trace "$mod is already installed";
-            return;
-        }
-    }
-    trace "$mod is not installed";
-
-    # Not found, is it required?
-    if ( $mess !~ /^required/i ) {
-        warn "$mod is an optional dependency, but is not installed\n";
-        return;
-    }
-    if ( $type eq 'perl' && $mod =~ /^Foswiki/ ) {
-        error
-"**** $mod is a required Foswiki dependency, but it is not installed\n";
+    if ( package_exists($mod) ) {
+        trace "$mod is already installed";
     }
     else {
-        error "**** $mod is a required dependency, but it is not installed\n";
+        trace "$mod is not installed";
+
+        # Not found, is it required?
+        if ( $mess !~ /^required/i ) {
+            warn "$mod is an optional dependency, but is not installed\n";
+            return;
+        }
+        if ( $type eq 'perl' && $mod =~ /^Foswiki/ ) {
+            error
+"**** $mod is a required Foswiki dependency, but it is not installed\n";
+        }
+        else {
+            error
+              "**** $mod is a required dependency, but it is not installed\n";
+        }
     }
 
     return;
@@ -834,25 +878,26 @@ sub satisfyDependency {
 
 sub linkOrCopy {
     my ( $moduleDir, $source, $target, $link ) = @_;
+    my $srcfile = File::Spec->catfile( $moduleDir, $source );
+    my $dstfile = File::Spec->catfile( $moduleDir, $target );
 
-    trace '...'
-      . ( $link ? 'link' : 'copy' )
-      . " $moduleDir/$source to $moduleDir/$target";
+    trace '...' . ( $link ? 'link' : 'copy' ) . " $srcfile to $dstfile";
     if ($link) {
-        symlink(
-            _cleanPath("$moduleDir/$source"),
-            _cleanPath("$moduleDir/$target")
-          )
-          or die "Failed to link $moduleDir/$source as $moduleDir/$target: $!";
+        $srcfile = _cleanPath($srcfile);
+        $dstfile = _cleanPath($dstfile);
+        symlink( $srcfile, $dstfile )
+          or die "Failed to link $srcfile as $dstfile: $!";
         print "Linked $source as $target\n";
+        $generated_files{$basedir}{$target} = 1;
     }
     else {
-        if ( -e "$moduleDir/$source" ) {
-            File::Copy::copy( "$moduleDir/$source", $target )
+        if ( -e $srcfile ) {
+            File::Copy::copy( $srcfile, $target )
               || die "Couldn't install $target: $!";
         }
         print "Copied $source as $target\n";
     }
+    $generated_files{$moduleDir}{$target} = 1;
 
     return;
 }
@@ -861,34 +906,36 @@ sub linkOrCopy {
 # So that file.js.gz and file.uncompressed.js get created
 sub generateAlternateVersion {
     my ( $moduleDir, $dir, $file, $link ) = @_;
-    my $found = 0;
-    trace "$moduleDir/$file not found";
+    my $found    = 0;
     my $compress = 0;
+    trace( File::Spec->catfile( $moduleDir, $file ) . ' not found' );
 
-    if ( !$found && $file =~ /(.*)\.gz$/ ) {
+    if ( not $found and $file =~ /(.*)\.gz$/ ) {
         $file     = $1;
-        $found    = ( -f "$moduleDir/$1" );
+        $found    = ( -f File::Spec->catfile( $moduleDir, $1 ) );
         $compress = 1;
     }
-    if (  !$found
-        && $file =~ /^(.+)(\.(?:un)?compressed|_src)(\..+)$/
-        && -f "$moduleDir/$1$3" )
+    if (    not $found
+        and $file =~ /^(.+)(\.(?:un)?compressed|_src)(\..+)$/
+        and -f File::Spec->catfile( $moduleDir, $1 . $3 ) )
     {
-        linkOrCopy $moduleDir, $file, "$1$3", $link;
+        linkOrCopy $moduleDir, $file, $1 . $3, $link;
         $found++;
     }
-    elsif ( !$found && $file =~ /^(.+)(\.[^\.]+)$/ ) {
+    elsif ( not $found and $file =~ /^(.+)(\.[^\.]+)$/ ) {
         my ( $src, $ext ) = ( $1, $2 );
         for my $kind (qw( .uncompressed .compressed _src )) {
-            if ( -f "$moduleDir/$src$kind$ext" ) {
-                linkOrCopy $moduleDir, "$src$kind$ext", $file, $link;
+            my $srcfile = $src . $kind . $ext;
+
+            if ( -f File::Spec->catfile( $moduleDir, $srcfile ) ) {
+                linkOrCopy $moduleDir, $srcfile, $file, $link;
                 $found++;
                 last;
             }
         }
     }
-    if ( $found && $compress ) {
-        trace "...compressed $file to create $file.gz";
+    if ( $found and $compress ) {
+        trace "...compressing $file to create $file.gz";
         if ($internal_gzip) {
             open( my $if, '<', _cleanPath($file) )
               or die "Failed to open $file to read: $!";
@@ -903,6 +950,7 @@ sub generateAlternateVersion {
             binmode $of;
             print $of $text;
             close($of);
+            $generated_files{$moduleDir}{"$file.gz"} = 1;
         }
         else {
 
@@ -913,6 +961,7 @@ sub generateAlternateVersion {
               . _cleanPath($file) . ".gz";
             local $ENV{PATH} = untaint( $ENV{PATH} );
             trace `$command`;
+            $generated_files{$moduleDir}{"$file.gz"} = 1;
         }
     }
 
@@ -926,10 +975,12 @@ sub copy_in {
     # For core manifest, ignore copy if target exists.
     return if -e $file and $ignoreBlock;
     File::Path::mkpath( _cleanPath($dir) );
-    if ( -e "$moduleDir/$file" ) {
-        File::Copy::copy( "$moduleDir/$file", $file )
+    $generated_files{$moduleDir}{$dir} = 1;
+    if ( -e File::Spec->catfile( $moduleDir, $file ) ) {
+        File::Copy::copy( File::Spec->catfile( $moduleDir, $file ), $file )
           or die "Couldn't install $file: $!";
         print "Copied $file\n";
+        $generated_files{$moduleDir}{$file} = 1;
     }
 
     return;
@@ -981,8 +1032,8 @@ HERE
 # Will try to link as high in the dir structure as it can
 sub just_link {
     my ( $moduleDir, $dir, $file, $ignoreBlock ) = @_;
+    my @components = _components($file);
     my $base       = "$moduleDir/";
-    my @components = split( /\/+/, $file );
     my $path       = '';
 
     foreach my $c (@components) {
@@ -1000,19 +1051,28 @@ sub just_link {
         elsif (( $c eq 'TWiki' )
             or ( $c eq 'Plugins' && $path =~ m#/(Fosw|TW)iki/$# ) )
         {    # Special case
+            my $relpath = $path . $c;
+            my $abspath;
+
             $path .= "$c/";
-            warn "mkdir $path\n";
-            if ( !mkdir( _cleanPath($path) ) ) {
-                warn "Could not mkdir $path: $!\n";
+            $abspath = _cleanPath($path);
+            print "mkdir $abspath\n";
+            if ( !mkdir($abspath) ) {
+                warn "Could not mkdir $abspath: $!\n";
                 last;
             }
+            $generated_files{$basedir}{$relpath} = 1;
         }
         else {
             my $tgt = _cleanPath("$base$path$c");
             if ( -e $tgt ) {
-                die "Failed to link $path$c to $tgt: $!"
-                  unless symlink( $tgt, _cleanPath( $path . $c ) );
-                print "Linked $path$c\n";
+                my $relpath  = $path . $c;
+                my $linkpath = _cleanPath( $path . $c );
+
+                die "Failed to link $linkpath to $tgt: $!"
+                  unless symlink( $tgt, $linkpath );
+                print "Linked $relpath\n";
+                $generated_files{$basedir}{$relpath} = 1;
             }
             last;
         }
@@ -1021,25 +1081,36 @@ sub just_link {
     return;
 }
 
+sub _components {
+    my ($file) = @_;
+    my ( undef, $dirpart, $filepart ) = File::Spec->splitpath($file);
+
+    $dirpart =~ s/[\/\\]$//g;
+    return ( File::Spec->splitdir($dirpart), $filepart );
+}
+
 sub uninstall {
     my ( $moduleDir, $dir, $file ) = @_;
+    my @components = _components($file);
+    my $base       = $moduleDir;
+    my $path       = '';
 
     # link handling that detects valid linking path components higher in the
     # tree so it unlinks the directories, and not the leaf files.
     # Special case when install created symlink to (un)?compressed version
-    if ( -l "$moduleDir/$file" ) {
-        unlink _cleanPath("$moduleDir/$file");
-        print "Unlinked $moduleDir/$file\n";
+    if ( -l File::Spec->catfile( $moduleDir, $file ) ) {
+        unlink _cleanPath( File::Spec->catfile( $moduleDir, $file ) );
+        print 'Unlinked symlink '
+          . File::Spec->catfile( $moduleDir, $file ) . "\n";
+        $generated_files{$basedir}{$file} = 0;
     }
-    my @components = split( /\/+/, $file );
-    my $base       = $moduleDir;
-    my $path       = '';
 
     foreach my $c (@components) {
         if ( -l "$path$c" ) {
             return unless _checkLink( $moduleDir, $path, $c ) || $force;
             unlink _cleanPath("$path$c");
             print "Unlinked $path$c\n";
+            $generated_files{$basedir}{ $path . $c } = 0;
             return;
         }
         else {
@@ -1049,17 +1120,20 @@ sub uninstall {
     if ( -e $file ) {
         unlink _cleanPath($file);
         print "Removed $file\n";
+        $generated_files{$basedir}{$file} = 0;
     }
 
     return;
 }
 
 sub Autoconf {
-    my $foswikidir   = $basedir;
-    my $localSiteCfg = $foswikidir . '/lib/LocalSite.cfg';
+    my $foswikidir = $basedir;
+    my $localSiteCfg =
+      File::Spec->catfile( $foswikidir, 'lib', 'LocalSite.cfg' );
 
     if ( $force || ( !-e $localSiteCfg ) ) {
-        open( my $f, '<', "$foswikidir/lib/Foswiki.spec" )
+        open( my $f, '<',
+            File::Spec->catfile( $foswikidir, 'lib', 'Foswiki.spec' ) )
           or die "Cannot autoconf: $!";
         local $/ = undef;
         my $localsite = <$f>;
@@ -1107,7 +1181,7 @@ sub enablePlugin {
     my $changed = 0;
 
     print "Updating LocalSite.cfg\n";
-    if ( open( my $lsc, '<', 'lib/LocalSite.cfg' ) ) {
+    if ( open( my $lsc, '<', File::Spec->catfile( 'lib', 'LocalSite.cfg' ) ) ) {
         local $/;
         $cfg = <$lsc>;
         $cfg =~ s/\r//g;
@@ -1130,7 +1204,10 @@ sub enablePlugin {
     }
 
     if ($changed) {
-        if ( open( my $lsc, '>', 'lib/LocalSite.cfg' ) ) {
+        if (
+            open( my $lsc, '>', File::Spec->catfile( 'lib', 'LocalSite.cfg' ) )
+          )
+        {
             print $lsc $cfg;
             close $lsc;
             print(
@@ -1139,7 +1216,8 @@ sub enablePlugin {
             );
         }
         else {
-            warn "WARNING: failed to write lib/LocalSite.cfg\n";
+            warn 'WARNING: failed to write'
+              . File::Spec->catfile( 'lib', 'LocalSite.cfg' ) . "\n";
         }
     }
 
@@ -1164,13 +1242,15 @@ sub run {
             foreach my $dir (@extensions_path) {
                 opendir my $d, $dir or next;
                 push @modules, map { untaint($_) }
-                  grep { /(?:Tag|Plugin|Contrib|Skin|AddOn)$/ && -d "$dir/$_" }
-                  readdir $d;
+                  grep {
+                    /(?:Tag|Plugin|Contrib|Skin|AddOn)$/
+                      && -d File::Spec->catdir( $dir, $_ )
+                  } readdir $d;
                 closedir $d;
             }
         }
         elsif ( $arg eq 'default' || $arg eq 'developer' ) {
-            open my $f, '<', 'lib/MANIFEST'
+            open my $f, '<', File::Spec->catfile( 'lib', 'MANIFEST' )
               or die "Could not open MANIFEST: $!";
             local $/ = "\n";
             @modules =
@@ -1232,11 +1312,135 @@ sub exec_opts {
     return;
 }
 
+# input_files: a lookup hashref keyed by files relative to some moduleDir
+# old_rules: arrayref of lines in the exisiting moduleDir/.gitignore file
+# returns: array of old_rules appended with new files to ignore (that hopefully
+#          don't match any wildcard expressions in existing .gitignore)
+
+sub merge_gitignore {
+    my ( $input_files, $old_rules ) = @_;
+    my @merged_rules;
+    my @match_rules;
+    my %dropped_rules;
+
+    die "Bad parameter type (should be HASH): " . ref($input_files)
+      unless ( ref($input_files) eq 'HASH' );
+    die "Bad parameter type (should be ARRAY): " . ref($old_rules)
+      unless ( ref($old_rules) eq 'ARRAY' );
+
+    # @merged_rules is a version of @{$old_rules}, with any new files not
+    # matching existing wildcards, added to it
+    foreach my $old_rule ( @{$old_rules} ) {
+        chomp($old_rule);
+
+        # If the line is empty or a comment
+        if ( not $old_rule or $old_rule =~ /^\s*$/ or $old_rule =~ /^#/ ) {
+            push( @merged_rules, $old_rule );
+        }
+
+        # The line is a rule
+        else {
+            my $match_rule = $old_rule;
+
+            if ( $match_rule =~ /[\/\\]$/ ) {
+                $match_rule .= '*';
+            }
+
+            # If the line is a wildcard rule
+            if ( $match_rule =~ /\*/ ) {
+
+                # Normalise the rule
+                $old_rule   =~ s/^\s*//;
+                $old_rule   =~ s/\s*$//;
+                $match_rule =~ s/^\s*\!\s*(.*?)\s*$/$1/;
+
+                # It's a wildcard
+                push( @match_rules,  $match_rule );
+                push( @merged_rules, $old_rule );
+            }
+
+            # The line is a path/filename
+            else {
+
+                # we're installing, so keep all the old rules, or
+                # we're uninstalling, so keep files not being uninstalled
+                if ( $installing or ( not exists $input_files->{$old_rule} ) ) {
+                    push( @merged_rules, $old_rule );
+                }
+                else {
+                    $dropped_rules{$old_rule} = 1;
+                }
+            }
+        }
+    }
+
+    # Append new files not matching an existing wildcard
+    if ($installing) {
+        foreach my $file ( keys %{$input_files} ) {
+            if ( $file and $file =~ /[^\s]/ and not $dropped_rules{$file} ) {
+                my $nmatch_rules = scalar(@match_rules);
+                my $matched;
+                my $i = 0;
+
+                while ( not $matched and $i < $nmatch_rules ) {
+                    my @parts = split( /\*/, $match_rules[$i] );
+                    my $regex = qr/^\Q/ . join( qr/\E.*\Q/, @parts ) . qr/\E$/;
+
+                    $i += 1;
+                    $matched = ( $file =~ $regex );
+                }
+                if ( not $matched ) {
+                    push( @merged_rules, $file );
+                }
+            }
+        }
+    }
+
+    return @merged_rules;
+}
+
+sub update_gitignore_file {
+    my ($moduleDir) = @_;
+
+    # Only create a .gitignore if we're really in a git repo.
+    if (
+        exists $generated_files{$moduleDir}
+        and (  -d File::Spec->catdir( $moduleDir, '.git' )
+            or -d File::Spec->catdir( $moduleDir, '..', '.git' ) )
+      )
+    {
+        my $ignorefile = File::Spec->catfile( $moduleDir, '.gitignore' );
+        my @lines;
+
+        if ( open( my $fh, '<', $ignorefile ) ) {
+            @lines = <$fh>;
+            close($fh);
+        }
+        else {
+            @lines = ('*.gz');
+        }
+        @lines = merge_gitignore( $generated_files{$moduleDir}, \@lines );
+        $ignorefile = untaint($ignorefile);
+        if ( open( my $fh, '>', $ignorefile ) ) {
+            foreach my $line (@lines) {
+                print $fh $line . "\n";
+            }
+            close($fh) or error("Couldn't close $ignorefile");
+        }
+        else {
+            error("Couldn't open $ignorefile for writing, $!");
+        }
+    }
+
+    return;
+}
+
 init();
 exec_opts();
 init_config();
 init_extensions_path();
 run();
+update_gitignore_file($basedir);
 
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/

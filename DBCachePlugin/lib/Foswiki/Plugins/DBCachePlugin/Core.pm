@@ -111,6 +111,8 @@ sub renderWikiWordHandler {
 sub afterSaveHandler {
   my ($web, $topic, $newWeb, $newTopic, $attachment, $newAttachment) = @_;
 
+  #writeDebug("called afterSaveHandler($web, $topic, $newWeb, $newTopic, ..., ...)");
+
   my $doFullUpdate = $Foswiki::cfg{DBCacheContrib}{AlwaysUpdateCache};
   $doFullUpdate = 1 unless defined $doFullUpdate;
 
@@ -435,7 +437,7 @@ sub handleDBCALL {
     $thisTopic = $2;
   }
 
-  my $thisWeb = $theWeb;
+  my $thisWeb = $baseWeb; # Note: default to $baseWeb and _not_ to $theWeb
   ($thisWeb, $thisTopic) = Foswiki::Func::normalizeWebTopicName($thisWeb, $thisTopic);
 
   # find the actual implementation
@@ -1044,7 +1046,18 @@ sub formatRecursive {
 sub getDB {
   my $theWeb = shift;
   
-  #writeDebug("called getDB($theWeb)");
+  writeDebug("called getDB($theWeb)");
+
+  unless(Foswiki::Sandbox::validateWebName($theWeb, 1)) {
+    if (DEBUG) {
+      require Devel::StackTrace;
+      my $trace = Devel::StackTrace->new;
+      writeDebug($trace->as_string);
+    }
+
+    #die "invalid webname $theWeb";
+    return;
+  }
 
   # We do not need to reload the cache if we run on mod_perl or fastcgi or
   # whatever perl accelerator that keeps our global variables and 
@@ -1052,6 +1065,8 @@ sub getDB {
 
   $theWeb =~ s/\//\./go;
   my $webKey = Cwd::abs_path($Foswiki::cfg{DataDir} . '/' . $theWeb);
+
+  #writeDebug("webKey=$webKey");
 
   my $isModified = 0;
   unless (defined $webDB{$webKey}) {
@@ -1078,7 +1093,7 @@ sub getDB {
       || 'Foswiki::Plugins::DBCachePlugin::WebDB';
     $impl =~ s/^\s+//go;
     $impl =~ s/\s+$//go;
-    writeDebug("loading new webdb for '$theWeb($isModified) '");
+    writeDebug("loading new webdb for '$theWeb($isModified)'");
     #writeDebug("impl='$impl'");
     $webDB{$webKey} = new $impl($theWeb);
     $webDB{$webKey}->load($doRefresh, $baseWeb, $baseTopic);
@@ -1257,6 +1272,7 @@ sub flatten {
   $text =~ s/&lt;/</g;
   $text =~ s/&gt;/>/g;
 
+  $text =~ s/^---\++.*$//gm;
   $text =~ s/\<[^\>]+\/?\>//g;
   $text =~ s/<\!\-\-.*?\-\->//gs;
   $text =~ s/\&[a-z]+;/ /g;
@@ -1272,6 +1288,7 @@ sub flatten {
   $text =~ s/([[\x01-\x09\x0b\x0c\x0e-\x1f"%&'*<=>@[_\|])/'&#'.ord($1).';'/ge;
   $text =~ s/(https?)/<nop>$1/go;
   $text =~ s/\b($wikiWordRegex)\b/<nop>$1/g;
+  $text =~ s/^\s+//;
 
   return $text;
 }
@@ -1299,14 +1316,14 @@ sub inlineError {
 # compatibility wrapper 
 sub takeOutBlocks {
   return Foswiki::takeOutBlocks(@_) if defined &Foswiki::takeOutBlocks;
-  return $Foswiki::Plugins::SESSION->{renderer}->takeOutBlocks(@_);
+  return $Foswiki::Plugins::SESSION->renderer->takeOutBlocks(@_);
 }
 
 ###############################################################################
 # compatibility wrapper 
 sub putBackBlocks {
   return Foswiki::putBackBlocks(@_) if defined &Foswiki::putBackBlocks;
-  return $Foswiki::Plugins::SESSION->{renderer}->putBackBlocks(@_);
+  return $Foswiki::Plugins::SESSION->renderer->putBackBlocks(@_);
 }
 
 

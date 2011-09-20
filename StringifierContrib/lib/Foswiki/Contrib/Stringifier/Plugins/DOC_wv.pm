@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2010 Foswiki Contributors
+# Copyright (C) 2009-2011 Foswiki Contributors
 #
 # For licensing info read LICENSE file in the Foswiki root.
 # This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@ use File::Temp qw/tempdir/;
 my $wvHtml = $Foswiki::cfg{StringifierContrib}{wvHtmlCmd} || 'wvHtml';
 
 if (!defined($Foswiki::cfg{StringifierContrib}{WordIndexer}) || 
-    ($Foswiki::cfg{StringifierContrib}{WordIndexer} eq 'wvHtml')) {
+    ($Foswiki::cfg{StringifierContrib}{WordIndexer} eq 'wv')) {
     # Only if wv exists, I register myself.
     if (__PACKAGE__->_programExists($wvHtml)){
         __PACKAGE__->register_handler("application/word", ".doc");
@@ -38,8 +38,12 @@ sub stringForFile {
     my $in;
     my $text = '';
     
-    my $cmd = $wvHtml . ' --targetdir=%TMPDIR|F% %FILENAME|F% %TMPFILE|F%';
-    my ($output, $exit) = Foswiki::Sandbox->sysCommand($cmd, TMPDIR => $tmp_dir, FILENAME => $file, TMPFILE => $tmp_file );
+    my $cmd = $wvHtml . ' --charset=utf8 --targetdir=%TMPDIR|F% %FILENAME|F% %TMPFILE|F%';
+    my ($output, $exit) = Foswiki::Sandbox->sysCommand($cmd, 
+      TMPDIR => $tmp_dir, 
+      FILENAME => $file, 
+      TMPFILE => $tmp_file,
+    );
     
     return '' unless ($exit == 0);
 

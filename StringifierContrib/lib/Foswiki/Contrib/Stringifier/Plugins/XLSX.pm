@@ -1,5 +1,5 @@
 # Copyright (C) 2009 TWIKI.NET (http://www.twiki.net)
-# Copyright (C) 2009-2010 Foswiki Contributors
+# Copyright (C) 2009-2011 Foswiki Contributors
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,8 +18,7 @@ use Foswiki::Contrib::Stringifier::Base;
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 __PACKAGE__->register_handler("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
 
-use Text::Iconv;
-use Encode ();
+#use Text::Iconv;
 use Error qw(:try);
 
 sub stringForFile {

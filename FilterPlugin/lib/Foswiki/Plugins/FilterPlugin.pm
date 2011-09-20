@@ -25,7 +25,7 @@ use vars qw(
     );
 
 $VERSION = '$Rev$';
-$RELEASE = '2.05';
+$RELEASE = '2.06';
 $NO_PREFS_IN_TOPIC = 1;
 $SHORTDESCRIPTION = 'Substitute and extract information from content by using regular expressions';
 

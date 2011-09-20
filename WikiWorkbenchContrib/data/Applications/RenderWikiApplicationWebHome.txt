@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="save topic" date="1283966479" format="1.1" reprev="10" version="15"}%
+%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1308911143" format="1.1" reprev="16" version="17"}%
 %META:TOPICPARENT{name="TopicFunction"}%
 %TOC{depth="2"}%
 
@@ -38,7 +38,7 @@ None
 %CLEAR%
 
 %GRID{
-  query="WikiApplication=~'.+' %IF{"'%URLPARAM{"q"}%'!=''" then="AND TopicType=~'%URLPARAM{"q"}%'"}%"
+  query="%IF{"'%URLPARAM{"q"}%'!=''" then="TopicType=~'%URLPARAM{"q"}%'" else="topic='.*'"}%"
   web="%BASEWEB%"
   columns="Topic,Summary,TopicType,WikiApplication,Changed"
   rows="10"
@@ -53,36 +53,6 @@ None
 }%
 %ADDTOZONE{"head" section="css"}%<!-- -->
 <!-- //render wiki application webhome -->%STOPINCLUDE%
-</verbatim>
-
-<!-- %!ADDTOZONE{"script" section="js" requires="JQUERYPLUGIN::GRID"}% -->
-
----++ Javascript
-<verbatim class="js">
-%STARTSECTION{"js"}%<literal>
-<script>
-jQuery(function($) {
-$(".wwbBox ul a").click(function(e) {
-  var $this = $(this);
-  var topicType = $this.text();
-  var myGrid = $(".ui-jqgrid-btable:first");
-  if (myGrid.length) {
-    var topicTypeInput = myGrid.parent().parent().parent().find("input[name=TopicType]");
-    if (topicTypeInput.length) {
-      topicTypeInput.val('\\b'+topicType+'\\b');
-      myGrid[0].triggerToolbar();
-    } else {
-      alert("topicType not found");
-    }
-  } else {
-    alert("grid not found");
-  }
-  e.preventDefault();
-  return false;
-}).attr('href', '#');
-});
-</script>
-</literal>%ENDSECTION{"js"}%
 </verbatim>
 
 ---++ CSS
@@ -130,6 +100,6 @@ $(".wwbBox ul a").click(function(e) {
 
 %META:FORM{name="Applications.ApplicationTopic"}%
 %META:FIELD{name="TopicType" title="TopicType" value="DocuTopic, TopicFunction"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="RenderWikiApplicationWebHome"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value="Renders a dashboard for an application web"}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

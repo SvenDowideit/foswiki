@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2007-2010 Arthur Clemens (arthur@visiblearea.com), Michael Daum and Foswiki contributors
+# Copyright (C) 2007-2011 Arthur Clemens (arthur@visiblearea.com), Michael Daum and Foswiki contributors
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,9 +20,9 @@ use strict;
 use Foswiki::Func;
 
 our $VERSION    = '$Rev: 11069$';
-our $RELEASE    = '1.5.2';
+our $RELEASE    = '1.5.3';
 our $pluginName = 'SendEmailPlugin';
-our $SHORTDESCRIPTION = "Allows to send e-mails through an e-mail form.";
+our $SHORTDESCRIPTION = "Send e-mails through an e-mail form";
 our $NO_PREFS_IN_TOPIC = 1;
 our $topic;
 our $web;

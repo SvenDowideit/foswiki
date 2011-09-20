@@ -1,0 +1,40 @@
+%{<verbatim class="tml">
+===================================================
+	Base Skin topic template
+
+	The formtables template defines how data forms are displayed:
+		- on the topic page
+		- on the edit screen
+		- on the preview screen
+		
+===================================================
+}%%{
+---------------------------------------------------
+	Header definition for topic attachments and top table in attach screen
+---------------------------------------------------
+}%%TMPL:DEF{FORM:display:header}%
+<div class="foswikiForm">
+%IF{
+	"context preview"
+	then="%TMPL:P{FORM:display:header:titlename}%" else="%TMPL:P{FORM:display:header:titlelink}%"
+}%
+<table class='foswikiTable foswikiFormTable' border='1' summary='%MAKETEXT{"Form data"}%'>%TMPL:END%%{
+---------------------------------------------------
+	Each row
+---------------------------------------------------
+}%%TMPL:DEF{FORM:display:row}%%IF{"context preview" then="<noautolink>"}%<tr valign='top'><td class='foswikiFormTableRow foswikiFirstCol' align='right'> %A_TITLE%</td><td> %A_VALUE% </td></tr>%IF{"context preview" then="</noautolink>"}%%TMPL:END%%{
+---------------------------------------------------
+	Footer
+---------------------------------------------------
+}%%TMPL:DEF{FORM:display:footer}%</table></div>%TMPL:END%%{
+---------------------------------------------------
+	Title link in header
+---------------------------------------------------
+}%%TMPL:DEF{FORM:display:header:titlelink}%<div class='foswikiRight'><a href='%SCRIPTURL{edit}%/%WEB%/%TOPIC%?t=%GMTIME{$epoch}%;action=form' class='foswikiButton'>%MAKETEXT{"Edit form data"}%</a></div>
+<div class='foswikiLarge foswikiUnvisited'><noautolink>%A_TITLE%</noautolink></div>%TMPL:END%%{
+---------------------------------------------------
+	Title name in header
+---------------------------------------------------
+}%%TMPL:DEF{FORM:display:header:titlename}%<noautolink><h3>%A_TITLE%</h3></noautolink>%TMPL:END%%{
+===================================================
+</verbatim>}%

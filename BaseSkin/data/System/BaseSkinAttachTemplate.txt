@@ -1,0 +1,105 @@
+%{<verbatim class="tml">
+===================================================
+	Base Skin topic template
+
+	The atttach template provides common modules for:
+		- attachnew template
+		- attachagain template
+		
+===================================================
+}%%TMPL:INCLUDE{"document"}%%TMPL:INCLUDE{"view"}%%{
+---------------------------------------------------
+	This is a manage page
+---------------------------------------------------
+}%%TMPL:DEF{"body:class"}%foswikiManagePage%TMPL:END%%{
+---------------------------------------------------
+	Chage window title
+---------------------------------------------------
+}%%TMPL:DEF{"titleaction"}%%MAKETEXT{"(attach)"}%%TMPL:END%%{
+---------------------------------------------------
+	Page title is set in attachnew and attachagain
+---------------------------------------------------
+}%%TMPL:DEF{"attach:title"}%%TMPL:END%%{
+---------------------------------------------------
+	Content is set in attachnew and attachagain
+---------------------------------------------------
+}%%TMPL:DEF{"content"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new"}%%TMPL:P{"attach:new:title"}%
+%TMPL:P{"attach:formstart"}%
+%TMPL:P{"attach:new:hiddenfields"}%
+%TMPL:P{"attach:new:newfile"}%
+%TMPL:P{"attach:comment"}%
+%TMPL:P{"attach:properties"}%
+%TMPL:P{"attach:new:createlink"}%
+%TMPL:P{"attach:new:topicaction"}%
+%TMPL:P{"attach:formend"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:formstart"}%<div class="foswikiFormSteps"><form name="main" enctype="multipart/form-data" action="%SCRIPTURLPATH{"upload"}%/%WEB%/%TOPIC%" method="post">%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:formend"}%</form></div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:inputsize"}%40%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new:hiddenfields"}%<input type="hidden" name="filename" value="%FILENAME%" />%TMPL:END%%{
+---------------------------------------------------
+	Defined in attachnew and attachagain
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new:title"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new:newfile"}%<div class="foswikiFormStep">
+<h3>%MAKETEXT{"Select a file to upload"}%</h3>
+<p><input class="foswikiInputField" type="file" name="filepath" value="%FILEPATH%" size="%TMPL:P{"attach:inputsize"}%" /> %IF{
+	"$ATTACHFILESIZELIMIT > 0"
+	then="<span class='foswikiHint'>%MAKETEXT{"Upload up to [_1] KB." args="%ATTACHFILESIZELIMIT%"}%</span>"
+}%
+</p></div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:comment"}%<div class="foswikiFormStep">
+%TMPL:P{"attach:comment:title"}%
+<textarea class="foswikiInputField" name="filecomment" rows="2" cols="60" placeholder="%MAKETEXT{"Describe the file so other people know what it is."}%">%FILECOMMENT%</textarea>
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:properties"}%<div class="foswikiFormStep">
+%TMPL:P{"attach:properties:title"}%
+<label><input type="checkbox" class="foswikiCheckbox" name="hidefile" %HIDEFILE% />%MAKETEXT{"Do not show in topic attachment list"}%</label>
+</div>%TMPL:P{"changepropertiesaction"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new:createlink"}%<div class="foswikiFormStep">
+<h3>%MAKETEXT{"Create link / show image in topic"}%</h3>
+<p><label><input type="checkbox" class="foswikiCheckbox" name="createlink" %ATTACHLINKBOX% />%MAKETEXT{"Create link"}%</label> <span class='foswikiHint'>%MAKETEXT{"The link (or image) will be placed at the end of the topic. Its format is set with =ATTACHEDFILELINKFORMAT=."}%</span></p>
+</div>%TMPL:P{"changepropertiesaction"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new:topicaction"}%<div class='foswikiFormStep'>
+<input type="submit" class="foswikiButton foswikiSubmit" value='%MAKETEXT{"Upload file"}%' />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:help"}%%INCLUDE{"%SYSTEMWEB%.FileAttachment"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"existingattachments"}%%META{"attachments" all="on" title="<h2>%MAKETEXT{"Attachments of [_1]" args="<nop>%TOPIC%"}%</h2>"}%%TMPL:END%%{
+===================================================
+</verbatim>}%

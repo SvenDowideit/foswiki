@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1283846032" format="1.1" reprev="2" version="4"}%
+%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1305895490" format="1.1" reprev="2" version="5"}%
 %META:TOPICPARENT{name="TopicTemplate"}%
 %DBCALL{"Applications.RenderTopicInstaller" TEXT="Install '%TOPIC%' TopicType" TYPE="TopicType"}%
 
@@ -16,11 +16,12 @@ See also: %TOPIC%Template
 
 ---++ Topics of type '%TOPIC%'
 %STARTINCLUDE%
-%DBCALL{"Applications.RenderSimpleTopicCreator" 
+%DBCALL{"Applications.RenderSimpleTopicCreator"
+  LABEL="%MAKETEXT{"Title"}%"
+  BUTTONTEXT="%MAKETEXT{"New"}%"
+  TEXT="%MAKETEXT{"Create a new [_1]" args="<nop>%TOPIC%"}%"
   VALUE="..."
   FORM="%WEB%.%TOPIC%"  
-  TYPE="%TOPIC%"
-  DISABLED_TEMPLATE="%WEB%.%TOPIC%Template"  
 }%
 
 %DBCALL{"Applications.RenderTopicsOfType"}%
@@ -28,13 +29,13 @@ See also: %TOPIC%Template
 
 ---++ <nop>%TOPIC% form
 | *Name:*| *Type:* | *Size:* | *Values:* | *Description:* | *Attributes:* |
-| TopicType | label | 1 | WikiTopic, ... | Document type  | |
+| TopicType | label | 1 | WikiTopic, <!-- ALIAS:... -->&hellip;<!-- //ALIAS --> | Document type  | |
 | <nop>TopicTitle | text | 75 | | title of this topic | |
 | Summary | text | 75 | | Short description of the role of this topic | |
 
 
 %META:FORM{name="Applications.ApplicationTopic"}%
 %META:FIELD{name="TopicType" title="TopicType" value="TopicTemplate"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="TopicTypeTemplate"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value="Template to create TopicTypes"}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

@@ -1,14 +1,28 @@
-%{<verbatim class="tml">}%%{
-	Base Skin topic template for view script
-}%%TMPL:INCLUDE{"document"}%%{
+%{<verbatim class="tml">
+===================================================
+Base Skin topic template
+
+	The view template defines the display of contents through the view script:
+		- topic text
+		- data form
+		- attachments
+		
+===================================================
+}%%TMPL:INCLUDE{"document"}%%TMPL:INCLUDE{"baseskinwebtopbar"}%%{
 ---------------------------------------------------
-}%%TMPL:DEF{"content"}%<div class="foswikiContent">
+	This is a view page
+---------------------------------------------------
+}%%TMPL:DEF{"body:class"}%foswikiViewPage%TMPL:END%%{
+---------------------------------------------------
+	Content container
+---------------------------------------------------
+}%%TMPL:DEF{"content"}%<div class="foswikiTopic">
 <div class="foswikiTopic">
-<div>CONTEXTUAL ACTIONS</div>
+<!-- TODO: CONTEXTUAL ACTIONS -->
 <div class="foswikiContentHeader">%TMPL:P{"topic:before"}%</div>
 <div class="foswikiTopicText">
 #PageTop
-<article>
+<article class='foswikiTopicText'>
 %TEXT%
 </article>
 #TopicEnd
@@ -16,12 +30,19 @@
 <div class="foswikiContentFooter">%TMPL:P{"topic:after"}%</div>
 </div>
 <div class="sidebar">
+<!--
 sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar 
+-->
 </div><!--/foswikiTopic-->
 <div class="foswikiClear"></div>
 </div>%TMPL:END%%{
 ---------------------------------------------------
+	topic:before contains the form:top and attachments:top, if set (not inside a tab pane)
+	TODO: test this
+---------------------------------------------------
 }%%TMPL:DEF{"topic:before"}%%TMPL:P{"form:top"}%%TMPL:P{"attachments:top"}%%TMPL:END%%{
+---------------------------------------------------
+	topic:after contains the form and attachment tab pane
 ---------------------------------------------------
 }%%TMPL:DEF{"topic:after"}%%TABPANE{class="simple"}%
 %IF{
@@ -40,12 +61,16 @@ sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar cont
 ---------------------------------------------------
 }%%TMPL:DEF{"form:bottom"}%%TMPL:P{"form"}%%TMPL:END%%{
 ---------------------------------------------------
-}%%TMPL:DEF{"form"}%%TAB{"Form"}%%META{"form"}%%ENDTAB%%TMPL:END%%{
+	Form tab
+---------------------------------------------------
+}%%TMPL:DEF{"form"}%%TAB{"Data form"}%%META{"form"}%%ENDTAB%%TMPL:END%%{
+---------------------------------------------------
+	Atachments tab
 ---------------------------------------------------
 }%%TMPL:DEF{"attachments"}%%TAB{"Attachments (%QUERY{"length(attachments[NOT lc(attr)=~'h'])"}%)"}%%META{"attachments"}%%ENDTAB% %TMPL:END%%{
 ---------------------------------------------------
 }%%TMPL:DEF{"attachments:top"}%%TMPL:END%%{
 ---------------------------------------------------
 }%%TMPL:DEF{"attachments:bottom"}%%TMPL:P{"attachments"}%%TMPL:END%%{
----------------------------------------------------
-}%%{</verbatim>}%
+===================================================
+</verbatim>}%

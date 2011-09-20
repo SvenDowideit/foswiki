@@ -62,7 +62,7 @@ my %testAttachments = (
             user    => 'JohnDoe',
             date    => 1500000000,
             hidden  => '',
-            comment => '',
+            comment => 'johnny',
         },
         attachment2 => {
             name    => 'F_report.doc',
@@ -70,7 +70,7 @@ my %testAttachments = (
             user    => 'AdminUser',
             date    => 1600000000,
             hidden  => '',
-            comment => '',
+            comment => 'aAbB',
         },
     },
     topic4 => {
@@ -123,12 +123,12 @@ sub set_up {
     $this->SUPER::set_up();
     $this->_createAttachments();
     $this->{plugin_name} = 'AttachmentListPlugin';
-    
+
     $Foswiki::cfg{Plugins}{ $this->{plugin_name} }{Enabled} = 1;
     $Foswiki::cfg{Plugins}{ $this->{plugin_name} }{Module} =
       "Foswiki::Plugins::$this->{plugin_name}";
     $this->{session}->finish();
-    $this->{session} = new Foswiki();    # default user
+    $this->{session} = new Foswiki();                # default user
     $Foswiki::Plugins::SESSION = $this->{session};
 }
 
@@ -152,7 +152,7 @@ Most simple test: attachments of current topic
 sub test_simple {
     my $this = shift;
 
-    my $pubUrl      = Foswiki::Func::getUrlHost() . Foswiki::Func::getPubUrlPath();
+    my $pubUrl = Foswiki::Func::getUrlHost() . Foswiki::Func::getPubUrlPath();
     my $testTopic   = $testAttachments{topic1}{name};
     my $att1        = $testAttachments{topic1}{attachment1}{name};
     my $att1comment = $testAttachments{topic1}{attachment1}{comment};
@@ -210,9 +210,9 @@ sub test_Item9015 {
     my $expected =
 'A_important_salary_raise.txt,AutoAttachedFile.blah,B_contract_negotiations.txt,C_image.jpg,D_photo.PNG';
 
-
-    my $content = "datadata\n"; 
-    my $path = $Foswiki::cfg{PubDir} . '/' . $this->{test_web} . '/' . $testTopic1;
+    my $content = "datadata\n";
+    my $path =
+      $Foswiki::cfg{PubDir} . '/' . $this->{test_web} . '/' . $testTopic1;
     my $file = 'AutoAttachedFile.blah';
 
     mkpath($path);
@@ -225,6 +225,7 @@ sub test_Item9015 {
 
     unlink "$path/$file";
 }
+
 =pod
 
 TODO:
@@ -433,9 +434,10 @@ sub test_param_format_fileIcon {
     my $source =
 "%ATTACHMENTLIST{topic=\"$testTopic\" web=\"$this->{test_web}\" format=\"$format\" limit=\"1\"}%";
 
-    my $expected = "<span class=\"foswikiIcon\"><img src=\"%PUBURL%/%SYSTEMWEB%/DocumentGraphics/txt.png\" width=\"16\" height=\"16\" alt=\"txt\" /></span>";
+    my $expected =
+"<span class=\"foswikiIcon\"><img src=\"%PUBURL%/%SYSTEMWEB%/DocumentGraphics/txt.png\" width=\"16\" height=\"16\" alt=\"txt\" /></span>";
 
-    $expected = Foswiki::Func::expandCommonVariables( $expected );
+    $expected = Foswiki::Func::expandCommonVariables($expected);
     $this->_do_test( $this->{test_topic}, $expected, $source );
 }
 
@@ -580,7 +582,9 @@ Test param format: $viewfileUrl.
 sub test_param_format_viewfileUrl {
     my $this = shift;
 
-    my $viewFileUrl = Foswiki::Func::expandCommonVariables( '%SCRIPTURL{"viewfile"}%',       $this->{test_topic}, $this->{test_web} );
+    my $viewFileUrl =
+      Foswiki::Func::expandCommonVariables( '%SCRIPTURL{"viewfile"}%',
+        $this->{test_topic}, $this->{test_web} );
 
     my $format         = "\$viewfileUrl";
     my $testTopic      = $testAttachments{topic1}{name};
@@ -608,7 +612,9 @@ Test param format: $fileActionUrl.
 sub test_param_format_fileActionUrl {
     my $this = shift;
 
-    my $actionUrl = Foswiki::Func::expandCommonVariables('%SCRIPTURL{"attach"}%', $this->{test_topic}, $this->{test_web} );
+    my $actionUrl =
+      Foswiki::Func::expandCommonVariables( '%SCRIPTURL{"attach"}%',
+        $this->{test_topic}, $this->{test_web} );
 
     my $format         = "\$fileActionUrl";
     my $testTopic      = $testAttachments{topic1}{name};
@@ -1039,8 +1045,7 @@ sub test_param_excludeuser {
     my $source =
 "%ATTACHMENTLIST{topic=\"*\" format=\"\$fileUser\" separator=\",\" sort=\"\$fileName\" excludeuser=\"$excludeuser\"}%";
 
-    my $expected =
-      'MaryDoe,AdamBlithe,AdminUser,UnknownUser,AdminUser';
+    my $expected = 'MaryDoe,AdamBlithe,AdminUser,UnknownUser,AdminUser';
 
     $this->_do_test( $testTopic1, $expected, $source );
 }
@@ -1598,6 +1603,20 @@ sub test_param_sort_fileTopic_reverse {
     $this->_do_test( $testTopic1, $expected, $source );
 }
 
+sub test_param_sort_fileComment {
+    my $this = shift;
+
+    my $testTopic1 = $testAttachments{topic1}{name};
+
+    my $source =
+"%ATTACHMENTLIST{topic=\"*\" format=\"\$hidden:\$fileComment\" separator=\"|\" sort=\"\$fileComment\"}%";
+
+    my $expected =
+'hidden:do not read|hidden:you|:|:|:aAbB|:do not read either|:johnny|:me';
+
+    $this->_do_test( $testTopic1, $expected, $source );
+}
+
 =pod
 
 Test date range filter with param fromdate.
@@ -1771,8 +1790,7 @@ sub _addAttachment {
 
     $this->assert( Foswiki::Func::topicExists( $this->{test_web}, $topic ) );
 
-    my ( $meta, $text ) =
-      Foswiki::Func::readTopic( $this->{test_web}, $topic );
+    my ( $meta, $text ) = Foswiki::Func::readTopic( $this->{test_web}, $topic );
 
     $meta->putKeyed(
         'FILEATTACHMENT',
@@ -1787,7 +1805,7 @@ sub _addAttachment {
             attr    => $attData{hidden},
         }
     );
-    
+
     $meta->save();
 }
 
@@ -1863,8 +1881,7 @@ sub _simulate_view {
     $this->{session}->{webName}   = $web;
     $this->{session}->{topicName} = $topic;
 
-     my ( $meta, $text ) =
-      Foswiki::Func::readTopic( $web, $topic );
+    my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );
 
     $this->{session}->{webName}   = $oldWebName;
     $this->{session}->{topicName} = $oldTopicName;

@@ -1,7 +1,7 @@
-%META:TOPICINFO{author="ProjectContributor" date="1231502400" format="1.1" version="$Rev$"}%
+%META:TOPICINFO{author="PaulHarvey" comment="reprev" date="1313668832" format="1.1" reprev="2" version="2"}%
 ---+!! %MAKETEXT{"Welcome to the [_1] web" args="<nop>%WEB%"}%
 
 ---++ Bibliography
-%INCLUDE{"Applications/Bibliography.%HOMETOPIC%" section="creator"}%
-%INCLUDE{"Applications/Bibliography.%HOMETOPIC%" section="grid"}%
-%INCLUDE{"Applications/Bibliography.%HOMETOPIC%" section="usage"}%
+%INCLUDE{"Applications/Bibliography.%HOMETOPIC%" section="creator" BIBLIOGRAPHYWEB="%WEB%"}%
+%INCLUDE{"Applications/Bibliography.%HOMETOPIC%" section="grid" BIBLIOGRAPHYWEB="%WEB%"}%
+%INCLUDE{"Applications/Bibliography.%HOMETOPIC%" section="usage" BIBLIOGRAPHYWEB="%WEB%"}%

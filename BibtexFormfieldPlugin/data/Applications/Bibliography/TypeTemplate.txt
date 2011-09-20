@@ -2,39 +2,39 @@
 
 ---++ _Delete the fields you don't need_
 | *Name* | *Type* | *Size* | *Values* | *Tooltip* | *Attributes* |
-| bibtex | bibtex+textarea | 100x8  | | !BibTex markup  | |
-| keywords | bibtex+fragment+text | 100  | | Key words used for searching or possibly for annotation. | |
-| author | bibtex+fragment+text | 100 | | The name(s) of the author(s) (in the case of more than one author, separated by and) | |
-| title | bibtex+fragment+text | 100 | | The title of the work | |
-| year | bibtex+fragment+text | 100 | | The year of publication (or, if unpublished, the year of creation) | |
+| bibtex | bibtex+code+textarea | 100x8  | | !BibTex markup  | |
+| keywords | bibtex+field+text | 100  | | Key words used for searching or possibly for annotation. | |
+| author | bibtex+field+text | 100 | | The name(s) of the author(s) (in the case of more than one author, separated by and) | |
+| title | bibtex+field+text | 100 | | The title of the work | |
+| year | bibtex+field+text | 100 | | The year of publication (or, if unpublished, the year of creation) | |
 | | label | | | Extras | |
-| address | bibtex+fragment+text | 100 | | Publisher's address (usually just the city, but can be the full address for lesser-known publishers) | |
-| booktitle | bibtex+fragment+text | 100 | | The title of the book, if only part of it is being cited | |
-| chapter | bibtex+fragment+text | 100 | | The chapter number | |
-| crossref | bibtex+fragment+text | 100 | | The key of the cross-referenced entry | |
-| edition | bibtex+fragment+text | 100 | | The edition of a book, long form (such as "first" or "second") | |
-| editor | bibtex+fragment+text | 100 | | The name(s) of the editor(s) | |
-| eprint | bibtex+fragment+text | 100 | | A specification of an electronic publication, often a preprint or a technical report | |
-| howpublished | bibtex+fragment+text | 100 | | How it was published, if the publishing method is nonstandard | |
-| institution | bibtex+fragment+text | 100 | | The institution that was involved in the publishing, but not necessarily the publisher | |
-| journal | bibtex+fragment+text | 100 | | The journal or magazine the work was published in | |
-| month | bibtex+fragment+text | 100 | | The month of publication (or, if unpublished, the month of creation) | |
-| number | bibtex+fragment+text | 100 | | The "(issue) number" of a journal, magazine, or tech-report, if applicable. (Most publications have a "volume", but no "number" field.) | |
-| organization | bibtex+fragment+text | 100 | | The conference sponsor | |
-| pages | bibtex+fragment+text | 100 | | Page numbers, separated either by commas or double-hyphens. | |
-| publisher | bibtex+fragment+text | 100 | | The publisher's name | |
-| school | bibtex+fragment+text | 100 | | The school where the thesis was written | |
-| series | bibtex+fragment+text | 100 | | The series of books the book was published in (e.g. "The Hardy Boys" or "Lecture Notes in Computer Science") | |
-| type | bibtex+fragment+text | 100 | | The type of tech-report, for example, "Research Note" | |
-| volume | bibtex+fragment+text | 100 | | The volume of a journal or multi-volume book | |
+| address | bibtex+field+text | 100 | | Publisher's address (usually just the city, but can be the full address for lesser-known publishers) | |
+| booktitle | bibtex+field+text | 100 | | The title of the book, if only part of it is being cited | |
+| chapter | bibtex+field+text | 100 | | The chapter number | |
+| crossref | bibtex+field+text | 100 | | The key of the cross-referenced entry | |
+| edition | bibtex+field+text | 100 | | The edition of a book, long form (such as "first" or "second") | |
+| editor | bibtex+field+text | 100 | | The name(s) of the editor(s) | |
+| eprint | bibtex+field+text | 100 | | A specification of an electronic publication, often a preprint or a technical report | |
+| howpublished | bibtex+field+text | 100 | | How it was published, if the publishing method is nonstandard | |
+| institution | bibtex+field+text | 100 | | The institution that was involved in the publishing, but not necessarily the publisher | |
+| journal | bibtex+field+text | 100 | | The journal or magazine the work was published in | |
+| month | bibtex+field+text | 100 | | The month of publication (or, if unpublished, the month of creation) | |
+| number | bibtex+field+text | 100 | | The "(issue) number" of a journal, magazine, or tech-report, if applicable. (Most publications have a "volume", but no "number" field.) | |
+| organization | bibtex+field+text | 100 | | The conference sponsor | |
+| pages | bibtex+field+text | 100 | | Page numbers, separated either by commas or double-hyphens. | |
+| publisher | bibtex+field+text | 100 | | The publisher's name | |
+| school | bibtex+field+text | 100 | | The school where the thesis was written | |
+| series | bibtex+field+text | 100 | | The series of books the book was published in (e.g. "The Hardy Boys" or "Lecture Notes in Computer Science") | |
+| type | bibtex+field+text | 100 | | The type of tech-report, for example, "Research Note" | |
+| volume | bibtex+field+text | 100 | | The volume of a journal or multi-volume book | |
 | | label | | | Misc | |
-| note | bibtex+fragment+text | 100 | | Miscellaneous extra information | |
-| annote | bibtex+fragment+text | 100 | | An annotation for annotated bibliography styles (not typical) | |
-| key | bibtex+fragment+text | 10  | | A hidden field used for specifying or overriding the alphabetical order of entries (when the "author" and "editor" fields are missing). Note that this is very different from the key (mentioned just after this list) that is used to cite or cross-reference the entry. | |
+| note | bibtex+field+text | 100 | | Miscellaneous extra information | |
+| annote | bibtex+field+text | 100 | | An annotation for annotated bibliography styles (not typical) | |
+| key | bibtex+field+text | 10  | | A hidden field used for specifying or overriding the alphabetical order of entries (when the "author" and "editor" fields are missing). Note that this is very different from the key (mentioned just after this list) that is used to cite or cross-reference the entry. | |
 | | label | | | Identifiers | |
-| issn | bibtex+fragment+text | 20  | | The International Standard Serial Number. | |
-| url | bibtex+fragment+text | 100 | | The WWW address | |
-| doi | bibtex+fragment+text | 100  | | The [[http://www.doi.org/][Document Object Identifier]], Eg. [[http://dx.doi.org/10.1000/182][10.1000/182]] | |
-| lccn | bibtex+fragment+text | 20  | | The Library of Congress Call Number | |
+| issn | bibtex+field+text | 20  | | The International Standard Serial Number. | |
+| url | bibtex+field+text | 100 | | The WWW address | |
+| doi | bibtex+field+text | 100  | | The [[http://www.doi.org/][Document Object Identifier]], Eg. [[http://dx.doi.org/10.1000/182][10.1000/182]] | |
+| lccn | bibtex+field+text | 20  | | The Library of Congress Call Number | |
 
 %META:FORM{name="Applications/Bibliography.TypeForm"}%

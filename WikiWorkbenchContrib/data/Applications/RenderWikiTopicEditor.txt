@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1278342136" format="1.1" reprev="3" version="3"}%
+%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1307448305" format="1.1" reprev="4" version="4"}%
 %META:TOPICPARENT{name="TopicFunction"}%
 %TOC{depth="2"}%
 
@@ -23,8 +23,8 @@ displayed at the topic of the text tab.
     topic="%BASEWEB%.%BASETOPIC%"
     form="%IF{"defined FORM" then="%FORM%" else="Applications.WikiTopic"}%"
     field="%IF{"defined FIELDS" then="%FIELDS%" else="TopicTitle,Summary"}%"
-    header="<table class='foswikiLayoutTable'>"
-    format="<tr><th valign='top'>$title:</th><td valign='top'>$edit</td></tr>"
+    header="<table class='foswikiLayoutTable jqTooltip'>"
+    format="<tr title='$description'><th valign='top'>$title:</th><td valign='top'>$edit</td></tr>"
     footer="</table>"
     TopicTitle_title="%MAKETEXT{"Title"}%"
     Summary_title="%MAKETEXT{"Summary"}%"
@@ -33,8 +33,6 @@ displayed at the topic of the text tab.
 </literal>
 <!-- //render wiki topic editor -->%STOPINCLUDE%
 </verbatim>
-
-<!-- interrupt glue -->
 
 ---++ Test
 %DBCALL{"%TOPIC%"}%

@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1283845499" format="1.1" reprev="8" version="12"}%
+%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1305110947" format="1.1" reprev="13" version="13"}%
 %DBCALL{"RenderTopicInstaller" TYPE="TopicType" PARENT="TopicType"}%
 ---++ Documentation
 %STARTSECTION{"documentation"}%
@@ -28,11 +28,13 @@ The TopicType topic is the factory to create new <nop>TopicTypes as well.
 
 ---++ Topics of type 'TopicType'
 %STARTINCLUDE%<!-- -->
-%DBCALL{"Applications.RenderSimpleTopicCreator" 
-  TEMPLATE="Applications.TopicTypeTemplate"
-  FORM="Applications.TopicType"
-  TYPE="TopicType, DataForm, DocuTopic, ApplicationTopic"
-}%
+%IF{"'%BASEWEB%'=~'^Applications'"
+  then="$percntDBCALL{\"Applications.RenderSimpleTopicCreator\" 
+    TEMPLATE=\"Applications.TopicTypeTemplate\"
+    FORM=\"Applications.TopicType\"
+    TYPE=\"TopicType, DataForm, DocuTopic, ApplicationTopic\"
+  }$percnt"
+}%<!-- -->
 
 %DBCALL{"Applications.RenderTopicsOfType"
   FIELDS="Topic,Inheritance,Summary,WikiApplication,Changed"
@@ -51,7 +53,7 @@ The TopicType topic is the factory to create new <nop>TopicTypes as well.
 
 %META:FORM{name="Applications.TopicType"}%
 %META:FIELD{name="TopicType" title="TopicType" value="TopicType, DataForm, DocuTopic"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="TopicType"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Inheritance" attributes="" title="Inheritance" value="ApplicationTopic"}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value="TopicType of all TopicTypes"}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

@@ -250,7 +250,9 @@ sub handleMakeIndex {
   my $theCols = $params->{cols} || 3;
   my $theFormat = $params->{format};
   my $theSort = $params->{sort} || 'on';
-  my $theSplit = $params->{split} || ',';
+  my $theSplit = $params->{split};
+  $theSplit = ',' unless defined $theSplit;
+
   my $theUnique = $params->{unique} || '';
   my $theExclude = $params->{exclude} || '';
   my $theInclude = $params->{include} || '';
@@ -260,6 +262,7 @@ sub handleMakeIndex {
   my $theFooter = $params->{footer} || '';
   my $theGroup = $params->{group};
   my $theAnchorThreshold = $params->{anchorthreshold} || 0;
+
 
   # sanitize params
   $theAnchorThreshold =~ s/[^\d]//go;
@@ -510,7 +513,8 @@ sub handleFormatList {
   my $theFormat = $params->{format};
   my $theHeader = $params->{header} || '';
   my $theFooter = $params->{footer} || '';
-  my $theSplit = $params->{split} || '[,\s]+';
+  my $theSplit = $params->{split};
+  $theSplit = '[,\s]+' unless defined $theSplit;
   my $theSeparator = $params->{separator};
   my $theLimit = $params->{limit} || -1; 
   my $theSkip = $params->{skip} || 0; 

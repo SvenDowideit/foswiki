@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2010 Foswiki Contributors
+# Copyright (C) 2009-2011 Foswiki Contributors
 #
 # For licensing info read LICENSE file in the Foswiki root.
 # This program is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@ use File::Spec::Functions qw(rel2abs);
 our $magic = File::MMagic->new();
 
 sub stringFor {
-  my ($class, $filename, $encoding) = @_;
+  my ($class, $filename) = @_;
 
   return unless -r $filename;
   my $mime = $magic->checktype_filename($filename);

@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1273573565" format="1.1" reprev="3" version="4"}%
+%META:TOPICINFO{author="micha" comment="reprev" date="1310632051" format="1.1" reprev="5" version="5"}%
 %META:TOPICPARENT{name="TopicFunction"}%
 %TOC{depth="2"}%
 
@@ -17,13 +17,11 @@ showing its title and the summary line.
 %STARTINCLUDE%<!-- render wiki topics view -->
 <noautolink>
 %DBQUERY{topic="%BASEWEB%.%BASETOPIC%"
-  format="<h1 >[[$web.$topic][$expand(topictitle)]] %IF{"defined 'TITLE_EXTRA'" then="<span class='foswikiTopicExtra'>%TITLE_EXTRA%</span>"}% $expand('<br /><span class=\"foswikiTopicSummary\">' and Summary and '</span>')</h1>"
+  format="<h1 >[[$web.$topic][$expand(topictitle)]] %IF{"defined 'TITLE_EXTRA'" then="<span class='foswikiTopicExtra'>%TITLE_EXTRA%</span>"}% $expand('<br /><span class=\"foswikiTopicSummary\">' and Summary and '</span>')</h1>%CLEAR%"
 }%
 </noautolink>
 <!-- //render wiki topics view -->%STOPINCLUDE%
 </verbatim>
-
-<!-- interrupt glue -->
 
 ---++ Test
 <div class="alt">
@@ -40,6 +38,6 @@ showing its title and the summary line.
 
 %META:FORM{name="Applications.ApplicationTopic"}%
 %META:FIELD{name="TopicType" title="TopicType" value="DocuTopic, TopicFunction"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="RenderWikiTopicView"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value=""}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

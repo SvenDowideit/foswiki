@@ -327,9 +327,13 @@ sub exists {
    * cuid=>$cuid (canonical user id) - if undefined, presume 'admin' (or no perms check) access
    
 Get an iterator over the list of revisions of the object. The iterator returns
-the revision identifiers (which will usually be numbers) starting with the most recent revision.
+the revision identifiers (which will usually be numbers) starting with the most
+recent revision.
 
 if there are no versions, we probably return an empty itr
+
+If the object does not exist, returns an empty iterator ($iterator->hasNext() will be
+false).
 
 =cut
 

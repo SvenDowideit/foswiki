@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2010 Foswiki Contributors
+# Copyright (C) 2009-2011 Foswiki Contributors
 #
 # For licensing info read LICENSE file in the Foswiki root.
 # This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@ package Foswiki::Contrib::Stringifier::Plugins::HTML;
 use Foswiki::Contrib::Stringifier::Base;
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 
-my $html2text = $Foswiki::cfg{StringifierContrib}{htmltotextCmd} || 'html2text';
+my $html2text = $Foswiki::cfg{StringifierContrib}{htmltotextCmd} || 'html2text -nobs';
 
 __PACKAGE__->register_handler("text/html", ".html");
 

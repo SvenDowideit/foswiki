@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="save topic" date="1289660971" format="1.1" reprev="2" version="2"}%
+%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1308076281" format="1.1" reprev="3" version="3"}%
 %META:TOPICPARENT{name="TopicFunction"}%
 %TOC{depth="2"}%
 
@@ -21,29 +21,27 @@ file.
   "TopicType=~'\b(TaggedTopic|ClassifiedTopic)\b'"
   %IF{"defined TAG" then="include=\"^%TAG%\""}%
   field="Tag"
-  format="$key"
   web="%IF{"defined THEWEB" then="%THEWEB%" else="%BASEWEB%"}%"
-  separator="$n"
+  header="[$n"
+  format="{\"value\":\"$key\"}"
+  separator=",$n"
+  footer="$n]"
   limit="%IF{"defined LIMIT" then="%LIMIT%" else="10"}%"
   pattern="^(.*)$" 
 }%%STOPINCLUDE%
 </verbatim>
 
-<!-- interrupt glue -->
-
 ---++ Test
-<div class="alt">
 <noautolink>
 <pre>
-%DBCALL{"%TOPIC%" TAG="f"}%
+%DBCALL{"%TOPIC%"}%
 </pre>
 </noautolink>
-</div>
 
 %DBCALL{"Applications.RenderFunctionCallers"}%
 
 ---++ Copyright
-&copy; 2006-2010 Michael Daum http://michaeldaumconsulting.com
+&copy; 2006-2011 Michael Daum http://michaeldaumconsulting.com
 
 %DBCALL{"Applications.GnuGeneralPublicLicense" section="notice"}%
 

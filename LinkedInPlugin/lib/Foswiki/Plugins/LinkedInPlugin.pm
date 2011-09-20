@@ -16,7 +16,7 @@ use Foswiki::Func    ();    # The plugins API
 use Foswiki::Plugins ();    # For the API version
 
 our $VERSION           = '$Rev$';
-our $RELEASE           = '1.0.3';
+our $RELEASE           = '1.0.4';
 our $SHORTDESCRIPTION  = 'Add LinkedIn Widgets to your Foswiki';
 our $NO_PREFS_IN_TOPIC = 1;
 
@@ -99,16 +99,25 @@ sub validateUrl {
     return;
 }
 
+my %valid_types = (
+    inline=>1,
+    hover=>1,
+    click=>1,
+    popup=>1
+);
+
 sub PROFILE {
     my ( $session, $params, $topic, $web, $topicObject ) = @_;
 
     my $user =
          $params->{_DEFAULT}
       || $params->{user}
-      || Foswiki::Func::spaceOutWikiWord(
-        Foswiki::Func::getWikiName( Foswiki::Func::getCanonicalUserID() ) );
+      || Foswiki::Func::getWikiName( Foswiki::Func::getCanonicalUserID() );
     my $type = lc( $params->{type} ) || 'inline';
-    $type = 'inline' if ( $type ne 'popup' );
+    $type = 'inline' if ( not defined($valid_types{$type}) );
+    $type = 'click' if ($type eq 'popup');
+    
+    
     my $shareto = $params->{shareto} || 'linkedin';
 
     Foswiki::Func::loadTemplate($shareto);

@@ -44,8 +44,6 @@ scratch on as you will be able to create an initial !TopicType !TopicType this w
 %STOPINCLUDE%
 </verbatim>
 
-<!-- interrupt glue -->
-
 ---++ Test
 <noautolink>
 <div class="alt">

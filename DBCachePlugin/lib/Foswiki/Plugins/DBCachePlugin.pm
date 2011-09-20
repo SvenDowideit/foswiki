@@ -29,7 +29,7 @@ use vars qw(
 );
 
 $VERSION = '$Rev$';
-$RELEASE = '3.61';
+$RELEASE = '3.70';
 $NO_PREFS_IN_TOPIC = 1;
 $SHORTDESCRIPTION = 'Lightweighted frontend to the DBCacheContrib';
 
@@ -128,6 +128,22 @@ sub afterSaveHandler {
   #my ($text, $topic, $web, $meta) = @_;
 
   return unless $isEnabledSaveHandler;
+
+  # Temporarily disable afterSaveHandler during a "createweb" action:
+  # The "createweb" action calls save serveral times during its operation.
+  # The below hack fixes an error where this handler is already called even though
+  # the rest of the web hasn't been indexed yet. For some reasons we'll end up
+  # with only the current topic being index into in the web db while the rest
+  # would be missing. Indexing all of the newly created web is thus defered until
+  # after "createweb" has finished.
+
+  my $context = Foswiki::Func::getContext();
+  my $request = Foswiki::Func::getCgiQuery();
+  my $action = $request->param('action') || '';
+  if ($context->{manage} && $action eq 'createweb') {
+    #print STDERR "suppressing afterSaveHandler during createweb\n";
+    return;
+  }
 
   initCore();
   return Foswiki::Plugins::DBCachePlugin::Core::afterSaveHandler($_[2], $_[1]);

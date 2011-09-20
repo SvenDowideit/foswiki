@@ -1,7 +1,6 @@
 %META:TOPICINFO{author="ProjectContributor" comment="" date="1262991297" format="1.1" reprev="1.2" version="1.2"}%
 ---+!! Send Email Plugin
-
-%$SHORTDESCRIPTION%
+%$SHORTDESCRIPTION%.
 
 <img src="%PUBURLPATH%/%WEB%/%TOPIC%/screenshot.png" alt="Screenshot" width='797' height='378' />
 
@@ -221,67 +220,42 @@ This form asks for user information and validates that the fields are filled.
 name="mailForm"
 action="%SCRIPTURL{sendemail}%/%WEB%/%TOPIC%"
 method="POST"
-onSubmit="return checkPasswords(this)"
 }%
 <fieldset style="border:1px solid #ddd; padding:1em">
 <legend><b>Send Email</b></legend>
 %RED%*%ENDCOLOR% All fields are required.
 %FORMELEMENT{
-name="To"
-type="hidden"
-title="To:"
-default="me@myurl.com"
-}%
-%FORMELEMENT{
-name="Subject"
-type="hidden"
-default="Account Request"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-mandatory="on"
-title="Name (First and Last):"
-}%
-%FORMELEMENT{
-name="Email"
-type="text"
-mandatory="on"
-validate="email"
-title="E-mail Address:"
-}%
-%FORMELEMENT{
-name="body"
-type="textarea"
-rows="10"
-cols="80"
-cssclass="foswikiHidden"
-default="$Name
-$Email
-$Company
-$Password
-$Confirm"
-}%
-%FORMELEMENT{
-type="submit"
-buttonlabel="Send"
+   name="Subject"
+   type="hidden"
+   default="This is a test"
+}%%FORMELEMENT{
+   name="Name"
+   type="text"
+   mandatory="on"
+   validate="nonempty"
+   title="Name (First and Last):"
+}%%FORMELEMENT{
+   name="To"
+   type="text"
+   mandatory="on"
+   validate="email"
+   title="E-mail Address:"
+}%%FORMELEMENT{
+   name="body"
+   type="textarea"
+   rows="10"
+   cols="80"
+   cssclass="foswikiHidden"
+   default="From: $Name
+Email: $Email"
+}%%FORMELEMENT{
+   type="submit"
+   buttonlabel="Send"
 }%
 </fieldset>
 %ENDFORM%
 
 %SENDEMAIL{feedbackSuccess="Request sent, we'll contact you shortly." feedbackError="Could not send your message, please contact us." }%
-
-<script type="text/javascript">
-//<![CDATA[
-function checkPasswords(inForm) {
-	if(inForm.Password.value != inForm.Confirm.value) {
-		alert('Your passwords do not match. Please try again.');
-		return false;
-	}
-	return true;
-}
-//]]>
-</script>
 </verbatim>
 %ENDTWISTY%
 
@@ -289,50 +263,37 @@ function checkPasswords(inForm) {
 name="mailForm"
 action="%SCRIPTURL{sendemail}%/%WEB%/%TOPIC%"
 method="POST"
-onSubmit="return checkPasswords(this)"
 }%
 <fieldset style="border:1px solid #ddd; padding:1em">
 <legend><b>Send Email</b></legend>
 %RED%*%ENDCOLOR% All fields are required.
 %FORMELEMENT{
-name="To"
-type="hidden"
-title="To:"
-default="me@myurl.com"
-}%
-%FORMELEMENT{
-name="Subject"
-type="hidden"
-default="Account Request"
-}%
-%FORMELEMENT{
-name="Name"
-type="text"
-mandatory="on"
-title="Name (First and Last):"
-}%
-%FORMELEMENT{
-name="Email"
-type="text"
-mandatory="on"
-validate="email"
-title="E-mail Address:"
-}%
-%FORMELEMENT{
-name="body"
-type="textarea"
-rows="10"
-cols="80"
-cssclass="foswikiHidden"
-default="$Name
-$Email
-$Company
-$Password
-$Confirm"
-}%
-%FORMELEMENT{
-type="submit"
-buttonlabel="Send"
+   name="Subject"
+   type="hidden"
+   default="This is a test"
+}%%FORMELEMENT{
+   name="Name"
+   type="text"
+   mandatory="on"
+   validate="nonempty"
+   title="Name (First and Last):"
+}%%FORMELEMENT{
+   name="To"
+   type="text"
+   mandatory="on"
+   validate="email"
+   title="E-mail Address:"
+}%%FORMELEMENT{
+   name="body"
+   type="textarea"
+   rows="10"
+   cols="80"
+   cssclass="foswikiHidden"
+   default="From: $Name
+Email: $Email"
+}%%FORMELEMENT{
+   type="submit"
+   buttonlabel="Send"
 }%
 </fieldset>
 %ENDFORM%
@@ -342,19 +303,10 @@ feedbackSuccess="Request sent, we'll contact you shortly."
 feedbackError="Could not send your message, please contact us."
 }%
 
-<script type="text/javascript">
-//<![CDATA[
-function checkPasswords(inForm) {
-	if(inForm.Password.value != inForm.Confirm.value) {
-		alert('Your passwords do not match. Please try again.');
-		return false;
-	}
-	return true;
-}
-//]]>
-</script>
-
 ---++ FAQ
+---+++ How do I create linebreaks in the email body?
+Use the token =$n= to create newlines.
+
 ---+++ How do I send data form fields?
 If you have a [[%SYSTEMWEB%.DataForms][data form]] with the fields =Title= and =Summary= and want to post the values of these fields in the body of the e-mail, eiter:
    * put them in a hidden field:
@@ -400,6 +352,7 @@ HTML elements with these style names are written to the default feedback.
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  25 Aug 2011 | 1.5.3 Fixes a bug in the example form. |
 |  13 Mar 2010 | 1.5.2 Improved error feedback and documentation. |
 |  28 Feb 2010 | 1.5.1 Added forgotten =Config.spec= file. |
 |  08 Jan 2010 | 1.5 Arthur Clemens: Improved error feedback; added =format= parameter; moved the mail template to a topic; changed param =template= to =mailtemplate=. |

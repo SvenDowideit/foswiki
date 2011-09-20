@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1283845402" format="1.1" reprev="11" version="13"}%
+%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1305896211" format="1.1" reprev="15" version="15"}%
 %META:TOPICPARENT{name="TopicFunction"}%
 %TOC{depth="2"}%
 
@@ -8,14 +8,16 @@ This function renders a topic creator form that holds a set of initial input ele
 
 ---+++++ Parameters
    * TEXT: headline text; defaults to "Create a new INCLUDINGTOPIC"
+   * LABEL: label of the !TopicTitle field, defaults to "Title"
    * BUTTONTEXT: text on the twisty buttinm; default %MAKETEXT{"New"}%
    * VALUE: initial value of the title input field (optional)
+   * TOPICVALUE: initial value of the topic input field, e.g. =SomeTopicAUTOINC0=
    * FORM: DataForm to be used when creating a topic, defaults to WikiTopic
    * TEMPLATE: TopicTemplate to be used (optional)
    * TYPE: initial TopicType value, defaults to values predefined in the form definition
    * PARENT: parent topic for the new topic, defaults to the BASETOPIC
    * WHITEBOARD: switch on/off the whiteboard textarea
-   * EXTRA: additional =&lt;input ... />= (deprecated: use =c= attribute in form definition to include it in the creator)
+   * EXTRA: additional =&lt;input <!-- ALIAS:... -->&hellip;<!-- //ALIAS --> />= (deprecated: use =c= attribute in form definition to include it in the creator)
    * ACTION: script to be used to create the topic, eg =save= or =edit=, defaults to =edit=
    * EDITOR: TopicView to be used as an edit_template 
 
@@ -42,7 +44,11 @@ This function renders a topic creator form that holds a set of initial input ele
 <input type="hidden" name="templatetopic" value="%IF{"defined TEMPLATE" then="%TEMPLATE%"}%" />
 <input type="hidden" name="formtemplate" value="%IF{"defined FORM" then="%FORM%" else="Applications.WikiTopic"}%" />
 <input type="hidden" name="template" value="%IF{"defined EDITOR" then="%EDITOR%"}%" />
-<input type="hidden" name="topic" value="%IF{"defined VALUE" then="%VALUE%"}%" class="jqWikiWord {source:'input[name=TopicTitle]'}" />
+<input type="hidden" name="topic" value="%IF{
+  "defined TOPICVALUE" 
+  then="%TOPICVALUE%" 
+  else="%IF{"defined VALUE" then="%VALUE%"}%"
+}%" %IF{"'%TOPICVALUE%'=~'AUTOINC'" else="class=\"jqWikiWord {source:'input[name=TopicTitle]'}\""}% />
 %IF{"defined EXTRA" then="$percntEXTRA$percnt" else="<!-- no extras -->"}%
 <h2 >%IF{"defined TEXT"
        then="$percntTEXT$percnt" 
@@ -55,7 +61,7 @@ This function renders a topic creator form that holds a set of initial input ele
   fields="TopicTitle"
   format="<div class='foswikiFormStep'><h3>$title:$mandatory</h3>$edit</div>"
   TopicTitle_value="%IF{"defined VALUE" then="%VALUE%"}%"
-  TopicTitle_title="%MAKETEXT{"Title"}%"
+  TopicTitle_title="%IF{"defined LABEL" then="%LABEL%" else="%MAKETEXT{"Title"}%"}%"
 }%
 %RENDERFOREDIT{
   form="%IF{"defined FORM" then="%FORM%" else="%INCLUDINGWEB%.%INCLUDINGTOPIC%"}%"
@@ -73,7 +79,11 @@ This function renders a topic creator form that holds a set of initial input ele
   WikiApplication_value="%FLEXWEBLIST{include="%BASEWEB%" format="$name"}%" 
   TopicType_value="%IF{"defined TYPE" 
     then="%TYPE%"
-    else="%BASETOPIC%"
+    else="%RENDERFORDISPLAY{
+      form="%IF{"defined FORM" then="%FORM%" else="%INCLUDINGWEB%.%INCLUDINGTOPIC%"}%"
+      fields="TopicType"
+      format="$values"
+    }%"
   }%"
   Summary_value=""
   header=""
@@ -89,13 +99,18 @@ This function renders a topic creator form that holds a set of initial input ele
 </form> 
 </noautolink>
 %ENDTWISTY%
-
 %JQREQUIRE{"wikiword"}%<!-- -->
-<!-- //rendersimpletopiccreator -->%STOPINCLUDE%
+<!-- -->%STOPINCLUDE%
 </verbatim>
 
 ---++ Test
-%DBCALL{"%TOPIC%" TEXT="Create a new Topic" VALUE="WikiTopicAUTOINC0"  TYPE="WikiTopic" FORM="WikiTopic"}%
+%DBCALL{"%TOPIC%" 
+   TEXT="Create a new Topic" 
+   VALUE="Foo topic..."
+   XXTOPICVALUE="WikiTopicAUTOINC0"  
+   TYPE="WikiTopic" 
+   FORM="WikiTopic"
+}%
 
 ---++ Copyright
 &copy; 2006-2010 Michael Daum http://michaeldaumconsulting.com
@@ -104,6 +119,6 @@ This function renders a topic creator form that holds a set of initial input ele
 
 %META:FORM{name="Applications.ApplicationTopic"}%
 %META:FIELD{name="TopicType" title="TopicType" value="TopicFunction"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="RenderSimpleTopicCreator"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value="TopicFunction to display a simple form to create a new topic"}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

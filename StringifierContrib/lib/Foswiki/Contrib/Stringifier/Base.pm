@@ -1,4 +1,4 @@
-# Copyright (C) 2009-2010 Foswiki Contributors
+# Copyright (C) 2009-2011 Foswiki Contributors
 #
 # For licensing info read LICENSE file in the Foswiki root.
 # This program is free software; you can redistribute it and/or
@@ -14,7 +14,7 @@
 
 package Foswiki::Contrib::Stringifier::Base;
 use strict;
-use utf8;
+#use utf8;
 use Encode ();
 
 use Module::Pluggable (require => 1, search_path => [qw/Foswiki::Contrib::Stringifier::Plugins/]);

@@ -1,5 +1,7 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
+# Copyright (C) 2010-2011 Arthur Clemens, arthur@visiblearea.com
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -22,7 +24,8 @@ my %sortKeys = (
     '$fileUser'      => [ 'user',      'string' ],
     '$fileExtension' => [ 'extension', 'string' ],
     '$fileName'      => [ 'name',      'string' ],
-    '$fileTopic'     => [ 'topic',     'string' ]
+    '$fileTopic'     => [ 'topic',     'string' ],
+    '$fileComment'   => [ 'comment',   'string' ]
 );
 
 my $defaultPlaceholderNoExtension =
@@ -56,6 +59,10 @@ sub new {
     my $hiddenAttr = $attachment->{'attr'} || '';
     $hiddenAttr =~ s/h/hidden/;
     $this->{'hidden'} = $hiddenAttr;
+
+    $this->{'comment'} = '';
+    $this->{'comment'} = $attachment->{'comment'}
+      if $this->{'hidden'} ne 'hidden';
 
     bless $this, $class;
 }

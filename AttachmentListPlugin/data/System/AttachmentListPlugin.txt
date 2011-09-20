@@ -54,6 +54,7 @@ name (=$fileName=) %BR%\
 size (=$fileSize=) %BR%\
 user (=$fileUser=) %BR%\
 date (=$fileDate=) %BR%\
+comment (=$fileComment=) %BR%\
 extension (=$fileExtension=) %BR%\
 containing topic (=$fileTopic=) %BR%\
 The sort order can be specified with parameter =sortorder=. | =$fileName= | =sort="$fileDate"= |
@@ -212,6 +213,7 @@ You may specify image height and width parameters - this will read the imaage fi
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  24 Aug 2011 | v.1.5.0 Arthur Clemens: sort on attachment comments. |
 |  14 Dec 2010 | v.1.4.0 Support attachments in subwebs.  Foswiki:Main.WillNorris, Support =AutoAttachPubFiles=  -- Foswiki:Main.GeorgeClark |
 |  01 Apr 2010 | V.1.3.4 Arthur Clemens: Fixed unit tests. |
 |  22 Jun 2009 | V.1.3.3 Arthur Clemens: Fixed call to unreleased internal function =openAttachment=. |

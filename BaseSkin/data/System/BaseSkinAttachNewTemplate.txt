@@ -1,0 +1,45 @@
+%{<verbatim class="tml">
+===================================================
+	Base Skin topic template
+
+	The attach new template shows an upload form
+		
+	Additional information:
+		- help
+		
+===================================================
+}%%TMPL:INCLUDE{"attach"}%%{
+---------------------------------------------------
+	Page title
+---------------------------------------------------
+}%%TMPL:DEF{"attach:title"}%<h1> %TOPIC% / %MAKETEXT{"New attachment"}% </h1>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"content"}%<div class="foswikiTopic">%TMPL:P{"attach:title"}%%TABPANE{
+	class="simplevertical"
+}%
+%TAB{
+	"%MAKETEXT{"Upload"}%"
+	id="upload"
+}%%TMPL:P{"attach:new"}%%ENDTAB%
+%TAB{
+	"<img src='%PUBURLPATH%/%SYSTEMWEB%/DocumentGraphics/help.png' class='foswikiIcon' height='16' alt='' /> %MAKETEXT{"Help"}%"
+	id="help"
+}%%TMPL:P{"attach:help"}%%ENDTAB%
+%ENDTABPANE%<div class='foswikiClear'></div>
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new:title"}%<h2>%MAKETEXT{"Upload file"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:comment:title"}%<h3>%MAKETEXT{"Comment"}%</h3>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:properties:title"}%<h3>%MAKETEXT{"Properties"}%</h3>%TMPL:END%%{
+===================================================
+</verbatim>}%

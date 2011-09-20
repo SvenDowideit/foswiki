@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="reprev" date="1276085712" format="1.1" reprev="3" version="5"}%
+%META:TOPICINFO{author="micha" comment="reprev" date="1311861958" format="1.1" reprev="6" version="6"}%
 %META:TOPICPARENT{name="TopicFunction"}%
 %TOC{depth="2"}%
 
@@ -13,21 +13,30 @@ This is used to create a new WikiApplication
 %STARTINCLUDE%<!-- wikiapplicationfactory -->
 %TWISTY{link="%BUTTON{"New <nop>WikiApplication" icon="add"}%%CLEAR%" mode="div"}%
 
-<form id="newWikiAppForm" name="admin" action="%SCRIPTURLPATH{manage}%/%WEB%/%TOPIC%" method="post"">
+<form id="newWikiAppForm" name="admin" action="%SCRIPTURLPATH{manage}%/%BASEWEB%/%HOMETOPIC%" method="post"">
 <input name="action" type="hidden" value="createweb" />
 <input type="hidden" name="baseweb" value="_WikiApplicationTemplate" />
-<input type="hidden" name="webbgcolor" value="#D0D0D0" size="16" /> 
-<input type="hidden" name="WEBBGCOLOR" value="#D0D0D0" size="16" /> <!-- cope with different wiki versions -->
+<input type="hidden" name="webbgcolor" value="#D0D0D0" size="16" />
 <input name="newtopic" type="hidden" value="" />
 <input type="submit" style="display:none;" />
 <div class="foswikiFormSteps">
 <div class="foswikiFormStep">
   <h3>Name:</h3>
   <input class="foswikiInputField" id="newweb" name="newweb" type="text" value="" size="50" />
+  <div class="foswikiFormDescription">
+    <noautolink>
+    %MAKETEXT{"This is the name of the web that will hold the wiki application. It will become a subweb of the Applications web. Example values: MyCompanyApp, TestApp"}%
+    </noautolink>
+  </div>
 </div>
 <div class="foswikiFormStep">
   <h3>Description:</h3>
-  <input class="foswikiInputField" type="text" name="sitemapwhat" value="" size="50" />
+  <input class="foswikiInputField" type="text" name="WEBSUMMARY" value="" size="50" />
+  <div class="foswikiFormDescription">
+    <noautolink>
+    %MAKETEXT{"Enter a short description what this wiki app is about. It will be stored in the WebPreferences of your newly created application web."}%
+    </noautolink>
+  </div>
 </div>
 <div class="foswikiFormStep foswikiFormButtons foswikiFormLast">
   %BUTTON{"%MAKETEXT{"Submit"}%" type="submit" icon="tick"}%
@@ -47,7 +56,7 @@ This is used to create a new WikiApplication
 jQuery(function($) {
   $('#newWikiAppForm').bind('submit', function() {
     var newweb = $('#newweb').val();
-    if (!newweb.match(/Applications\./)) {
+    if (!newweb.match(/^Applications\./)) {
       newweb = 'Applications.'+newweb;
       $('#newweb').val(newweb);
     }
@@ -66,12 +75,12 @@ jQuery(function($) {
 %DBCALL{"Applications.RenderFunctionCallers"}%
 
 ---++ Copyright
-&copy; 2006-2010 Michael Daum http://michaeldaumconsulting.com
+&copy; 2006-2011 Michael Daum http://michaeldaumconsulting.com
 
 %DBCALL{"Applications.GnuGeneralPublicLicense" section="notice"}%
 
 %META:FORM{name="Applications.ApplicationTopic"}%
 %META:FIELD{name="TopicType" title="TopicType" value="DocuTopic, TopicFunction"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="RenderWikiApplicationFactory"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value="Renders a form to create a new WikiApplication"}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

@@ -1,20 +1,24 @@
-%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1276594067" format="1.1" reprev="2" version="3"}%
+%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1306436939" format="1.1" reprev="2" version="4"}%
 %META:TOPICPARENT{name="TopicView"}%
 %{<verbatim class="tml">}%
 %TMPL:INCLUDE{"view"}%
+%{</verbatim>}%
+
+%{<verbatim class="tml">}%
 %TMPL:DEF{"beforetext"}%<div class="foswikiTopicInfo">
 %DBCALL{"Applications.RenderWikiTopicView" TITLE_EXTRA="%TMPL:P{"titleextra"}%"}%
 </div>
-%DBCALL{"%FORMFIELD{"Target" topic="%BASEWEB%.%BASETOPIC%"}%" remote="on" section="%FORMFIELD{"Section"}%"}%
+%DBCALL{"%FORMFIELD{"Target" topic="%BASEWEB%.%BASETOPIC%"}%" section="%FORMFIELD{"Section"}%"}%
 %TMPL:END%
 %{</verbatim>}%
 
 %{<verbatim class="tml">}%
 %TMPL:DEF{"form"}%%TMPL:END% 
+%TMPL:DEF{"revinfo"}%%TMPL:END% 
 %{</verbatim>}%
 
 %META:FORM{name="Applications.ApplicationTopic"}%
 %META:FIELD{name="TopicType" title="TopicType" value="TopicView"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="TopicStubViewTemplate"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value="TopicView for TopicStubs"}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 # 
-# Copyright (C) 2009-2010 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2009-2011 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -83,7 +83,7 @@ sub handleRENDERFORDISPLAY {
   my $theMap = $params->{map} || '';
   my $theLabelFormat = $params->{labelformat} || '';
   my $theAutolink = Foswiki::Func::isTrue($params->{autolink}, 1);
-  my $theSort = Foswiki::Func::isTrue($params->{sort}, 1);
+  my $theSort = Foswiki::Func::isTrue($params->{sort}, 0);
   my $theHideEmpty = Foswiki::Func::isTrue($params->{hideempty}, 0);
 
   # get defaults from template
@@ -142,6 +142,8 @@ sub handleRENDERFORDISPLAY {
 
   my $fieldTitles;
   foreach my $map (split(/\s*,\s*/, $theMap)) {
+    $map =~ s/\s*$//;
+    $map =~ s/^\s*//;
     if ($map =~ /^(.*)=(.*)$/) {
       $fieldTitles->{$1} = $2;
     }
@@ -150,6 +152,8 @@ sub handleRENDERFORDISPLAY {
   my @selectedFields = ();
   if ($theFields) {
     foreach my $fieldName (split(/\s*,\s*/, $theFields)) {
+      $fieldName =~ s/\s*$//;
+      $fieldName =~ s/^\s*//;
       my $field = $form->getField($fieldName);
       writeDebug("WARNING: no field for '$fieldName' in $theFormWeb.$theForm") unless $field;
       push @selectedFields, $field if $field;
@@ -173,12 +177,16 @@ sub handleRENDERFORDISPLAY {
     #writeDebug("fieldName=$fieldName, fieldType=$fieldType");
 
     my $fieldAllowedValues = '';
-    if ($field->can('getOptions')) {
+    # CAUTION: don't use field->getOptions() on a +values field as that won't return the full valueMap...only the value part, but not the title map
+    if ($field->can('getOptions') && $field->{type} !~ /\+values/) {
+      #writeDebug("can getOptions");
       my $options = $field->getOptions();
       if ($options) {
+        #writeDebug("options=$options");
         $fieldAllowedValues = join($theValueSep, @$options);
       }
     } else {
+      #writeDebug("can't getOptions ... fallback to field->{value}");
       # fallback to field->value
       my $options = $field->{value};
       if ($options) {
@@ -267,10 +275,9 @@ sub handleRENDERFORDISPLAY {
     $line =~ s/\$type\b/$fieldType/g;
     $line =~ s/\$size\b/$fieldSize/g;
     $line =~ s/\$attrs\b/$fieldAttrs/g;
-    $line =~ s/\$value\b/$fieldValue/g;
+    $line =~ s/\$(orig)?value\b/$fieldValue/g;
     $line =~ s/\$default\b/$fieldDefault/g;
-    $line =~ s/\$tooltip\b/$fieldDescription/g;
-    $line =~ s/\$description\b/$fieldDescription/g;
+    $line =~ s/\$(tooltip|description)\b/$fieldDescription/g;
     $line =~ s/\$title\b/$fieldTitle/g;
     $line =~ s/\$form\b/$formTitle/g;
 
@@ -279,6 +286,8 @@ sub handleRENDERFORDISPLAY {
     # cleanup
     $fieldClone->finish() if defined $fieldClone;
   }
+
+  return '' if $theHideEmpty && !@result;
 
   my $result = $theHeader.join($theSep, @result).$theFooter;
   $result =~ s/\$nop//g;
@@ -312,7 +321,7 @@ sub handleRENDERFOREDIT {
   my $theMandatory = $params->{mandatory};
   my $theHidden = $params->{hidden};
   my $theHiddenFormat = $params->{hiddenformat};
-  my $theSort = Foswiki::Func::isTrue($params->{sort}, 1);
+  my $theSort = Foswiki::Func::isTrue($params->{sort}, 0);
 
   if (!defined($theFormat) && !defined($theHeader) && !defined($theFooter)) {
     $theHeader = '<div class=\'foswikiFormSteps\'>';
@@ -360,6 +369,8 @@ sub handleRENDERFOREDIT {
 
   my $fieldTitles;
   foreach my $map (split(/\s*,\s*/, $theMap)) {
+    $map =~ s/\s*$//;
+    $map =~ s/^\s*//;
     if ($map =~ /^(.*)=(.*)$/) {
       $fieldTitles->{$1} = $2;
     }
@@ -368,6 +379,8 @@ sub handleRENDERFOREDIT {
   my @selectedFields = ();
   if ($theFields) {
     foreach my $fieldName (split(/\s*,\s*/, $theFields)) {
+      $fieldName =~ s/\s*$//;
+      $fieldName =~ s/^\s*//;
       my $field = $form->getField($fieldName);
       writeDebug("WARNING: no field for '$fieldName' in $theFormWeb.$theForm") unless $field;
       push @selectedFields, $field if $field;
@@ -396,7 +409,8 @@ sub handleRENDERFOREDIT {
 
     # get the list of all allowed values
     my $fieldAllowedValues = '';
-    if ($field->can('getOptions')) {
+    # CAUTION: don't use field->getOptions() on a +values field as that won't return the full valueMap...only the value part, but not the title map
+    if ($field->can('getOptions') && $field->{type} !~ /\+values/) {
       #writeDebug("can getOptions");
       my $options = $field->getOptions();
       if ($options) {
@@ -411,6 +425,7 @@ sub handleRENDERFOREDIT {
         $fieldAllowedValues = join($theValueSep, split(/\s*,\s*/, $options));
       }
     }
+
     #writeDebug("fieldAllowedValues=$fieldAllowedValues");
 
     # get the default value
@@ -547,7 +562,7 @@ sub handleRENDERFOREDIT {
     $line =~ s/\$size\b/$fieldSize/g;
     $line =~ s/\$attrs\b/$fieldAttrs/g;
     $line =~ s/\$values\b/$fieldAllowedValues/g;
-    $line =~ s/\$value\b/$fieldValue/g;
+    $line =~ s/\$(orig)?value\b/$fieldValue/g;
     $line =~ s/\$default\b/$fieldDefault/g;
     $line =~ s/\$tooltip\b/$fieldDescription/g;
     $line =~ s/\$description\b/$fieldDescription/g;
@@ -577,6 +592,8 @@ sub sortValues {
   my @values = split(/\s*,\s*/, $values);
   my $isNumeric = 1;
   foreach my $item (@values) {
+    $item =~ s/\s*$//;
+    $item =~ s/^\s*//;
     unless ($item =~ /^(\s*[+-]?\d+(\.?\d+)?\s*)$/) {
       $isNumeric = 0;
       last;

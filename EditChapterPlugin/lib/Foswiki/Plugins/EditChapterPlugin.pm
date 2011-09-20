@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2008-2010 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2008-2011 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -17,53 +17,53 @@ package Foswiki::Plugins::EditChapterPlugin;
 
 use strict;
 
-use Foswiki::Func;
+use Foswiki::Func();
+use Foswiki::Plugins();
+use Foswiki::Plugins::EditChapterPlugin::Core();
+use Foswiki::Contrib::JsonRpcContrib ();
 
-use vars qw( 
-  $VERSION $RELEASE $SHORTDESCRIPTION $NO_PREFS_IN_TOPIC
-  $sharedCore $baseWeb $baseTopic $enabled 
-);
-
-$VERSION = '$Rev$';
-$RELEASE = '2.13';
-$SHORTDESCRIPTION = 'An easy sectional edit facility';
+our $VERSION = '$Rev$';
+our $RELEASE = '4.10';
+our $NO_PREFS_IN_TOPIC = 1;
+our $SHORTDESCRIPTION = 'An easy sectional edit facility';
+our $core;
 
 ###############################################################################
 sub initPlugin {
-  ($baseTopic, $baseWeb) = @_;
+  $core = undef;
 
-  $sharedCore = undef;
 
-  Foswiki::Func::registerTagHandler('EXTRACTCHAPTER', \&EXTRACTCHAPTER);
-  Foswiki::Func::addToZone('head', 'EDITCHAPTERPLUGIN', <<'HERE', 'JQUERYPLUGIN::FOSWIKI');
-<link rel="stylesheet" href="%PUBURLPATH%/%SYSTEMWEB%/EditChapterPlugin/ecpstyles.css" type="text/css" media="all" />
-HERE
-  Foswiki::Func::addToZone('script', 'EDITCHAPTERPLUGIN', <<'HERE', 'JQUERYPLUGIN::FOSWIKI');
-<script type="text/javascript" src="%PUBURLPATH%/%SYSTEMWEB%/EditChapterPlugin/ecpjavascript.js"></script>
-HERE
+  Foswiki::Func::registerTagHandler('EXTRACTCHAPTER', sub {
+    return getCore(shift)->handleEXTRACTCHAPTER(@_);
+  });
+
+  Foswiki::Contrib::JsonRpcContrib::registerMethod("EditChapterPlugin", "lock", sub {
+    return getCore(shift)->jsonRpcLockTopic(@_);
+  });
+
+  Foswiki::Contrib::JsonRpcContrib::registerMethod("EditChapterPlugin", "unlock", sub {
+    return getCore(shift)->jsonRpcUnlockTopic(@_);
+  });
 
   return 1;
 }
 
 ###############################################################################
-sub finishHandler {
-  $sharedCore = undef;
-}
+sub getCore {
 
-###############################################################################
-sub initCore {
-
-  unless ($sharedCore) {
-    require Foswiki::Plugins::EditChapterPlugin::Core;
-    $sharedCore = new Foswiki::Plugins::EditChapterPlugin::Core(@_);
+  unless ($core) {
+    my $session = shift || $Foswiki::Plugins::SESSION;
+    $core = new Foswiki::Plugins::EditChapterPlugin::Core($session);
   }
 
-  return $sharedCore;
+  return $core;
 }
 
 ###############################################################################
 sub commonTagsHandler {
   ### my ( $text, $topic, $web, $meta ) = @_;
+
+  $_[0] =~ s/%(STOP|START)CHAPTER%/<!-- $1CHAPTER -->/g; # cleanup
 
   my $context = Foswiki::Func::getContext();
   return unless $context->{'view'};
@@ -74,24 +74,16 @@ sub commonTagsHandler {
   my $contenttype = $query->param('contenttype') || '';
   return if $contenttype eq "application/pdf"; 
 
-  my $core = initCore($baseWeb, $baseTopic);
-  $core->commonTagsHandler(@_);
+  getCore()->commonTagsHandler(@_);
 }
 
 ###############################################################################
 sub postRenderingHandler {
-  return unless $sharedCore;
-  my $translationToken = $sharedCore->{translationToken};
+  return unless $core;
+  my $translationToken = $core->{translationToken};
   $_[0] =~ s/$translationToken//g;
-  $_[0] =~ s/(<a name=["'])A_01_/$1/g; # cleanup anchors
-  $_[0] =~ s/(<a href=["']#)A_01_/$1/g; 
-
-}
-
-###############################################################################
-sub EXTRACTCHAPTER {
-  my $core = initCore($baseWeb, $baseTopic);
-  return $core->handleEXTRACTCHAPTER(@_);
+#  $_[0] =~ s/(<a name=["'])A_01_/$1/g; # cleanup anchors
+#  $_[0] =~ s/(<a href=["']#)A_01_/$1/g; 
 }
 
 1;

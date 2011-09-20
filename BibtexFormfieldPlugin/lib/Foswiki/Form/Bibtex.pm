@@ -4,52 +4,51 @@ package Foswiki::Form::Bibtex;
 use strict;
 use warnings;
 
-use Foswiki::Form::FieldDefinition ();
+use Assert;
+use Foswiki::Form::FieldDefinition (); 
 our @ISA = ('Foswiki::Form::FieldDefinition');
 
 sub new {
-    my $class = shift;
-    my $this  = $class->SUPER::new(@_);
-    if ( $this->{size} =~ /^\s*(\d+)x(\d+)\s*$/ ) {
-        $this->{cols} = $1;
-        $this->{rows} = $2;
+    my ( $class, @args ) = @_;
+    my %attrs = @args;
+    my $bibtype;
+    my $type;
+
+    $attrs{type} =~ /^bibtex(\+(\w+)(\+([\w\+]+))?)?/;
+    $bibtype     = $2;
+    $type        = $4;
+
+    if ( not $bibtype ) {
+        $bibtype = 'field';
     }
-    else {
-        $this->{cols} = 50;
-        $this->{rows} = 4;
+    if ( not $type ) {
+        $type = 'textarea';
     }
-    return $this;
-}
 
-=begin TML
+    # Ripped off from Foswiki::Form
+    # The untaint is required for the validation *and* the ucfirst, which
+    # retaints when use locale is in force
+    my $fieldClass = Foswiki::Sandbox::untaint(
+        $type,
+        sub {
+            my $theClass = shift;
 
----++ ObjectMethod finish()
-Break circular references.
+            # E.g. bibtex+checkbox
+            $theClass =~ /^(\w+)/;    # cut off +buttons etc
+            return 'Foswiki::Form::' . ucfirst($1);
+        }
+    );
 
-=cut
+    if ( not eval 'require ' . $fieldClass . '; 1;' or $@ ) {
 
-# Note to developers; please undef *all* fields in the object explicitly,
-# whether they are references or not. That way this method is "golden
-# documentation" of the live fields in the object.
-sub finish {
-    my $this = shift;
-    $this->SUPER::finish();
-    undef $this->{cols};
-    undef $this->{rows};
-}
+        # Type not available; use base type
+        require Foswiki::Form::FieldDefinition;
+        $fieldClass = 'Foswiki::Form::FieldDefinition';
+    }
 
-sub renderForEdit {
-    my ( $this, $topicObject, $value ) = @_;
-
-    return (
-        '',
-        CGI::textarea(
-            -class   => $this->cssClasses('foswikiBibtex'),
-            -cols    => $this->{cols},
-            -rows    => $this->{rows},
-            -name    => $this->{name},
-            -default => "\n" . $value
-        )
+    return $fieldClass->new(
+        session => $Foswiki::Plugins::SESSION,
+        @args
     );
 }
 
@@ -57,16 +56,16 @@ sub renderForEdit {
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 
-Copyright (C) 2008-2010 Foswiki Contributors. Foswiki Contributors
+Copyright (C) 2011 Foswiki Contributors. Foswiki Contributors
 are listed in the AUTHORS file in the root of this distribution.
 NOTE: Please extend that file, not this notice.
 
 Additional copyrights apply to some or all of the code in this
 file as follows:
 
-Copyright (C) 2001-2007 TWiki Contributors. All Rights Reserved.
+Copyright (C) 2005-2007 TWiki Contributors. All Rights Reserved.
 TWiki Contributors are listed in the AUTHORS file in the root
-of this distribution. NOTE: Please extend that file, not this notice.
+of this distribution.
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

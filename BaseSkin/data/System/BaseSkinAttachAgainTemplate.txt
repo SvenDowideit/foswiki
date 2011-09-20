@@ -1,0 +1,300 @@
+%{<verbatim class="tml">
+===================================================
+	Base Skin topic template
+
+	The attach again template provides edit forms for:
+		- edit (change properties)
+		- upload (new version of this attachment)
+		- create link
+		- rename (filename)
+		- move (to another topic)
+		- delete (move to trash)
+		
+	Additional information:
+		- attachment version history
+		- help
+		
+===================================================
+}%%TMPL:INCLUDE{"attach"}%%{
+---------------------------------------------------
+	Page title
+---------------------------------------------------
+}%%TMPL:DEF{"attach:title"}%<h1> %TOPIC% / %MAKETEXT{"Attachment [_1]" args="%FILENAME%"}% </h1>%TMPL:END%%{
+---------------------------------------------------
+	Attachment edit forms are presented in tab panes
+	Each tab pane can be address with ?tab=id, like ?tab=upload
+---------------------------------------------------
+}%%TMPL:DEF{"content"}%<div class="foswikiTopic">%TMPL:P{"attach:title"}%%TABPANE{
+	class="simplevertical"
+	select="%URLPARAM{"tab"}%"
+}%
+	%TAB{
+		"%MAKETEXT{"Edit"}%"
+		id="edit"
+	}%%TMPL:P{"attach:edit"}%%ENDTAB%
+	%TAB{
+		"%MAKETEXT{"Upload new version"}%"
+		id="upload"
+	}%%TMPL:P{"attach:new"}%%ENDTAB%
+	%TAB{
+		"%MAKETEXT{"Create link"}%"
+		id="createlink"
+	}%%TMPL:P{"attach:createlink"}%%ENDTAB%
+	%TAB{
+		"%MAKETEXT{"Rename"}%"
+		id="rename"
+	}%%TMPL:P{"attach:rename"}%%ENDTAB%
+	%TAB{
+		"%MAKETEXT{"Move"}%"
+		id="move"
+	}%%TMPL:P{"attach:move"}%%ENDTAB%
+	%TAB{
+		"%MAKETEXT{"Delete"}%"
+		id="delete"
+	}%%TMPL:P{"attach:delete"}%%ENDTAB%
+	%TAB{
+		"%MAKETEXT{"Version history"}%"
+		id="history"
+	}%%TMPL:P{"attach:history"}%%ENDTAB%
+	%TAB{
+		"<img src='%PUBURLPATH%/%SYSTEMWEB%/DocumentGraphics/help.png' class='foswikiIcon' width='16' height='16' alt='' /> %MAKETEXT{"Help"}%"
+		id="help"
+	}%%TMPL:P{"attach:help"}%%ENDTAB%
+%ENDTABPANE%<div class='foswikiClear'></div>
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:edit"}%%TMPL:P{"attach:edit:title"}%
+%TMPL:P{"attach:formstart"}%
+%TMPL:P{"attach:edit:hiddenfields"}%
+%TMPL:P{"attach:comment"}%
+%TMPL:P{"attach:properties"}%
+%TMPL:P{"attach:edit:topicaction"}%
+%TMPL:P{"attach:formend"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:edit:hiddenfields"}%<input type="hidden" name="filename" value="%FILENAME%" />%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:edit:title"}%<h2>%MAKETEXT{"Edit attachment"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:new:title"}%<h2>%MAKETEXT{"Upload a new version"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:createlink"}%%TMPL:P{"attach:createlink:title"}%
+%TMPL:P{"attach:createlink:info"}%
+%TMPL:P{"attach:formstart"}%
+%TMPL:P{"attach:createlink:hiddenfields"}%
+%TMPL:P{"attach:createlink:topicaction"}%
+%TMPL:P{"attach:formend"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:createlink:hiddenfields"}%<input type="hidden" name="filename" value="%FILENAME%" />
+<input type="hidden" name="createlink" value="1" />
+<input type="hidden" name="filecomment" value="%FILECOMMENT%" />
+<input type="hidden" name="hidefile" value="%HIDEFILE%" />%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:createlink:title"}%<h2>%MAKETEXT{"Create a link to this attachment"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:createlink:info"}%<p>%MAKETEXT{"Place a link at the end of the topic."}%</p>
+<div class='foswikiHelp'>
+   * %MAKETEXT{"Image files: the image will be displayed."}%
+   * %MAKETEXT{"Other file types: a link to the file will be displayed."}%
+   * %MAKETEXT{"The link format is set with =ATTACHEDFILELINKFORMAT=."}%
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:createlink:topic"}%<div class='foswikiFormStep'>
+<h3>%MAKETEXT{"Select web and topic"}%</h3>
+<select name="web" class="foswikiSelect">
+%WEBLIST{"<option $marker value=$qname>$name</option>" webs="public" selection="%WEB%" separator=" "}%
+</select> <input type="text" size="%TMPL:P{"attach:inputsize"}%" name="topic" class="foswikiInputField" value="%TOPIC%" /> 
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:createlink:topicaction"}%<div class='foswikiFormStep'>
+<input type="submit" class="foswikiButton foswikiSubmit" name="changeproperties" value='%MAKETEXT{"Create link"}%' />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:comment:title"}%<h3>%MAKETEXT{"Update comment"}%</h3>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:properties:title"}%<h3>%MAKETEXT{"Update properties"}%</h3>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:edit:topicaction"}%<div class='foswikiFormStep'>
+<input type="submit" class="foswikiButton foswikiSubmit" name="changeproperties" value='%MAKETEXT{"Save"}%' />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:rename"}%%TMPL:P{"attach:rename:title"}%
+%TMPL:P{"attach:move:formstart"}%
+%TMPL:P{"attach:rename:hiddenfields"}%
+%TMPL:P{"attach:rename:newattachmentname"}%
+%TMPL:P{"attach:rename:topicaction"}%
+%TMPL:P{"attach:move:formend"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:rename:hiddenfields"}%<input type="hidden" name="attachment" value="%FILENAME%" />
+<input type="hidden" name="newweb" value="%WEB%" />
+<input type="hidden" name="newtopic" value="%TOPIC%" />%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:rename:title"}%<h2>%MAKETEXT{"Rename file"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:rename:newattachmentname"}%<div class='foswikiFormStep'>
+<h3>%MAKETEXT{"Enter new filename"}%</h3>
+<p><input type="text" size="%TMPL:P{"attach:inputsize"}%" name="newattachment" class="foswikiInputField" value="%ENCODE{"%FILENAME%"}%" /></p>
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:rename:topicaction"}%<div class='foswikiFormStep'>
+<input type="submit" class="foswikiButton foswikiSubmit" value='%MAKETEXT{"Rename"}%' />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move"}%%TMPL:P{"attach:move:title"}%
+%TMPL:P{"attach:move:info"}%
+%TMPL:P{"attach:move:formstart"}%
+%TMPL:P{"attach:move:hiddenfields"}%
+%TMPL:P{"attach:move:location"}%
+%TMPL:P{"attach:move:newattachmentname"}%
+%TMPL:P{"attach:move:topicaction"}%
+%TMPL:P{"attach:move:formend"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:hiddenfields"}%<input type="hidden" name="attachment" value="%FILENAME%" />%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:title"}%<h2>%MAKETEXT{"Move attachment"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:info"}%<p>%MAKETEXT{"Move the attachment and any history to a new location."}%</p>
+<div class='foswikiHelp'>%{
+
+	no bullet list because we only have 1 line
+	
+}%%MAKETEXT{"URLs that refer to the attachment will not be updated automatically; this may lead to broken links."}%
+</div>
+%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:newattachmentname"}%<div class='foswikiFormStep'>
+<h3>%MAKETEXT{"Optionally change filename"}%</h3>
+<p><input type="text" size="%TMPL:P{"attach:inputsize"}%" name="newattachment" class="foswikiInputField" value="%ENCODE{"%FILENAME%"}%" /></p>
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:location"}%<div class='foswikiFormStep'>
+<h3>%MAKETEXT{"Select web and topic"}%</h3>
+<select name="newweb" class="foswikiSelect">
+%WEBLIST{"<option $marker value=$qname>$name</option>" webs="public" selection="%WEB%" separator=" "}%
+</select> <input type="text" size="%TMPL:P{"attach:inputsize"}%" name="newtopic" class="foswikiInputField" value="%TOPIC%" /> <span class='foswikiHint'>%MAKETEXT{"This topic must already exist"}%</span>
+<input type="hidden" name="nonwikiword" value="on" />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:topicaction"}%<div class='foswikiFormStep'>
+<input type="submit" class="foswikiButton foswikiSubmit" value='%MAKETEXT{"Move attachment"}%' />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:delete"}%%TMPL:P{"attach:delete:title"}%
+%TMPL:P{"attach:delete:info"}%
+%TMPL:P{"attach:move:formstart"}%
+%TMPL:P{"attach:delete:hiddenfields"}%
+%TMPL:P{"attach:delete:location"}%
+%TMPL:P{"attach:move:newattachmentname"}%
+%TMPL:P{"attach:delete:topicaction"}%
+%TMPL:P{"attach:delete:notes"}%
+%TMPL:P{"attach:move:formend"}%%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:formstart"}%<div class='foswikiFormSteps'>
+<form method="post" name="rename" action="%SCRIPTURLPATH{"rename"}%/%WEB%/%TOPIC%">%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:delete:hiddenfields"}%<input type="hidden" name="newweb" value="%TRASHWEB%" />
+<input type="hidden" name="attachment" value="%FILENAME%" />%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:delete:title"}%<h2>%MAKETEXT{"Move attachment to Trash"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:delete:info"}%<p>%MAKETEXT{"Move the attachment and any history to the [_1] web." args="%TRASHWEB%"}%</p>
+<div class='foswikiHelp'>
+   * %MAKETEXT{"URLs that refer to the attachment will not be updated automatically; this may lead to broken links."}%
+   * %MAKETEXT{"You can always restore a trashed attachment from [_1] web." args="%TRASHWEB%"}%
+</div>
+%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:delete:location"}%<div class='foswikiFormStep'>
+<h3>%MAKETEXT{"Enter topic name in [_1] web" args="%TRASHWEB%"}%</h3>
+<input type="text" size="%TMPL:P{"attach:inputsize"}%" name="newtopic" class="foswikiInputField" value="%URLPARAM{"newtopic" default="TrashAttachment"}%" /> <span class='foswikiHint'>%MAKETEXT{"This topic must already exist"}%</span>
+<input type="hidden" name="nonwikiword" value="on" />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:delete:topicaction"}%<div class='foswikiFormStep'>
+<input type="submit" class="foswikiButton foswikiSubmit" value='%MAKETEXT{"Move to trash"}%' />
+</div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:move:formend"}%</form></div>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:history"}%%TMPL:P{"attach:history:title"}%
+%TMPL:P{"attach:history:info"}%
+%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:history:title"}%
+<h2>%MAKETEXT{"Version history of [_1]" args="%FILENAME%"}%</h2>%TMPL:END%%{
+---------------------------------------------------
+	
+---------------------------------------------------
+}%%TMPL:DEF{"attach:history:info"}%
+%ATTACHTABLE%%TMPL:END%%{
+===================================================
+</verbatim>}%

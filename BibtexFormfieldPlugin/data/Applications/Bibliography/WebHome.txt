@@ -1,3 +1,4 @@
+%META:TOPICINFO{author="PaulHarvey" comment="reprev" date="1313669054" format="1.1" reprev="2" version="2"}%
 %STARTSECTION{"creator"}%
 %IF{
   "defined BIBLIOGRAPHYWEB AND $'BIBLIOGRAPHYWEB'"
@@ -13,8 +14,19 @@ You probably need to set =BIBLIOGRAPHYWEB= in the =%WEBPREFSTOPIC%= topic of the
 }%
 See below the grid for [[#UsageNotes][usage notes]]
 %GRID{
-  query="%IF{"$'BIBLIOGRAPHY_NODBCACHE' OR NOT context 'DBCachePluginEnabled'" then="form.name" else="form"}%"
-  columns="Topic,%BIBLIOGRAPHY_GRIDFIELDS%"
+  query="%IF{
+    "(defined BIBLIOGRAPHY_NODBCACHE 
+    AND $'BIBLIOGRAPHY_NODBCACHE')
+    OR NOT context 'DBCachePluginEnabled'"
+    then="form.name"
+    else="form"
+  }%"
+  columns="Topic,%IF{
+    "defined gridfields AND $'gridfields'"
+    then="%gridfields%"
+    else="title,author,year,keywords"
+  }%,Modified"
+  web="%BASEWEB%"
   Topic_title="Key"
   Topic_width="50"
   Modified_width="20"

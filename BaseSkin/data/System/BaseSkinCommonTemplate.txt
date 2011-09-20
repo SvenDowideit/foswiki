@@ -1,39 +1,78 @@
-%{<verbatim class="tml">}%%{
-	This is the "master template" file for Foswiki' Base skin. The definitions are used in	other templates, such as BaseSkinViewTemplate.
+%{<verbatim class="tml">
+===================================================
+	Base Skin topic template
+	
+	The common template does nothing in itself, but contains definitions that are handy to share between other templates.
+	
+===================================================
 }%%{
 ---------------------------------------------------
-}%%{
-	Handy macro for including JS from system paths
+	Macro for including JavaScript files from system paths
+	Takes as arguments:
+		- id
+		- file url, must NOT include .css extension
+		- requires
+---------------------------------------------------
 }%
 %TMPL:DEF{"LIBJS"}%%ADDTOZONE{
-	"baseSkinJs"
+	"script"
 	id="%id%"
 	text="<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/%id%%FWSRC%.js'></script>"
 	requires="%requires%"
 }%%TMPL:END%%{
 ---------------------------------------------------
-}%%{
-	Handy macro for including CSS from system paths
-}%%TMPL:DEF{"LIBCSS"}%%TMPL:P{
-	"CSS"
+	Macro for including CSS files from *system* paths
+	Takes as arguments:
+		- id
+		- file url, must NOT include .css extension
+		- requires
+---------------------------------------------------
+}%%TMPL:DEF{"LIBCSS"}%%ADDTOZONE{
+	"head-base"
 	id="%id%"
-	url="%PUBURLPATH%/%SYSTEMWEB%/%id%%FWSRC%.css"
+	text="<link rel='stylesheet' href='%PUBURLPATH%/%SYSTEMWEB%/%id%%FWSRC%.css' />"
 	requires="%requires%"
 }%%TMPL:END%%{
+---------------------------------------------------
+	Macro for including CSS files from other paths
+	Takes as arguments:
+		- id
+		- file url, must include .css extension
+		- requires
 ---------------------------------------------------
 }%%TMPL:DEF{"CSS"}%%ADDTOZONE{
-	"baseSkinCss"
+	"head-base"
 	id="%id%"
-	text="<link rel='stylesheet' href='%url%' />"
+	text="$percntFORMAT{
+		\"%url%\"
+		type=\"string\"
+		format=\"<link rel='stylesheet' href='$item' />\"
+	}$percnt"
 	requires="%requires%"
 }%%TMPL:END%%{
 ---------------------------------------------------
-}%%TMPL:DEF{"form"}%%TMPL:END%%{
+	Topic actions
 ---------------------------------------------------
-}%%TMPL:DEF{"attachments"}%%TMPL:END%%{
+}%%TMPL:DEF{"topicaction"}%<div class="foswikiTopicActions" >
+topicactionbuttons
+</div>%TMPL:END%%{
 ---------------------------------------------------
-}%%TMPL:DEF{"contentheader"}%%TMPL:END%%{
+	Note: non-wikiword
 ---------------------------------------------------
-}%%TMPL:DEF{"contentfooter"}%%TMPL:END%%{
+}%%TMPL:DEF{"nonwikiwordwarning"}%<p class="foswikiAllowNonWikiWord"><label><input type="checkbox" class="foswikiCheckbox" name="nonwikiword" %IF{
+	"$ 'URLPARAM{nonwikiword}'='on'"
+	then="checked=\"checked\""
+}% />%MAKETEXT{"Allow non <nop>WikiWord for the new topic name"}%</label> %TMPL:P{"nonwikiwordhelp"}%</p>%TMPL:END%%{
 ---------------------------------------------------
-}%%{</verbatim>}%
+}%%TMPL:DEF{"nonwikiwordhelp"}%%TWISTY{
+	mode="span"
+}% %MAKETEXT{"It's usually best to choose a [_1] for the new topic name, otherwise automatic linking may not work. Characters not allowed in topic names, such as spaces will automatically be removed." args="%POPUPWINDOW{
+	"%SYSTEMWEB%.WikiWord"
+	label="WikiWord"
+}%"}%%JQREQUIRE{"popupwindow"}%%ENDTWISTY%%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{"nonwikiwordallowed"}%<input type="hidden" name="nonwikiword" value="%URLPARAM{"nonwikiword" default="on"}%" />%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{"nonwikiword"}%%IF{"$HIDE_NON_WIKI_WORD_WARNINGS!='on'" then="$percntTMPL:P{$quotnonwikiwordwarning$quot}$percnt" else="$percntTMPL:P{$quotnonwikiwordallowed$quot}$percnt"}%%TMPL:END%%{
+===================================================
+</verbatim>}%

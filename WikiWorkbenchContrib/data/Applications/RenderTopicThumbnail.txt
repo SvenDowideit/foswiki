@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="reprev" date="1286564579" format="1.1" reprev="5" version="5"}%
+%META:TOPICINFO{author="micha" comment="reprev" date="1314170121" format="1.1" reprev="8" version="8"}%
 %META:TOPICPARENT{name="TopicFunction"}%
 %TOC{depth="2"}%
 
@@ -16,6 +16,7 @@ is returned if no image attachment is found.
    * SIZE: optional size of thumbnail
    * TYPE: image rendering type, see documentation of <nop>ImagePlugin, defaults to simple
    * CROP
+   * SORT: specifies which image to chose from the attachments, defaults to =comment:name= which will take the one that sorts first wrt the comment, falling back to the name
 
 %ENDSECTION{name="documentation" type="section"}%
 
@@ -26,7 +27,8 @@ is returned if no image attachment is found.
    name=".*\.(jpe?g|gif|png|JE?PG|GIF|PNG)"
    warn="off"
    limit="1"
-   sort="comment:name"
+   sort="%IF{"defined SORT" then="%SORT%" else="comment:name"}%"
+   reverse="%IF{"'%SORT%' = 'date'" then="on" else="off"}%"
    hidenull="on"
    format="$percntIMAGE{
      \"$name\"
@@ -34,7 +36,7 @@ is returned if no image attachment is found.
      align=\"%IF{"defined ALIGN" then="%ALIGN%" else="right"}%\"
      type=\"%IF{"defined TYPE" then="%TYPE%" else="simple"}%\"
      size=\"%IF{"defined SIZE" then="%SIZE%" else="48x48>"}%\"
-     crop=\"%IF{"defined CROP" then="%CROP%" else="northwest"}%\"
+     crop=\"%IF{"defined CROP" then="%CROP%"}%\"
      title=\"\"
      tooltip=\"on\"
      warn=\"off\"
@@ -43,9 +45,19 @@ is returned if no image attachment is found.
 </verbatim>
 
 ---++ Test
-<div class="alt">
-%DBCALL{"%TOPIC%" OBJECT="%WIKIUSERNAME%"}%
+%DBCALL{"%TOPIC%" 
+  OBJECT="%WIKIUSERNAME%"
+  ALIGN="left"
+}%
+%DBCALL{"%TOPIC%" 
+  OBJECT="%WIKIUSERNAME%"
+  SORT="date"
+  ALIGN="left"
+  SIZE="100x100"
+}%
 %CLEAR%
+
+---++ List of all attachments at %WIKIUSERNAME%
 <a name="sort"></a>
 %ATTACHMENTS{
    "%WIKIUSERNAME%"

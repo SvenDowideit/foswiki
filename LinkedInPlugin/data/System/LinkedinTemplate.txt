@@ -10,8 +10,12 @@
 (need to set the user's !LinkedInUrl)</div>
 %TMPL:END%
 
-%TMPL:DEF{"profile"}%%ADDTOZONE{"script" text="<script type='text/javascript' src='http://www.linkedin.com/js/public-profile/widget-os.js'></script>"}%
+%TMPL:DEF{"pre-Sept-2011-profile"}%%ADDTOZONE{"script" text="<script type='text/javascript' src='http://www.linkedin.com/js/public-profile/widget-os.js'></script>"}%
 <a class="linkedin-profileinsider-%TYPE%" href="%URL%">%USER%</a>
+%TMPL:END% 
+
+%TMPL:DEF{"profile"}%%ADDTOZONE{"script" text="<script type='text/javascript' src='http://platform.linkedin.com/in.js'></script>"}%
+<script type="IN/MemberProfile" data-id="%URL%" data-format="%TYPE%" data-text="%USER%"></script>
 %TMPL:END% 
 
 %TMPL:DEF{"profile:url"}%http://www.linkedin.com/in/%URLENCODE{%USER%}%%TMPL:END% 

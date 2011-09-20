@@ -1,0 +1,8 @@
+!noci
+lib/Foswiki/Plugins/FreeMindPlugin.pm
+pub/System/FreeMindPlugin/expressInstall.swf
+pub/System/FreeMindPlugin/visorFreemind.swf
+pub/System/FreeMindPlugin/swfobject.js
+pub/System/FreeMindPlugin/Wiki.mm
+data/System/FreeMindPlugin.txt
+

@@ -1,22 +1,46 @@
-data/System/BasecssGridSkinViewTemplate.txt 0644
+data/System/BasecssgridSkinViewTemplate.txt 0644
 data/System/BasecssSkinViewTemplate.txt 0644
 data/System/BasejsSkinViewTemplate.txt 0644
 data/System/BaseSkin.txt 0644
+data/System/BaseSkinAttachAgainTemplate.txt 0644
+data/System/BaseSkinAttachNewTemplate.txt 0644
+data/System/BaseSkinAttachtablesTemplate.txt 0644
+data/System/BaseSkinAttachTemplate.txt 0644
 data/System/BaseSkinCommonTemplate.txt 0644
 data/System/BaseSkinDocumentTemplate.txt 0644
-data/System/BaseSkinTestView.txt 0644
+data/System/BaseSkinFormtablesTemplate.txt 0644
+data/System/BaseSkinTestPage.txt 0644 # for testing the skin in the browser
 data/System/BaseSkinViewTemplate.txt 0644
+data/System/BaseSkinWebTopBarExample.txt 0644
+data/System/BaseSkinWebTopBarTemplate.txt 0644
 pub/System/BaseSkinCss/base_src.css 0644
 pub/System/BaseSkinCss/base.css 0644
 pub/System/BaseSkinCss/base.css.gz 0644
-pub/System/BaseSkinCss/boilerplate_src.css 0644 # from http://html5boilerplate.com/
-pub/System/BaseSkinCss/boilerplate.css 0644
-pub/System/BaseSkinCss/boilerplate.css.gz 0644
-pub/System/BaseSkinCss/grid_src.css 0644
-pub/System/BaseSkinCss/grid.css 0644
-pub/System/BaseSkinCss/grid.css.gz 0644
+pub/System/BaseSkinCss/base.scss 0644
+pub/System/BaseSkinCssGrid/grid_src.css 0644
+pub/System/BaseSkinCssGrid/grid.css 0644
+pub/System/BaseSkinCssGrid/grid.css.gz 0644
+pub/System/BaseSkinCssGrid/grid.scss 0644
+pub/System/BaseSkinJs/base_src.js 0644
+pub/System/BaseSkinJs/base.js 0644
+pub/System/BaseSkinJs/base.js.gz 0644
+pub/System/BaseSkinJs/base_attachments_src.js 0644
+pub/System/BaseSkinJs/base_attachments.js 0644
+pub/System/BaseSkinJs/base_attachments.js.gz 0644
+pub/System/BaseSkinJs/closelabel.png 0644
+pub/System/BaseSkinJs/facebox_src.css 0644
+pub/System/BaseSkinJs/facebox.css 0644
+pub/System/BaseSkinJs/facebox.css.gz 0644
+pub/System/BaseSkinJs/facebox_src.js 0644
+pub/System/BaseSkinJs/facebox.js 0644
+pub/System/BaseSkinJs/facebox.js.gz 0644
+pub/System/BaseSkinJs/loading.gif 0644
 pub/System/BaseSkinJs/modernizr-1.7_src.js 0644
 pub/System/BaseSkinJs/modernizr-1.7.js 0644
 pub/System/BaseSkinJs/modernizr-1.7.js.gz 0644
-templates/attachtables.base.tmpl 0644
-templates/formtables.base.tmpl 0644
+pub/System/BaseSkinTestPage/ISS1.jpg 0644 # test attachment
+pub/System/BaseSkinTestPage/ISS1.jpg,v 0644 # test attachment
+pub/System/BaseSkinTestPage/Paper004.pdf 0644 # test attachment
+pub/System/BaseSkinTestPage/Paper004.pdf,v 0644 # test attachment
+pub/System/BaseSkinTestPage/Paul_Cezanne_169.jpg 0644 # test attachment
+pub/System/BaseSkinTestPage/Paul_Cezanne_169.jpg,v 0644 # test attachment

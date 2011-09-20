@@ -6,9 +6,7 @@
 ---++ Bibliography settings
    * # Set BIBLIOGRAPHYWEB = %WEB%
    * Set BIBLIOGRAPHY_NODBCACHE =
-      * Set this to 1 to use native SEARCH even when %SYSTEMWEB%.DBCachePlugin is enabled
-   * Set BIBLIOGRAPHY_GRIDFIELDS = Modified,Description
-      * Set this to a list of the fields you want the main grid to display
+      * Set this to 1 to force native [[%SYSTEMWEB%.VarSEARCH][SEARCH]] even when %SYSTEMWEB%.DBCachePlugin is enabled
 
 ---++ Appearance
 

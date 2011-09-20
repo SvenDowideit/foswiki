@@ -12,177 +12,129 @@ package Foswiki::Plugins::BibtexFormfieldPlugin::Core;
 use strict;
 use warnings;
 
-use Storable;
+use Assert;
 use Error;
 use Foswiki::Func    ();    # The plugins API
 use Foswiki::Plugins ();    # For the API version
 use Foswiki::Form();
-
-use Text::BibTeX;           # library for parsing bibtex files
+use Text::BibTeX();         # library for parsing bibtex files
 use Data::Dumper;           # library for debugging
 
 # How to debug:
 #    print STDERR "MESSAGE: SCRIPT CALLED!!!";
-# Foswiki::Func::writeDebug("This debug message goes to working/logs/debug.log");
+# writeDebug("This debug message goes to working/logs/debug.log");
+
+sub TRACE { 1 }
 
 sub beforeSaveHandler {
     my ( $text, $topic, $web, $topicObject ) = @_;
     my $formData = $topicObject->get('FORM');
-    my $formWeb;
-    my $formTopic;
-    my $formTopicObject;
-    my $formDef;
-
-    #    Foswiki::Func::writeDebug(
-    #       "MESSAGE: SCRIPT CALLED!!!"
-    #            );
-
-    #if ( defined $formData and $formData->{name} ) {
-    #    Foswiki::Func::writeDebug(
-    #         "Some Funky message"
-    #        Data::Dumper($topicObj->get($formData->{name}))
-    #            );
-    #   };
 
     if ( defined $formData and $formData->{name} ) {
-        ( $formWeb, $formTopic ) =
+        my ( $formWeb, $formTopic ) =
           Foswiki::Func::normalizeWebTopicName( $web, $formData->{name} );
+        my $formDef = Foswiki::Form->new( $Foswiki::Plugins::SESSION, $formWeb,
+            $formTopic );
+        my ( $bibtexCodeFieldName, @bibtexFieldNames ) =
+          getBibtexFields($formDef);
+        my $bibtexCodeString;
+        if ($bibtexCodeFieldName) {
+            writeDebug("Found bibtexCode field!") if TRACE;
+            my $field = $topicObject->get( 'FIELD', $bibtexCodeFieldName );
+            ASSERT( exists $field->{value} and $field->{value} ) if DEBUG;
+            $bibtexCodeString = $field->{value};
+            writeDebug($bibtexCodeString) if TRACE;
+        }
 
-        Foswiki::Func::writeDebug( $formTopic . ' ' . $formWeb );
-
-        if (
-            $formDef = Foswiki::Form->new(
-                $Foswiki::Plugins::SESSION, $formWeb, $formTopic
-            )
-          )
+        if (    $bibtexCodeString
+            and $bibtexCodeString =~ /\w/
+            and scalar(@bibtexFieldNames) )
         {
-            Foswiki::Func::writeDebug("Got form definition!");
-        }
+            writeDebug(
+                "In detection loop, got code string: '$bibtexCodeString'")
+              if TRACE;
+            my $entry = Text::BibTeX::Entry->new();
+            my @fieldList;
 
-#        try {
-#            $formDef = Foswiki::Form->new( $Foswiki::Plugins::SESSION, $formWeb, $formTopic );
-#        }
-#        catch Foswiki::OopsException with {
-#
-#            # Form definition not found, ignore
-#            my $e = shift;
-#            Foswiki::Func::writeDebug(
-#"ERROR: BibtexFormfieldPlugin can't read form definition for $formWeb.$formTopic"
-#            );
-#        };
+            $entry->parse_s($bibtexCodeString);
+            @fieldList = $entry->fieldlist;
+            foreach my $fieldName (@fieldList) {
+                writeDebug( "Processing bibtex field '$fieldName' -> "
+                      . $entry->get($fieldName) )
+                  if TRACE;
 
-        if ( $formDef and $formDef->getFields() )
-        {    # form definition found, if not the formfields aren't indexed
-            our @bibtexFieldNames = getBibtexFields( $formDef, $formData );
-
-#            ( $bibtexFragmentFieldName, @bibtexFieldNames ) = getBibtexFields( $formDef, $formData );
-            foreach my $name (@bibtexFieldNames) {
-                Foswiki::Func::writeDebug("Name of bibtex field:");
-                Foswiki::Func::writeDebug($name);
-            }
-
-            if ( $formDef->getField('bibtexFragment') ) {
-                Foswiki::Func::writeDebug("Found bibtexFragment field!");
-
-                my $field = $topicObject->get( 'FIELD', 'bibtexFragment' );
-                our $bibtexFragmentString = $field->{value};
-
-       #                  Foswiki::Func::writeDebug( "THIS IS A SUPER FIELD:" );
-                Foswiki::Func::writeDebug($bibtexFragmentString);
-            }
-        }
-
-  #        Foswiki::Func::writeDebug( "bibtexFragmentString is working!!!" );
-  #        Foswiki::Func::writeDebug( our $bibtexFragmentString );
-  #        if( my $bibtexFragmentString ){
-  #           Foswiki::Func::writeDebug( "bibtexFragmentString is working!!!" );
-  #        };
-
-        # PSEUDO CODE!!!
-        if ( our $bibtexFragmentString and our @bibtexFieldNames ) {
-            Foswiki::Func::writeDebug("In detection loop!!!");
-            Foswiki::Func::writeDebug($bibtexFragmentString);
-
-            our $entry = new Text::BibTeX::Entry;
-            $entry->parse_s( our $bibtexFragmentString );
-            my @fieldList = $entry->fieldlist;
-
-        #                 Foswiki::Func::writeDebug( "THIS IS A SUPER FIELD:" );
-            foreach our $fieldName (@fieldList) {
-                Foswiki::Func::writeDebug($fieldName);
-                Foswiki::Func::writeDebug( $entry->get($fieldName) );
-
-                if ( grep $_ eq $fieldName, @bibtexFieldNames ) {
-                    Foswiki::Func::writeDebug("Parsed field in bibtexForm!!!");
+                if ( grep { $_ eq $fieldName } @bibtexFieldNames ) {
+                    writeDebug("Parsed field in bibtexForm!!!") if TRACE;
                     my $fieldValue = $entry->get($fieldName);
 
-               #                       Foswiki::Func::writeDebug( $fieldName );
-               #                       Foswiki::Func::writeDebug( $fieldValue );
+                    # DOI fields often contain an annoying DOI: prefix on the
+                    # value. Perhaps there's a good reason for this (Eg. non-DOI
+                    # things going into DOI fields), so double-check that RHS
+                    # of this junk looks roughly as if it could be a DOI.
+                    if ( lc($fieldName) eq 'doi' ) {
+                        if ( $fieldValue =~ /^doi:\s*(\d+\..*)$/i ) {
+                            $fieldValue = $1;
+                        }
+                    }
+                    writeDebug("Putting '$fieldName': '$fieldValue'") if TRACE;
                     $topicObject->putKeyed( 'FIELD',
                         { name => $fieldName, value => $fieldValue } );
                 }
-
-#                 for my $fieldName ( @bibtexFieldNames ){
-#                    $entry->fieldlist;
-#$entry->get( $field )
-#                    if ( parsedEntry->$fieldName ){
-#                       $topicObj->putKeyed('FIELD', {name => $fieldName, value => parsedEntry->$fieldName});
-#                    };
             }
         }
-
-        #        };
+    }
+    else {
+        writeDebug("No bibtex fields detected in '$web.$topic'");
     }
 
-    #
     return;
 }
 
 sub getBibtexFields {
-    my ( $formDef, $formData ) = @_;
-    my @bibtexFieldNames;
-    my $bibtexFragmentFieldName;
-    my @fieldDefs = @{ $formDef->getFields() };
+    my ($formDef) = @_;
+    my ( $bibtexCodeFieldName, @bibtexFieldNames );
 
-    Foswiki::Func::writeDebug("Got form field definitions!");
+    if ($formDef) {
+        ASSERT( $formDef->can('getFields') ) if DEBUG;
+        ASSERT( ref( $formDef->getFields ) eq 'ARRAY' ) if DEBUG;
+        ASSERT( scalar( @{ $formDef->getFields } ) ) if DEBUG;
+        ASSERT( scalar( @{ $formDef->getFields } ) ) if DEBUG;
+        my $fields = $formDef->getFields();
 
-    while ( @fieldDefs != 0 ) {
-        my $fieldDef = pop(@fieldDefs);
-
-#      Foswiki::Func::writeDebug($fieldDef->{type});
-#      Foswiki::Func::writeDebug($fieldDef->{name});
-#if ( $fieldDef->{type} and ( $fieldDef->{type} eq 'textarea+bibtex' or $fieldDef->{type} eq 'bibtex+textarea' ) and $fieldDef->{name} ne 'bibtexFragment' ) {
-        if (
-                $fieldDef->{name} ne 'bibtexFragment'
-            and $fieldDef->{type}
-            and (  $fieldDef->{type} eq 'textarea+bibtex'
-                or $fieldDef->{type} eq 'bibtex+textarea'
-                or $fieldDef->{type} eq 'text+bibtex'
-                or $fieldDef->{type} eq 'bibtex+text' )
-          )
-        {
-            Foswiki::Func::writeDebug("In bibtexFragment IF-clause:");
-            Foswiki::Func::writeDebug( $fieldDef->{name} );
-            push( @bibtexFieldNames, $fieldDef->{name} );
+        if ( $fields and ref($fields) eq 'ARRAY' and scalar( @{$fields} ) )
+        {    # form definition found, if not the formfields aren't indexed
+            writeDebug("Got form field definitions!") if TRACE;
+            foreach my $fieldDef ( @{ $formDef->getFields() } ) {
+                writeDebug("Start 1") if TRACE;
+                if ( $fieldDef->{type} and $fieldDef->{name} ) {
+                    writeDebug(
+                        "Start 2: $fieldDef->{type} is $fieldDef->{name}")
+                      if TRACE;
+                    if ( $fieldDef->{type} =~ /^bibtex\+code\b/ ) {
+                        writeDebug(
+"In bibtexCode IF-clause, got type $fieldDef->{type} in $fieldDef->{name}"
+                        ) if TRACE;
+                        $bibtexCodeFieldName = $fieldDef->{name};
+                    }
+                    elsif ( $fieldDef->{type} =~ /^bibtex\b/ ) {
+                        writeDebug(
+"In bibtex IF-clause, got type $fieldDef->{type} in $fieldDef->{name}"
+                        ) if TRACE;
+                        push( @bibtexFieldNames, $fieldDef->{name} );
+                    }
+                }
+            }
         }
-
     }
 
-    return (@bibtexFieldNames);
-
-    # return ( $bibtexFragmentFieldName, @bibtexFieldNames );
-
+    return ( $bibtexCodeFieldName, @bibtexFieldNames );
 }
 
-#      if ( $fieldDef->{type} and ( $fieldDef->{type} eq 'textarea+bibtex' or $fieldDef->{type} eq 'bibtex+textarea' ) and $fieldDef->{name} eq 'bibtexFragment' ) {
-#          Foswiki::Func::writeDebug( "In bibtexFragment IF-clause:" );
-#          Foswiki::Func::writeDebug( $fieldDef->{name} );
-#      };
-#
-#   return ( $bibtexFragmentFieldName, @bibtexFieldNames );
-#
-#   };
-#};
+sub writeDebug {
+    my ($message) = @_;
+
+    Foswiki::Func::writeDebug( 'BibtexFormfieldsPlugin: ' . $message );
+}
 
 1;
 

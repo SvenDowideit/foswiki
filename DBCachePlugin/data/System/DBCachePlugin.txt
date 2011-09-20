@@ -390,6 +390,9 @@ This option only has an effect using speedy/perperl or fastcgi setups.
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  25 Aug 2011: | fixed dbcache index not build properly when creating a new web; \
+                  improved flatten() to weed out more; \
+                  fixed indexing of non-existing webs due to mal-formed urls |
 |  06 Apr 2011: | fixed error where empty sections were confused with non-existing sections | 
 |  09 Nov 2010: | moved ATTACHMENTS over to Foswiki:Extensions/TopicInteractionPlugin; \
                   added API to temporarily disable update handlers; \

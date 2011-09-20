@@ -5,8 +5,9 @@ Spreadsheet::XLSX,>0,cpan,Required for =.xlsx= files
 Encode,>0,cpan,Required
 Error,>0,cpan,Required
 ppthtml,>0,c,Required for indexing =.ppt= files. Part of xlhtml
-pdftotext,>0,c,Required for indexing =.pdf=. Part of xpdf-utils
+pdftotext,>0,c,Required for indexing =.pdf=. Part of poppler-utils
 antiword,>0,c,One of antiword, abiword or wvWare is required for =.doc= files
 abiword,>0,c,One of antiword, abiword or wvWare is required for =.doc= files
 wvWare,>0,c,One of antiword, abiword or wvWare is required for =.doc= files
 html2text,>0,c,Required for indexing html files
+odt2txt,>0,c,Required for indexing OpenDocument and StarOffice documents

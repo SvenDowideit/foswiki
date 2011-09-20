@@ -1,7 +1,7 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
 # Copyright (C) 2006 Vinod Kulkarni, Sopan Shewale
-# Copyright (C) 2006-2010 Arthur Clemens, arthur@visiblearea.com
+# Copyright (C) 2006-2011 Arthur Clemens, arthur@visiblearea.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@ use Foswiki::Plugins::AttachmentListPlugin::FileData;
 use Foswiki::Plugins::TopicDataHelperPlugin;
 
 our $VERSION = '$Rev$';
-our $RELEASE = '1.3.4';
+our $RELEASE = '1.5.0';
 our $SHORTDESCRIPTION =
 'Displays a formattable list of topic attachments - from any topic - anywhere in a topic';
 our $NO_PREFS_IN_TOPIC = 1;
@@ -86,9 +86,9 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'ATTACHMENTLIST', \&_handleFileList );
 
     # Plugin correctly initialized
-    Foswiki::Func::writeDebug(
+    _debug(
         "- Foswiki::Plugins::${pluginName}::initPlugin( $inWeb.$inTopic ) is OK"
-    ) if $debug;
+    );
 
     return 1;
 }
@@ -163,7 +163,8 @@ sub _createFileData {
     # define value for topic key only if topic
     # has META:FILEATTACHMENT data
     my $attachments = _getAttachmentsInTopic( $inWeb, $inTopic );
-    my $attach_files = _getAttachmentList( $inWeb, $inTopic ) if ($Foswiki::cfg{RCS}{AutoAttachPubFiles}) ;
+    my $attach_files = _getAttachmentList( $inWeb, $inTopic )
+      if ( $Foswiki::cfg{RCS}{AutoAttachPubFiles} );
 
     #print STDERR "attachments = " . scalar @$attachments . "\n";
     #print STDERR "files = " . scalar @$attach_files . "\n" ;
@@ -172,7 +173,9 @@ sub _createFileData {
     use Data::Dumper;
     _debug( "\t attachments=" . Dumper($attachments) );
 
-    if ( scalar @$attachments || ( defined $attach_files && scalar @$attach_files) ) {
+    if ( scalar @$attachments
+        || ( defined $attach_files && scalar @$attach_files ) )
+    {
         $inTopicHash->{$inTopic} = ();
 
         foreach my $attachment (@$attachments) {
@@ -183,12 +186,21 @@ sub _createFileData {
             $inTopicHash->{$inTopic}{$fileName} = \$fd;
         }
 
-        if ($Foswiki::cfg{RCS}{AutoAttachPubFiles} && defined $attach_files && (scalar @$attachments != scalar @$attach_files)) {
+        if (   $Foswiki::cfg{RCS}{AutoAttachPubFiles}
+            && defined $attach_files
+            && ( scalar @$attachments != scalar @$attach_files ) )
+        {
             foreach my $fileName (@$attach_files) {
-                unless ($inTopicHash->{$inTopic}{$fileName}) {
+                unless ( $inTopicHash->{$inTopic}{$fileName} ) {
                     my $fd =
-                      Foswiki::Plugins::AttachmentListPlugin::FileData->new( $inWeb,
-                        $inTopic, { name => $fileName, path => $fileName, autoattached => 1}  );
+                      Foswiki::Plugins::AttachmentListPlugin::FileData->new(
+                        $inWeb, $inTopic,
+                        {
+                            name         => $fileName,
+                            path         => $fileName,
+                            autoattached => 1
+                        }
+                      );
                     $inTopicHash->{$inTopic}{$fileName} = \$fd;
                 }
             }
@@ -286,6 +298,12 @@ sub _filterTopicData {
 sub _sortFiles {
     my ( $inFiles, $inParams ) = @_;
 
+    use Data::Dumper;
+    _debug( "AttachmentListPlugin::_sortFiles -- files="
+          . Dumper($inFiles)
+          . "\nparams="
+          . Dumper($inParams) );
+
     my $files = $inFiles;
 
     # get the sort key for the $inSortMode
@@ -301,6 +319,9 @@ sub _sortFiles {
     my $sortOrder = $sortInputTable{$sortOrderParam}
       || $Foswiki::Plugins::TopicDataHelperPlugin::sortDirections{'NONE'};
 
+    use Data::Dumper;
+    _debug( "\t sortKey=$sortKey; compareMode=$compareMode; sortOrder=$sortOrder" );
+    
     # set default sort order for sort modes
     if ( $sortOrder ==
         $Foswiki::Plugins::TopicDataHelperPlugin::sortDirections{'NONE'} )
@@ -352,18 +373,18 @@ Returns array of attached files independent of metadata
 =cut
 
 sub _getAttachmentList {
-    my ($web, $topic) = @_;
+    my ( $web, $topic ) = @_;
 
     #print STDERR "getAttachmentList entered for $web $topic\n";
-    my $dir  = "$Foswiki::cfg{PubDir}/$web/$topic";
+    my $dir = "$Foswiki::cfg{PubDir}/$web/$topic";
     my $dh;
     my @files;
-    opendir($dh, $dir) || return ();
+    opendir( $dh, $dir ) || return ();
     @files = grep { !/^[.*_]/ && !/,v$/ } readdir($dh);
     closedir($dh);
     return \@files;
 }
-     
+
 =pod
 
 =cut
@@ -592,9 +613,10 @@ sub _expandStandardEscapes {
 sub _debug {
     my ( $inText, $inDebug ) = @_;
 
-    my $doDebug = $inDebug || $Foswiki::Plugins::AttachmentListPlugin::debug;
+	#print STDERR "$inText\n";
+	
     Foswiki::Func::writeDebug($inText)
-      if $doDebug;
+      if $inDebug || $debug;
 }
 
 1;

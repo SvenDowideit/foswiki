@@ -1952,7 +1952,7 @@ sub __internal_save {
               Foswiki::Store->getApproxRevTime( address=>$this );
             my $mtime2 = time();
             my $dt     = abs( $mtime2 - $mtime1 );
-            if ( $dt < $Foswiki::cfg{ReplaceIfEditedAgainWithin} ) {
+            if ( $dt <= $Foswiki::cfg{ReplaceIfEditedAgainWithin} ) {
                 my $info = Foswiki::Store->getVersionInfo(address=>$this);
 
                 # same user?
@@ -1981,6 +1981,7 @@ sub __internal_save {
           Foswiki::Store->save( address=>$this, cuid=>$cUID, %opts );
         ASSERT( $checkSave == $nextRev, "$checkSave != $nextRev" ) if DEBUG;
         $this->{_loadedRev} = $nextRev;
+	$this->{_latestIsLoaded} = 1;
     }
     finally {
         $this->_atomicUnlock($cUID);
@@ -2269,9 +2270,12 @@ sub replaceMostRecentRevision {
 Get an iterator over the range of version identifiers (just the identifiers,
 not the content).
 
+The iterator will be empty ($iterator->hasNext() will be false) if the object
+does not exist.
+
 $attachment is optional.
 
-Not valid on webs. Returns a null iterator if no revisions exist.
+Not valid on webs.
 
 =cut
 
@@ -2297,6 +2301,10 @@ Get the revision ID of the latest revision.
 $attachment is optional.
 
 Not valid on webs.
+
+Returns an integer revision number > 0 if the object exists.
+
+Returns 0 if the object does not exist.
 
 =cut
 
@@ -2711,7 +2719,7 @@ sub attach {
         try {
             Foswiki::Store
               ->save( address=>$this, attachment=>$opts{name}, stream=>$opts{stream},
-                cuid=>($opts{author} || $this->{_session}->{user}) );
+                cuid=>($opts{author} || $this->{_session}->{user}), comment => $opts{comment} );
         }
         finally {
             $this->fireDependency();

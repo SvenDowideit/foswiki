@@ -1,7 +1,7 @@
 %META:TOPICINFO{author="ProjectContributor" date="1273490361" format="1.1" version="2"}%
 %META:TOPICPARENT{name="TopicTemplate"}%
 ---++ Value definition
-| *Name* | *Tooltip Message* |
+| *Name* | *Description* |
 
 %STARTSECTION{type="templateonly"}%
 %RED%Note, this is only a template.%ENDCOLOR%

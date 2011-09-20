@@ -5,7 +5,7 @@
 # Microsoft Office presentation files.
 # Copyright (C) 2009 - Sopan Shewale - sopan.shewale@gmail.com
 #                      TWIKI.NET     - sales@twiki.net  
-# Copyright (C) 2009-2010 Foswiki Contributors
+# Copyright (C) 2009-2011 Foswiki Contributors
 #
 # The development of this tools is completely based on other similar 
 # tool called docx2txt - available at http://docx2txt.sourceforge.net/

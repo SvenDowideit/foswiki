@@ -80,7 +80,7 @@ sub _getCacheFile {
   writeDebug("cacheFile=$cacheFile");
   return $cacheFile if -f $cacheFile;
 
-  writeDebug("oops, cacheFile $cacheFile not found");
+  writeDebug("cacheFile $cacheFile not found");
 
   return undef;
 }
@@ -110,7 +110,7 @@ sub touch {
 sub isModified {
   my $this = shift;
 
-  return 1 if $this->{_loadTime} < $this->_getModificationTime();
+  return 1 if $this->_getModificationTime() == 0 || $this->{_loadTime} < $this->_getModificationTime();
   return 0;
 }
 
@@ -129,7 +129,7 @@ sub onReload {
     # however we still check for odd topics that did not make it into the cache
     # for some odd reason
     unless ($topic) {
-      #print STDERR "trying to load topic '$topicName' in web '$this->{web}' but it wasn't found in the cache\n";
+      writeDebug("trying to load topic '$topicName' in web '$this->{web}' but it wasn't found in the cache");
       next;
     }
 

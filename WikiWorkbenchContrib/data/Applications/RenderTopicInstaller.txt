@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1283521510" format="1.1" reprev="5" version="5"}%
+%META:TOPICINFO{author="ProjectContributor" comment="save topic" date="1306164950" format="1.1" reprev="5" version="6"}%
 %TOC{depth="2"}%
 
 ---++ Documentation
@@ -96,8 +96,7 @@ TopicStub is to be created.
 
 ---++ !JavaScript initialisation
 <verbatim class="tml">
-%STARTSECTION{"init"}%
-<literal>
+%STARTSECTION{"init"}%<literal>
 <script type='text/javascript'>
 jQuery(function($) {
   $('#topicinstaller').bind('submit', function() {
@@ -108,8 +107,7 @@ jQuery(function($) {
   });
 });
 </script>
-</literal>
-%ENDSECTION{"init"}%
+</literal>%ENDSECTION{"init"}%
 </verbatim>
 
 ---++ Test
@@ -125,6 +123,6 @@ jQuery(function($) {
 
 %META:FORM{name="Applications.ApplicationTopic"}%
 %META:FIELD{name="TopicType" title="TopicType" value="DocuTopic, TopicFunction"}%
-%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value="RenderTopicInstaller"}%
+%META:FIELD{name="TopicTitle" attributes="" title="<nop>TopicTitle" value=""}%
 %META:FIELD{name="Summary" attributes="c" title="Summary" value="Render a simple factory to deploy a topic in another web"}%
 %META:FIELD{name="WikiApplication" attributes="" title="WikiApplication" value="WikiWorkbench"}%

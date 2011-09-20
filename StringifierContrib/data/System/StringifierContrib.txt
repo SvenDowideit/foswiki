@@ -20,6 +20,18 @@ for search engines other than kinosearch.
    * =.ppt=
    * =.pptx=
    * =.pdf=
+   * =.odt=
+   * =.ott=
+   * =.odp=
+   * =.otp=
+   * =.ods=
+   * =.ots=
+   * =.sxw=
+   * =.stw=
+   * =.sxc=
+   * =.stc=
+   * =.sxi=
+   * =.sti=
 
 If you add other file extensions, they are treated as ASCII files. If needed,
 you can add more specialised stringifiers for further document types (see below).
@@ -50,6 +62,10 @@ To index these file types, you will need to install the following tools from Sou
    * CPAN:Spreadsheet::XLSX for =.xlsx=
 
 Then set the command path to these tools in =configure=.
+
+---++ Backend for <nop>OpenDocument and Staroffice documents
+
+To index these file types you need to install [[http://stosberg.net/odt2txt/][odt2txt]].
 
 ---++ Installing the Contrib
 
@@ -119,10 +135,11 @@ See Foswiki:Tasks/StringifierContrib for currently open tasks.
 -->
 
 |  Author(s): | Foswiki:Main.MarkusHesse, Foswiki:Main.SvenDowideit, Foswiki:Main.MichaelDaum & Foswiki:Main.AndrewJones |
-|  Copyright: | &copy; 2007, Foswiki:Main.MarkusHesse; &copy; 2009-2010, Foswiki Contributors |
+|  Copyright: | &copy; 2007, Foswiki:Main.MarkusHesse; &copy; 2009-2011, Foswiki Contributors |
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  05 Sep 2011: | (v2.00) added <nop>OpenDocument serializer; removed dependency left-over on Text::Iconv; added dependency on odt2txt; fixed defaults for wv serializer  |
 |  01 Dec 2010: | (v1.20) moved core from !StringifierContrib to Stringifier not to disturb =configure= |
 |  12 Nov 2010: | (v1.14) Foswiki:Main.PadraigLennon  - Foswikitask:Item9311|
 |  23 Oct 2010: | (v1.12) made system fault-tolerant in case of missing dependencies for a given file type; doc cleanup -- Foswiki:Main.WillNorris |

@@ -41,7 +41,7 @@ FormQueryPlugin for an example of this.
 =cut
 
 our $VERSION = '$Rev$';
-our $RELEASE = '28 Mar 2011';
+our $RELEASE = '25 Aug 2011';
 our $SHORTDESCRIPTION = 'Reusable code that treats forms as if they were table rows in a database';
 
 =begin TML
@@ -203,7 +203,8 @@ sub _loadTopic {
 
     if ($hash = $tom->get('FORM')) {
         my ( $formWeb, $formTopic ) =
-          Foswiki::Func::normalizeWebTopicName( '', $hash->{name} );
+          Foswiki::Func::normalizeWebTopicName( $web, $hash->{name} );
+        $formWeb =~ s/\//./g; # normalize the normalization
         $form = $this->{archivist}->newMap();
         if ($standardSchema) {
             $form->set( 'name', "$formWeb.$formTopic" );

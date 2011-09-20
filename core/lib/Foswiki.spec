@@ -10,7 +10,7 @@
 
 # If for some reason you still want to copy this file to LocalSite.cfg,  you
 # must un-comment and complete the 10 PATH and URLPATH settings that are flagged
-# as Mandatory ( M** ) and remove the __DATA__ line toward the end of the file.
+# as Mandatory ( M** ) and remove the __END__ line toward the end of the file.
 
 # Manually building LocalSite.cfg is STRONGLY DISCOURAGED.
 
@@ -815,12 +815,13 @@ $Foswiki::cfg{UserInterfaceInternationalisation} = $FALSE;
 
 # **BOOLEAN EXPERT**
 # <p>Enable compilation of .po string files into compressed .mo files.
-# This results in a significant performance improvement for I18N, but if the
-# string files are being edited, it requires that configure be rerun to recompile
+# This can result in a significant performance improvement for I18N, but has also been
+# reported to cause issues on some systems.  So for now this is considered experimental.
+# Note that if string files are being edited, it requires that configure be rerun to recompile
 # modified files.  Disable this option to prevent compling of string files.  If disabled,
 # stale <code>&lt;language&gt;.mo</code> files should be removed from the
 # Foswiki locale directory so that the modified .po file will be used.
-$Foswiki::cfg{LanguageFileCompression} = $TRUE;
+$Foswiki::cfg{LanguageFileCompression} = $FALSE;
 
 # *LANGUAGES* Marker used by bin/configure script - do not remove!
 # <p>These settings control the languages that are available for the
@@ -1435,13 +1436,16 @@ $Foswiki::cfg{WebPrefsTopicName} = 'WebPreferences';
 $Foswiki::cfg{UsersWebName} = 'Main';
 
 # **STRING 70x10 EXPERT**
-# A comma-separated list of generic file name templates, containing
-# placeholders <code>$name</code> (the template name), <code>$web</code>
-# (the web), and <code>$skin</code> (the skin(s))
-# standing in for part of the file name. This path is expanded to a sequence
-# of file names. The first file on this list that is found is taken to be the
-# requested template file. The file names can either be absolute file names
-# ending in ".tmpl" or a topic name in a Foswiki web.
+# A comma-separated list of generic file name templates that defines the order
+# in which templates are assigned to skin path components.
+# The file name templates can either be absolute file names ending in ".tmpl"
+# or a topic name in a Foswiki web. The file names may contain 
+# these placeholders: <code>$name</code> (the template name), <code>$web</code>
+# (the web), and <code>$skin</code> (the skin).
+# Finding the right template file is done by following the skin path, and for 
+# each skin path component following the template path.
+# The first file on the skin path + template path that is found is taken to be 
+# the requested template file.
 # See 'Security and usability' in System.SkinTemplates for advice on
 # setting this path for increased security.
 $Foswiki::cfg{TemplatePath} = '$Foswiki::cfg{TemplateDir}/$web/$name.$skin.tmpl, $Foswiki::cfg{TemplateDir}/$name.$skin.tmpl, $web.$skinSkin$nameTemplate, $Foswiki::cfg{SystemWebName}.$skinSkin$nameTemplate, $Foswiki::cfg{TemplateDir}/$web/$name.tmpl, $Foswiki::cfg{TemplateDir}/$name.tmpl, $web.$nameTemplate, $Foswiki::cfg{SystemWebName}.$nameTemplate';

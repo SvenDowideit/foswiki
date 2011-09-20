@@ -10,14 +10,15 @@ use strict;
 # | *Handler*                    | *Tested by* |
 # | afterAttachmentSaveHandler   | *untested* |
 # | afterUploadHandler           | *untested* |
-# | afterCommonTagsHandler       | test_commonTagsH# | afterEditHandler             | *untested* |
+# | afterCommonTagsHandler       | test_commonTagsHandlers |
+# | afterEditHandler             | *untested* |
 # | afterRenameHandler           | *untested* |
-# | afterSaveHandler             | *untested* |
+# | afterSaveHandler             | test_saveHandlers |
 # | beforeUploadHandler          | *untested* |
 # | beforeAttachmentSaveHandler  | *untested* |
 # | beforeCommonTagsHandler      | test_commonTagsHandlers |
 # | beforeEditHandler            | *untested* |
-# | beforeSaveHandler            | *untested* |
+# | beforeSaveHandler            | test_saveHandlers |
 # | commonTagsHandler            | test_commonTagsHandlers |
 # | earlyInitPlugin              | test_earlyInit |
 # | endRenderingHandler          | test_renderingHandlers |
@@ -29,7 +30,7 @@ use strict;
 # | outsidePREHandler            | test_renderingHandlers |
 # | postRenderingHandler         | test_renderingHandlers |
 # | preRenderingHandler          | test_renderingHandlers |
-# | redirectrequestHandler      | *untested* |
+# | redirectrequestHandler       | *untested* |
 # | registrationHandler          | *untested* |
 # | renderFormFieldForEditHandler| *untested* |
 # | renderWikiWordHandler        | *untested* |
@@ -67,6 +68,9 @@ sub new {
 sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
+
+    my $testWebObject = Foswiki::Meta->new( $this->{session}, $this->{test_web} );
+        $testWebObject->populateNewWeb();
 
     # Disable all plugins
     foreach my $key ( keys %{ $Foswiki::cfg{Plugins} } ) {
@@ -159,6 +163,87 @@ sub checkCalls {
       eval "\$Foswiki::Plugins::$this->{plugin_name}::called->{$name} || 0";
     $this->assert_equals( $number, $saw,
         "calls($name) $saw != $number " . join( ' ', caller ) );
+}
+
+sub test_saveHandlers {
+    my $this = shift;
+
+    my $user = $this->{session}->{user};
+    $this->assert_not_null($user);
+    my $topicObject = Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'Tropic' );
+    my $text = $topicObject->text() || '';
+    $text =~ s/^\s*\* Set BLAH =.*$//gm;
+    $text .= "\n\t* Set BLAH = BEFORE\n";
+    $text .= "\nNOCALL\n";
+    $topicObject->text($text);
+    try {
+        $topicObject->save();
+    }
+    catch Foswiki::AccessControlException with {
+        $this->assert( 0, shift->stringify() );
+    }
+    catch Error::Simple with {
+        $this->assert( 0, shift->stringify() || '' );
+    };
+
+    my $q = Foswiki::Func::getRequestObject();
+    $this->{session}->finish();
+    $this->{session} = new Foswiki( $Foswiki::cfg{GuestUserLogin}, $q );
+
+    $this->makePlugin( 'saveHandlers', <<'HERE');
+sub beforeSaveHandler {
+    #my( $text, $topic, $theWeb, $meta ) = @_;
+    $tester->assert_str_equals('Tropic', $_[1], "TWO $_[1]");
+    $tester->assert_str_equals($tester->{test_web}, $_[2], "THREE $_[2]");
+    $tester->assert($_[3]->isa('Foswiki::Meta'), "FOUR $_[3]");
+    $tester->assert_str_equals('Wibble', $_[3]->get('WIBBLE')->{wibble});
+    Foswiki::Func::pushTopicContext( $this->{test_web}, 'Tropic' );
+    $tester->assert_str_equals( "BEFORE",
+            $_[3]->getPreference("BLAH"));
+            #Foswiki::Func::getPreferencesValue("BLAH") );
+    $_[0] =~ s/NOCALL/B4SAVE/g;
+    $_[0] =~ s/BEFORE/AFTER/g;
+    $called->{beforeSaveHandler}++;
+}
+sub afterSaveHandler {
+    #my( $text, $topic, $theWeb, $error, $meta ) = @_;
+    $tester->assert_str_equals('Tropic', $_[1]);
+    $tester->assert_str_equals($tester->{test_web}, $_[2]);
+    $tester->assert_null($_[3]);
+    $tester->assert($_[4]->isa('Foswiki::Meta'), "OUCH $_[4]");
+    $tester->assert_str_equals('Wibble', $_[4]->get('WIBBLE')->{wibble});
+    $tester->assert_matches( qr/B4SAVE/, $_[0]);
+    Foswiki::Func::pushTopicContext( $this->{test_web}, 'Tropic' );
+
+    #SMELL:  This fails due to cached preferences
+    #$tester->assert_str_equals( "AFTER",
+    #        $_[4]->getPreference("BLAH"));
+
+    #SMELL:  And for some reason this returns null instead of either BEFORE or AFTER
+            #Foswiki::Func::getPreferencesValue("BLAH") );
+    $called->{afterSaveHandler}++;
+}
+HERE
+
+    # Test to ensure that the before and after save handlers are both called,
+    # and that modifications made to the text are actaully written to the topic file
+    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, "Tropic" );
+    $meta->put( 'WIBBLE', { wibble => 'Wibble' } );
+    $meta->save();
+    $this->checkCalls( 1, 'beforeSaveHandler' );
+    $this->checkCalls( 1, 'afterSaveHandler' );
+
+    my $newMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, "Tropic" );
+    $this->assert_matches( qr\B4SAVE\, $newMeta->text());
+    $this->assert_str_equals('Wibble', $newMeta->get('WIBBLE')->{wibble});
+    $this->assert_str_equals( "AFTER",
+            $newMeta->getPreference("BLAH"));
+
+    #SMELL: Without this call, getPreferences returns BEFORE
+    Foswiki::Func::pushTopicContext( $this->{test_web}, 'Tropic' );
+    $this->assert_str_equals( "AFTER",
+            Foswiki::Func::getPreferencesValue("BLAH") );
+
 }
 
 sub test_commonTagsHandlers {
@@ -490,16 +575,6 @@ sub afterRenameHandler {
 HERE
 }
 
-sub test_afterSaveHandler {
-    my $this = shift;
-    $this->makePlugin( 'afterSaveHandler', <<'HERE');
-sub afterSaveHandler {
-    my ($theText, $theTopic, $theWeb, $error, $meta) = @_;
-    $called->{afterSaveHandler}++;
-}
-HERE
-}
-
 sub test_beforeAttachmentSaveHandler {
     my $this = shift;
     $this->makePlugin( 'beforeAttachmentSaveHandler', <<'HERE');
@@ -527,16 +602,6 @@ sub test_beforeEditHandler {
 sub beforeEditHandler {
     my( $text, $topic, $web, $meta ) = @_;
     $called->{beforeEditHandler}++;
-}
-HERE
-}
-
-sub test_beforeSaveHandler {
-    my $this = shift;
-    $this->makePlugin( 'beforeSaveHandler', <<'HERE');
-sub beforeSaveHandler {
-    my ( $theText, $theTopic, $theWeb, $meta ) = @_;
-    $called->{beforeSaveHandler}++;
 }
 HERE
 }

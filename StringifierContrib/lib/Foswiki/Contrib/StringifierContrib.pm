@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2009-2010 Foswiki Contributors
+# Copyright (C) 2009-2011 Foswiki Contributors
 #
 # For licensing info read LICENSE file in the Foswiki root.
 # This program is free software; you can redistribute it and/or
@@ -16,6 +16,6 @@
 
 package Foswiki::Contrib::StringifierContrib;
 our $VERSION = '$Rev: 9950 (2010-11-12) $';
-our $RELEASE = '1.20';
+our $RELEASE = '2.00';
 
 1;
