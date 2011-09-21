@@ -487,7 +487,7 @@ sub NEWnew {
     #$this->{_indices} = undef;
     #$this->{FILEATTACHMENT} = [];
     
-    print STDERR "-complete NEWnew --- = ".Dumper($this)."\n";
+    print STDERR "-complete NEWnew --- = ".Dumper($this)."\n" if MONITOR;
     
     return $this;
 }
