@@ -22,19 +22,19 @@ sub set_up {
     $this->SUPER::set_up();
     $Foswiki::cfg{EnableHierarchicalWebs} = 1;
     my $webObject =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Dive1" );
+      Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb();
 
     $webObject =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Dive1/Dive2" );
+      Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb();
 
     $webObject =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Dive1/Dive2/Dive3" );
+      Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb();
 
     $webObject =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Dive1/_Dive2tmpl" );
+      Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb();
 
     Foswiki::Func::readTemplate('foswiki');

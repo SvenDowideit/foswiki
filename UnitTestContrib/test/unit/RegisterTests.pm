@@ -95,7 +95,7 @@ EOF
 EOF
         $topicObject->save();
 
-        my $webObject = Foswiki::Meta->new( $this->{session}, $systemWeb );
+        my $webObject = Foswiki::Store->load(address=>{web=>new});
         $webObject->populateNewWeb( $Foswiki::cfg{SystemWebName} );
         $Foswiki::cfg{SystemWebName} = $systemWeb;
         $Foswiki::cfg{EnableEmail}   = 1;

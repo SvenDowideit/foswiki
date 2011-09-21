@@ -68,7 +68,7 @@ sub set_up {
     $this->SUPER::set_up();
 
     #the test web is made using the '_empty' web - not so useful here
-    my $webObject = Foswiki::Meta->new( $this->{session}, $this->{test_web} );
+    my $webObject = Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb(
         '_default',
         {

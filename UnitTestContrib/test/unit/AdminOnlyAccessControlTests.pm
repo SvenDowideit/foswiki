@@ -556,7 +556,7 @@ THIS
     $topicObject->save();
 
     # Now build a subweb with view restricted to MrOrange
-    my $webObject = Foswiki::Meta->new( $this->{session}, $subweb );
+    my $webObject = Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Meta->new( $this->{session}, $subweb,
@@ -592,7 +592,7 @@ THIS
     $topicObject->save();
 
     # Now build a subweb with no restrictions
-    my $webObject = Foswiki::Meta->new( $this->{session}, $subweb );
+    my $webObject = Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Meta->new( $this->{session}, $subweb,
@@ -627,7 +627,7 @@ THIS
     $topicObject->save();
 
     # Now build a subweb with view restricted to MrOrange
-    my $webObject = Foswiki::Meta->new( $this->{session}, $subweb );
+    my $webObject = Foswiki::Store->load(address=>{web=>new});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Meta->new( $this->{session}, $subweb,

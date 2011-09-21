@@ -29,12 +29,12 @@ sub set_up {
 
         # Create a web like this:
         my $webObject =
-          Foswiki::Meta->new( $this->{session}, "Temporarytestweb1" );
+          Foswiki::Store->load(address=>{web=>new});
         $webObject->populateNewWeb("_default");
 
         # Copy a system web like this:
         $webObject =
-          Foswiki::Meta->new( $this->{session}, "Temporarysystemweb" );
+          Foswiki::Store->load(address=>{web=>new});
         $webObject->populateNewWeb("System");
 
         # Create a topic like this:
