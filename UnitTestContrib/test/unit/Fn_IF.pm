@@ -1268,7 +1268,7 @@ PONG
     $meta->save();
 
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $topicName );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topicName });
     $meta->getRevisionInfo();
     my $ti = $meta->get('TOPICINFO');
 

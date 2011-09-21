@@ -141,7 +141,7 @@ __TOPIC__
 
     # base page should evaluate (more or less) to the included page's text
     $topicObject =
-      Foswiki::Meta->load( $this->{session}, $testWebSubWebPath, $baseTopic );
+      Foswiki::Store->load(address=>{web=> $testWebSubWebPath, topic=> $baseTopic });
     my $text = $topicObject->text;
     $text = $topicObject->expandMacros($text);
     $this->assert_matches( qr/$testText\s*$/, $text );
@@ -165,7 +165,7 @@ sub test_create_subweb_with_same_name_as_a_topic {
         $this->{session}->topicExists( $testWebSubWebPath, $testTopic ) );
 
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $testWebSubWebPath, $testTopic );
+      Foswiki::Store->load(address=>{web=> $testWebSubWebPath, topic=> $testTopic });
     $this->assert_matches( qr/$testText\s*$/, $topicObject->text );
 
     # create the subweb with the same name as the page
@@ -176,7 +176,7 @@ sub test_create_subweb_with_same_name_as_a_topic {
         $this->{session}->webExists("$testWebSubWebPath/$testTopic") );
 
     $topicObject =
-      Foswiki::Meta->load( $this->{session}, $testWebSubWebPath, $testTopic );
+      Foswiki::Store->load(address=>{web=> $testWebSubWebPath, topic=> $testTopic });
     $this->assert_matches( qr/$testText\s*$/, $topicObject->text );
 
     $webObject->removeFromStore();
@@ -290,7 +290,7 @@ sub test_url_parameters {
     # make a topic with the same name as the subweb. Now the previous
     # query should hit that topic
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, $testWebSubWeb, "nowt" );
+      Foswiki::Store->load(address=>{web=> $testWeb, $testWebSubWeb, topic=> "nowt" });
     $topicObject->save();
 
     $topicquery = new Unit::Request(
@@ -338,7 +338,7 @@ sub test_squab_simple {
 
     my $text = "[[$testWeb]]";
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, 'NonExistant' );
+      Foswiki::Store->load(address=>{web=> $testWeb, topic=> 'NonExistant' });
     $text = $topicObject->renderTML($text);
     $this->assert_matches(
 qr!<span class="foswikiNewLink">$testWeb<a.*href=".*edit$Foswiki::cfg{ScriptSuffix}/$testWeb/$testWeb\?topicparent=$testWeb.NonExistant"!,
@@ -360,7 +360,7 @@ sub test_squab_subweb {
 
     my $text = "[[$testWebSubWeb]]";
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, 'NonExistant' );
+      Foswiki::Store->load(address=>{web=> $testWeb, topic=> 'NonExistant' });
     $text = $topicObject->renderTML($text);
     $this->assert_matches(
 qr!<span class="foswikiNewLink">$testWebSubWeb<a.*href=".*edit$Foswiki::cfg{ScriptSuffix}/$testWeb/$testWebSubWeb\?topicparent=$testWeb.NonExistant"!,
@@ -381,7 +381,7 @@ sub test_squab_subweb_full_path {
 
     my $text = "[[$testWeb.$testWebSubWeb]]";
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, 'NonExistant' );
+      Foswiki::Store->load(address=>{web=> $testWeb, topic=> 'NonExistant' });
     $text = $topicObject->renderTML($text);
     $this->assert_matches(
 qr!<span class="foswikiNewLink">$testWeb.$testWebSubWeb<a.*href=".*edit$Foswiki::cfg{ScriptSuffix}/$testWeb/$testWebSubWeb\?topicparent=$testWeb.NonExistant"!,
@@ -401,13 +401,13 @@ sub test_squab_subweb_wih_topic {
     $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, $testWebSubWeb, "" );
+      Foswiki::Store->load(address=>{web=> $testWeb, $testWebSubWeb, topic=> "" });
     $topicObject->save();
     $this->assert( $this->{session}->topicExists( $testWeb, $testWebSubWeb ) );
 
     my $text = "[[$testWebSubWeb]]";
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, 'NonExistant' );
+      Foswiki::Store->load(address=>{web=> $testWeb, topic=> 'NonExistant' });
     $text = $topicObject->renderTML($text);
     my $scripturl = $this->{session}->getScriptUrl(0, 'view')."/$testWeb/$testWebSubWeb";
     $this->assert_matches(
@@ -435,13 +435,13 @@ sub test_squab_full_path_with_topic {
     $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, $testWebSubWeb, "" );
+      Foswiki::Store->load(address=>{web=> $testWeb, $testWebSubWeb, topic=> "" });
     $topicObject->save();
     $this->assert( $this->{session}->topicExists( $testWeb, $testWebSubWeb ) );
 
     my $text = "[[$testWeb.$testWebSubWeb]]";
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, 'NonExistant' );
+      Foswiki::Store->load(address=>{web=> $testWeb, topic=> 'NonExistant' });
     $text = $topicObject->renderTML($text);
     
     $this->assert_matches(
@@ -462,13 +462,13 @@ sub test_squab_path_to_topic_in_subweb {
     $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, $testWebSubWeb, "" );
+      Foswiki::Store->load(address=>{web=> $testWeb, $testWebSubWeb, topic=> "" });
     $topicObject->save();
     $this->assert( $this->{session}->topicExists( $testWeb, $testWebSubWeb ) );
 
     my $text = "[[$testWeb.$testWebSubWeb.WebHome]]";
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWeb, 'NonExistant' );
+      Foswiki::Store->load(address=>{web=> $testWeb, topic=> 'NonExistant' });
     $text = $topicObject->renderTML($text);
 
     my $scripturl = Foswiki::Func::getScriptUrl( "$testWeb/$testWebSubWeb", "$Foswiki::cfg{HomeTopicName}", 'view' );

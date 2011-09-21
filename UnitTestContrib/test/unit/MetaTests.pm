@@ -44,7 +44,7 @@ sub set_up {
     $this->SUPER::set_up();
     $this->{session} = new Foswiki();
 
-    $m1 = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    $m1 = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     $m1->put( "TOPICINFO", $args );
     $m1->putKeyed( "FIELD", $args );
     $m1->putKeyed( "FIELD", $args2 );
@@ -60,7 +60,7 @@ sub tear_down {
 # Field that can only have one copy
 sub test_single {
     my $this = shift;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     $meta->put( "TOPICINFO", $args );
     my $vals = $meta->get("TOPICINFO");
@@ -76,7 +76,7 @@ sub test_single {
 
 sub test_multiple {
     my $this = shift;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     $meta->putKeyed( "FIELD", $args );
     my $vals = $meta->get( "FIELD", "a" );
@@ -100,7 +100,7 @@ sub test_multiple {
 # Field with value 0 and value ''  This does not cover Item8738
 sub test_zero_empty {
     my $this = shift;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     my $args_zero = {
         name  => "a",
@@ -126,7 +126,7 @@ sub test_zero_empty {
 
 sub test_removeSingle {
     my $this = shift;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     $meta->put( "TOPICINFO", $args );
     $this->assert( $meta->count("TOPICINFO") == 1, "Should be one item" );
@@ -137,7 +137,7 @@ sub test_removeSingle {
 
 sub test_removeMultiple {
     my $this = shift;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     $meta->putKeyed( "FIELD", $args );
     $meta->putKeyed( "FIELD", $args2 );
@@ -159,7 +159,7 @@ sub test_removeMultiple {
 
 sub test_foreach {
     my $this = shift;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     $meta->putKeyed( "FIELD", { name => "a", value => "aval" } );
     $meta->putKeyed( "FIELD", { name => "b", value => "bval" } );
@@ -206,14 +206,14 @@ sub fleegle {
 
 sub test_copyFrom {
     my $this = shift;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     $meta->putKeyed( "FIELD", { name => "a", value => "aval" } );
     $meta->putKeyed( "FIELD", { name => "b", value => "bval" } );
     $meta->putKeyed( "FIELD", { name => "c", value => "cval" } );
     $meta->put( "FINAGLE", { name => "a", value => "aval" } );
 
-    my $new = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $new = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     $new->copyFrom($meta);
 
     my $d = {};
@@ -224,7 +224,7 @@ sub test_copyFrom {
     $this->assert( $d->{collected} =~ s/FINAGLE.value:aval;// );
     $this->assert_str_equals( "", $d->{collected} );
 
-    $new = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    $new = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     $new->copyFrom( $meta, 'FIELD' );
 
     $new->forEachSelectedValue( qr/^FIELD$/, qr/^value$/, \&fleegle, $d );
@@ -233,7 +233,7 @@ sub test_copyFrom {
     $this->assert( $d->{collected} =~ s/FIELD.value:cval;// );
     $this->assert_str_equals( "", $d->{collected} );
 
-    $new = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    $new = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     $new->copyFrom( $meta, 'FIELD', qr/^(a|b)$/ );
     $new->forEachSelectedValue( qr/^FIELD$/, qr/^value$/, \&fleegle, $d );
     $this->assert( $d->{collected} =~ s/FIELD.value:aval;// );
@@ -252,7 +252,7 @@ sub test_parent {
         my $parent = $testTopic . ( $depth + 1 );
         my $text   = "This is ancestor number $depth";
         my $topicObject =
-          Foswiki::Meta->new( $this->{session}, $web, $child, $text );
+          Foswiki::Store->load(address=>{web=> $web, $child, topic=> $text });
         $topicObject->put( "TOPICPARENT", { name => $parent } );
         $topicObject->save();
     }
@@ -265,7 +265,7 @@ sub test_parent {
 
     for my $depth ( 1 .. 5 ) {
         my $child       = $testTopic . $depth;
-        my $topicObject = Foswiki::Meta->load( $this->{session}, $web, $child );
+        my $topicObject = Foswiki::Store->load(address=>{web=> $web, topic=> $child });
         my $parent      = $topicObject->getParent();
         $this->assert_str_equals(
             $parent,
@@ -337,7 +337,7 @@ sub test_parent {
         { name => $web . '.' . $Foswiki::cfg{HomeTopicName} } );
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->load( $this->{session}, $web, $testTopic . '1' );
+      Foswiki::Store->load(address=>{web=> $web, topic=> $testTopic . '1' });
     my $str = $topicObject->expandMacros('%META{"parent"}%');
     $this->assert_str_equals(
         $str,

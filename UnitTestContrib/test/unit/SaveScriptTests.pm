@@ -840,14 +840,14 @@ sub test_merge {
 
     # Set up the original topic that the two edits started on
     my $oldmeta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MergeSave' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'MergeSave' });
     my $oldtext = $testtext1;
     $oldmeta->setEmbeddedStoreForm($oldtext);
     $oldmeta->text($testform4);
     $oldmeta->save( user => $this->{test_user_2_login} );
 
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'MergeSave' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'MergeSave' });
     my $text     = $meta->text;
     my $info     = $meta->getRevisionInfo();
     my $original = "$info->{version}_$info->{date}";
@@ -924,7 +924,7 @@ GUMP
 
     # Get the merged topic and pick it apart
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'MergeSave' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'MergeSave' });
     $text = $meta->text;
     my $e = <<'END';
 <div class="foswikiConflict"><b>CONFLICT</b> original 1:</div>
@@ -973,7 +973,7 @@ ZIS
 #    $this->captureWithKey( save => &$UI_FN, $this->{session});
 #
 #    # retrieve revision number
-#    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'DeleteTestRestoreRevisionTopic');
+#    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'DeleteTestRestoreRevisionTopic'});
 #    my $text = $meta->text;
 #    my $info = $meta->getRevisionInfo();
 #
@@ -998,7 +998,7 @@ ZIS
 #    $this->{session} = new Foswiki( $this->{test_user_login}, $query);
 #    $this->captureWithKey( save => $UI_FN, $this->{session});
 #
-#    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'DeleteTestRestoreRevisionTopic');
+#    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'DeleteTestRestoreRevisionTopic'});
 #    $text = $meta->text;
 #    $info = $meta->getRevisionInfo();
 #    $original = "$info->{version}_$info->{date}";
@@ -1015,7 +1015,7 @@ ZIS
 #    $this->{session}->finish();
 #    $this->{session} = new Foswiki( $this->{test_user_login}, $query );
 #    $this->captureWithKey( save => $UI_FN, $this->{session});
-#    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'DeleteTestRestoreRevisionTopic');
+#    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'DeleteTestRestoreRevisionTopic'});
 #    $text = $meta->text;
 #    $info = $meta->getRevisionInfo();
 #    $original = "$info->{version}_$info->{date}";
@@ -1034,7 +1034,7 @@ ZIS
 #    $this->{session}->finish();
 #    $this->{session} = new Foswiki( $this->{test_user_login}, $query );
 #    $this->captureWithKey( save => $UI_FN, $this->{session});
-#    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'DeleteTestRestoreRevisionTopic');
+#    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'DeleteTestRestoreRevisionTopic'});
 #    $text = $meta->text;
 #    $info = $meta->getRevisionInfo();
 #    $original = "$info->{version}_$info->{date}";
@@ -1065,7 +1065,7 @@ sub test_1897 {
     $this->{session} = new Foswiki( $this->{test_user_login} );
 
     my $oldmeta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MergeSave' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'MergeSave' });
     my $oldtext = $testtext1;
     my $query;
     $oldmeta->setEmbeddedStoreForm($oldtext);
@@ -1076,7 +1076,7 @@ sub test_1897 {
         "Smelly\ncat", $oldmeta );
     $meta->save();
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'MergeSave' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'MergeSave' });
     my $text = $meta->text();
     my $info = $meta->getRevisionInfo();
     my ( $orgDate, $orgAuth, $orgRev ) =
@@ -1103,7 +1103,7 @@ sub test_1897 {
 
     # make sure it's still rev 1 as expected
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'MergeSave' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'MergeSave' });
     $text = $meta->text();
     $info = $meta->getRevisionInfo();
     my ( $repRevDate, $repRevAuth, $repRevRev ) =
@@ -1135,7 +1135,7 @@ sub test_1897 {
     };
 
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'MergeSave' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'MergeSave' });
     $text = $meta->text();
 
     $info = $meta->getRevisionInfo();

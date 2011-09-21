@@ -93,7 +93,7 @@ sub _createInconsistentTopic {
 
     $this->{test_topic} .= "Inconsistent";
 
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->text($TEXT1);
     $meta->save(); # we should have a history now, with topic 1 as the latest rev
 
@@ -124,7 +124,7 @@ sub verify_NoHistory_getRevisionInfo {
     $this->_createNoHistoryTopic();
 
     # A topic without history should be rev 1
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     # 3
     my $it = $this->{session}->{store}->getRevisionHistory($meta);
     $this->assert($it->hasNext());
@@ -151,7 +151,7 @@ sub verify_InconsistentTopic_getRevisionInfo {
 
     # Inconsistent cache with topicinfo
     $this->_createInconsistentTopic();
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     # 4
     my $it = $this->{session}->{store}->getRevisionHistory($meta);
     $this->assert($it->hasNext());
@@ -177,7 +177,7 @@ sub verify_NoHistory_implicitSave {
     $this->_createNoHistoryTopic();
 
     # There's no history, but the current .txt is implicit rev 1
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} ); 
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} }); 
     my $it = $this->{session}->{store}->getRevisionHistory($meta);
     $this->assert($it->hasNext());
     $this->assert_num_equals( 1, $it->next() );
@@ -191,7 +191,7 @@ sub verify_NoHistory_implicitSave {
     # but should instead create the first revision, so rev 1 represents
     # the original file before history started.
 
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_equals( 2, $readMeta->getLatestRev() );
     $this->assert_matches( qr/^\s*\Q$TEXT2\E\s*/s, $readMeta->text() );
 
@@ -202,7 +202,7 @@ sub verify_NoHistory_implicitSave {
     $this->assert_num_equals( 2, $info->{version} );
 
     # Make sure that rev 1 exists and has the original text pre-history.
-    $readMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic}, 1 );
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 1 });
     $this->assert_matches( qr/^\s*\Q$TEXT1\E\s*$/s, $readMeta->text() );
 }
 
@@ -213,7 +213,7 @@ sub verify_Inconsistent_implicitSave {
     $this->_createInconsistentTopic();
 
     # Head of "history" will be 2, and should contain $TEXT2
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} ); 
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} }); 
 
     # Save (but *don't* force) a new rev. Should always create a 3.
     $meta->text( $TEXT3 );
@@ -224,7 +224,7 @@ sub verify_Inconsistent_implicitSave {
     # but should instead create the first revision, so rev 1 represents
     # the original file before history started.
 
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_equals( 3, $readMeta->getLatestRev() );
     $this->assert_matches( qr/^\s*\Q$TEXT3\E\s*/s, $readMeta->text() );
 
@@ -235,11 +235,11 @@ sub verify_Inconsistent_implicitSave {
     $this->assert_num_equals( 3, $info->{version} );
 
     # Make sure that previous revs exist and have the right content
-    $readMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic}, 1 );
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 1 });
     $this->assert_matches( qr/^\s*\Q$TEXT1\E\s*/s, $readMeta->text() );
-    $readMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic}, 2 );
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 2 });
     $this->assert_matches( qr/^\s*\Q$TEXT2\E\s*/s, $readMeta->text() );
-    $readMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic}, 3 );
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 3 });
     $this->assert_matches( qr/^\s*\Q$TEXT3\E\s*/s, $readMeta->text() );
 }
 
@@ -250,14 +250,14 @@ sub verify_NoHistory_repRev {
 
     $this->_createNoHistoryTopic();
 
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->text($TEXT2);
     # save using a different user (implicit save is done by UNKNOWN user)
     $this->{session}->{store}->repRev( $meta, $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID );
     my $info = $this->{session}->{store}->getVersionInfo($meta);
     $this->assert_num_equals( 1, $info->{version} );
     $this->assert_str_equals( $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, $info->{author} );
-    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_matches( qr/^\s*\Q$TEXT2\E\s*$/s, $meta->text );
 }
 
@@ -266,14 +266,14 @@ sub verify_Inconsistent_repRev {
 
     $this->_createInconsistentTopic();
 
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->text($TEXT3);
     # save using a different user (implicit save is done by UNKNOWN user)
     $this->{session}->{store}->repRev( $meta, $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID );
     my $info = $this->{session}->{store}->getVersionInfo($meta);
     $this->assert_num_equals( 2, $info->{version} );
     $this->assert_str_equals( $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, $info->{author} );
-    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_matches( qr/^\s*\Q$TEXT3\E\s*$/s, $meta->text );
 }
 
@@ -283,7 +283,7 @@ sub verify_NoHistory_getRevisionAtTime {
     my $then = time;
     $this->_createNoHistoryTopic();
 
-    my $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_num_equals(1, $this->{session}->{store}->getRevisionAtTime($meta, time));
     $this->assert_null($this->{session}->{store}->getRevisionAtTime($meta, $then-1));
 }
@@ -296,7 +296,7 @@ sub verify_Inconsistent_getRevisionAtTime {
     my $then = time;
     $this->_createInconsistentTopic();
 
-    my $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_num_equals(2, $this->{session}->{store}->getRevisionAtTime($meta, time));
     $this->assert_num_equals(1, $this->{session}->{store}->getRevisionAtTime($meta, $then));
     $this->assert_null($this->{session}->{store}->getRevisionAtTime($meta, $then-1));
@@ -314,12 +314,12 @@ sub verify_NoHistory_saveAttachment {
     print FILE "one two three";
     close( FILE );
 
-    my $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->attach(name => "testfile.txt",
 		  file => "$Foswiki::cfg{TempfileDir}/testfile.txt",
 		  comment => "a comment" );
 
-    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_equals( 2, $meta->getLatestRev() );
     $this->assert_matches( qr/^\s*\Q$TEXT1\E\s*/s, $meta->text() );
     $this->assert_not_null($meta->get( 'FILEATTACHMENT', 'testfile.txt' ));
@@ -330,7 +330,7 @@ sub verify_NoHistory_saveAttachment {
     $this->assert_num_equals( 2, $info->{version} );
 
     # Make sure that rev 1 exists, has the right text
-    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic}, 1 );
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 1 });
     $this->assert_matches( qr/^\s*\Q$TEXT1\E\s*$/s, $meta->text() );
 }
 
@@ -343,12 +343,12 @@ sub verify_Inconsistent_saveAttachment {
     print FILE "one two three";
     close( FILE );
 
-    my $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->attach(name => "testfile.txt",
 		  file => "$Foswiki::cfg{TempfileDir}/testfile.txt",
 		  comment => "a comment" );
 
-    $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $this->assert_equals( 3, $meta->getLatestRev() );
     $this->assert_matches( qr/^\s*\Q$TEXT2\E\s*/s, $meta->text() );
     $this->assert_not_null($meta->get( 'FILEATTACHMENT', 'testfile.txt' ));

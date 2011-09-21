@@ -1613,7 +1613,7 @@ END
 
     # make sure meta overrides text, as documented - Item2953
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -1630,7 +1630,7 @@ END
         $topic, $this->{test_web}, $meta
     );
     $this->assert( !$access );
-    $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -1772,7 +1772,7 @@ END
 
     # make sure meta overrides text, as documented - Item2953
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -1789,7 +1789,7 @@ END
         $topic, $this->{test_web}, $meta
     );
     $this->assert( !$access );
-    $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
     $meta->putKeyed(
         'PREFERENCE',
         {

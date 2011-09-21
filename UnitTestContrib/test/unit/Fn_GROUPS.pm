@@ -42,7 +42,7 @@ sub set_up {
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Meta->load( $this->{session}, $this->{users_web}, "HidemeGood");
+      Foswiki::Store->load(address=>{web=> $this->{users_web}, topic=> "HidemeGood"});
     my $topText = $topicObject->text();
     $topText .= "   * Set ALLOWTOPICVIEW = AdminUser\n";
     $topText = $topicObject->text($topText);

@@ -39,7 +39,7 @@ sub set_up {
       'Foswiki::Store::SearchAlgorithms::PurePerl';
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'HitTopic' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'HitTopic' });
     $meta->putKeyed(
         'FILEATTACHMENT',
         {
@@ -138,7 +138,7 @@ sub set_up {
     $meta->save( forcenewrevision => 1 );
 
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'HitTopic', 1 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, 'HitTopic', topic=> 1 });
     $meta->text("Green ideas sleep furiously");
     $meta->save( forcenewrevision => 1 );
     $this->{meta} = $meta;
@@ -311,7 +311,7 @@ sub verify_meta_dot {
     my $this = shift;
 
 #longhand to a topic that as more than one rev
-#    my $anotherTopic = Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'AnotherTopic' );
+#    my $anotherTopic = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'AnotherTopic' });
 #    my $anotherTopicInfo = $anotherTopic->getRevisionInfo();
 #    $this->check( "'AnotherTopic'/META:CREATEINFO.date",        eval => $anotherTopicInfo->{date} );
 #return;
@@ -339,7 +339,7 @@ sub verify_meta_dot {
 
     #longhand to a topic that as more than one rev
     my $anotherTopic =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'AnotherTopic' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'AnotherTopic' });
     my $anotherTopicInfo = $anotherTopic->getRevisionInfo();
     $this->check(
         "'AnotherTopic'/META:TOPICINFO.date",

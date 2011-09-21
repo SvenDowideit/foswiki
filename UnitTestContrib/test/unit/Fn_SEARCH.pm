@@ -3191,7 +3191,7 @@ GNURF
     my %testWebs = ( Main => 0, System => 10, Sandbox => 100 );
     while ( my ( $web, $delay ) = each %testWebs ) {
         my $topicObject =
-          Foswiki::Meta->new( $this->{session}, "$web", 'TheTopic', <<'CRUD');
+          Foswiki::Store->load(address=>{web=> "$web", 'TheTopic', topic=> <<'CRUD'});
 Just some dummy search topic.
 CRUD
         $topicObject->save( forcedate => $delay );

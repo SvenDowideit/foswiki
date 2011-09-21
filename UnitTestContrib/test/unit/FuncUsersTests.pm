@@ -1412,11 +1412,11 @@ sub verify_topic_meta_usermapping {
 
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+      Foswiki::Store->load(address=>{web=> $web, $topic, topic=> $text });
     $topicObject->save();
 
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
-    my $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $readMeta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     my $info = $readMeta->getRevisionInfo();
     $this->assert_equals( $info->{author}, $cUID, "$info->{author}=$cUID" );
     my $revinfo =
@@ -1432,7 +1432,7 @@ sub verify_topic_meta_usermapping {
         comment => "a comment",
         filedate => 1262347200, # 01 Jan 2010 12:00
     );
-    $readMeta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    $readMeta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
 
     my @attachments = $readMeta->find('FILEATTACHMENT');
     $this->assert_equals( 1, scalar @attachments );

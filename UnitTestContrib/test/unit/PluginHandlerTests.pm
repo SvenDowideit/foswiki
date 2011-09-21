@@ -170,7 +170,7 @@ sub test_saveHandlers {
 
     my $user = $this->{session}->{user};
     $this->assert_not_null($user);
-    my $topicObject = Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'Tropic' );
+    my $topicObject = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'Tropic' });
     my $text = $topicObject->text() || '';
     $text =~ s/^\s*\* Set BLAH =.*$//gm;
     $text .= "\n\t* Set BLAH = BEFORE\n";
@@ -227,13 +227,13 @@ HERE
 
     # Test to ensure that the before and after save handlers are both called,
     # and that modifications made to the text are actaully written to the topic file
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, "Tropic" );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> "Tropic" });
     $meta->put( 'WIBBLE', { wibble => 'Wibble' } );
     $meta->save();
     $this->checkCalls( 1, 'beforeSaveHandler' );
     $this->checkCalls( 1, 'afterSaveHandler' );
 
-    my $newMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, "Tropic" );
+    my $newMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> "Tropic" });
     $this->assert_matches( qr\B4SAVE\, $newMeta->text());
     $this->assert_str_equals('Wibble', $newMeta->get('WIBBLE')->{wibble});
     $this->assert_str_equals( "AFTER",
@@ -283,7 +283,7 @@ HERE
 
     # Crude test to ensure all handlers are called, and in the right order.
     # Doesn't verify that they are called at the right time
-    my $meta = Foswiki::Meta->new( $this->{session}, "Werb", "Tropic" );
+    my $meta = Foswiki::Store->load(address=>{web=> "Werb", topic=> "Tropic" });
     $meta->put( 'WIBBLE', { wibble => 'Wibble' } );
     Foswiki::Func::expandCommonVariables( "Zero", "Tropic", "Werb", $meta );
     $this->checkCalls( 1, 'beforeCommonTagsHandler' );

@@ -51,7 +51,7 @@ sub set_up {
 HERE
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $testtopic1 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic1 });
     $meta->put( 'FORM', { name => 'InitializationForm' } );
     $meta->putKeyed(
         'FIELD',
@@ -138,7 +138,7 @@ HERE
     Foswiki::Func::saveTopic( $this->{test_web}, $testtopic1, $meta, 'TT1' );
 
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $testtopic2 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic2 });
     $meta->put( 'FORM', { name => 'InitializationForm', } );
     $meta->putKeyed(
         'FIELD',
@@ -265,7 +265,7 @@ sub test_render_formfield_raw {
 
     my $this = shift;
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $testtopic2 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic2 });
     my $text   = $meta->text;
     my $render = $this->{session}->renderer;
     my $res;
@@ -320,7 +320,7 @@ sub test_render_formfield_with_form {
     $this->setForm();
 
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $testtopic2 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic2 });
     my $text = $meta->text;
     my $res  = $meta->renderFormForDisplay();
     $this->assert_html_equals( <<"HERE", $res );
@@ -339,7 +339,7 @@ Foo, Baz
 </td></tr>%IF{"context preview" then="</noautolink>"}%</table></div>
 HERE
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $testtopic1 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic1 });
     $text = $meta->text;
     $res  = $meta->renderFormForDisplay();
 
@@ -372,7 +372,7 @@ sub test_render_for_edit {
 
     $this->setForm();
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $testtopic1 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic1 });
     my $text = $meta->text;
     my $formDef =
       Foswiki::Form->new( $this->{session}, $this->{test_web},
@@ -410,7 +410,7 @@ sub test_render_hidden {
     my $this = shift;
     $this->setForm();
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, $testtopic1 );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic1 });
     my $text = $meta->text;
     my $formDef =
       Foswiki::Form->new( $this->{session}, $this->{test_web},
@@ -442,7 +442,7 @@ TOPIC
 
     Foswiki::Func::saveTopic( $web, $topic, undef, $rawtext );
 
-    my $meta = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     my $text = $meta->text;
     my $res  = $meta->renderFormForDisplay();
 

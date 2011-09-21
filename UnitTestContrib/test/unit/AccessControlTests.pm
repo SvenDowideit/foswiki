@@ -59,7 +59,7 @@ sub DENIED {
     my ( $this, $mode, $user, $web, $topic ) = @_;
     $web   ||= $this->{test_web};
     $topic ||= $this->{test_topic};
-    my $topicObject = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $topicObject = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     $this->assert( !$topicObject->haveAccess( $mode, $user ),
         "$user $mode $web.$topic" );
     $this->assert( !$this->{session}->access->haveAccess( $mode, $user, $topicObject ),
@@ -74,7 +74,7 @@ sub PERMITTED {
     my ( $this, $mode, $user, $web, $topic ) = @_;
     $web   ||= $this->{test_web};
     $topic ||= $this->{test_topic};
-    my $topicObject = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $topicObject = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     $this->assert( $topicObject->haveAccess( $mode, $user ),
         "$user $mode $web.$topic" );
     $this->assert( $this->{session}->access->haveAccess( $mode, $user, $topicObject ),

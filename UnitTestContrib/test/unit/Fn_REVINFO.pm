@@ -48,7 +48,7 @@ sub test_basic2 {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui = $topicObject->expandMacros('%REVINFO%');
     unless ( $ui =~
 /^r1 - \d+ \w+ \d+ - \d+:\d+:\d+ - $this->{users_web}\.$this->{test_user_wikiname}$/
@@ -62,7 +62,7 @@ sub test_basic3 {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui = $topicObject->expandMacros('%REVINFO{topic="GlumDrop"}%');
     unless ( $ui =~
 /^r1 - \d+ \w+ \d+ - \d+:\d+:\d+ - $this->{users_web}\.$this->{test_user_wikiname}$/
@@ -76,7 +76,7 @@ sub test_thisWebVars {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui =
       $topicObject->expandMacros('%REVINFO{topic="%BASEWEB%.GlumDrop"}%');
     unless ( $ui =~
@@ -92,7 +92,7 @@ sub BROKENtest_thisTopicVars {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui = $topicObject->expandMacros('%REVINFO{topic="%BASETOPIC%"}%');
     unless ( $ui =~
 /^r1 - \d+ \w+ \d+ - \d+:\d+:\d+ - $this->{users_web}\.$this->{test_user_wikiname}$/
@@ -106,7 +106,7 @@ sub BROKENtest_thisWebTopicVars {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui =
       $topicObject->expandMacros('%REVINFO{topic="%BASEWEB%.%BASETOPIC%"}%');
     unless ( $ui =~
@@ -154,7 +154,7 @@ sub test_formatUser {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui = $topicObject->expandMacros(
         '%REVINFO{format="$username $wikiname $wikiusername"}%');
     $this->assert_str_equals(
@@ -180,7 +180,7 @@ sub test_compatibility1 {
 HERE
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'CrikeyMoses' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'CrikeyMoses' });
     my $ui =
       $topicObject->expandMacros('%REVINFO{format="$username $wikiname"}%');
     $this->assert_str_equals( "scum ScumBag", $ui );
@@ -204,7 +204,7 @@ sub test_compatibility2 {
 HERE
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'CrikeyMoses' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'CrikeyMoses' });
     my $ui =
       $topicObject->expandMacros('%REVINFO{format="$username $wikiname"}%');
     $this->assert_str_equals( "scum ScumBag", $ui );
@@ -252,7 +252,7 @@ sub test_42 {
     $this->{session}->finish();
     $this->{session} = new Foswiki();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui = $topicObject->expandMacros(
             '%REVINFO{topic="'
           . $this->{test_web}
@@ -269,7 +269,7 @@ sub test_CaseSensitiveFormatString {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'GlumDrop' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'GlumDrop' });
     my $ui = $topicObject->expandMacros( '%REVINFO{format="$DATE"}%', );
     $this->assert_str_equals( '$DATE', $ui );
 }
@@ -343,7 +343,7 @@ sub _createHistory {
     $num   ||= 4;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
     $topicObject->save();    # rev 1
 
     my @texts = [

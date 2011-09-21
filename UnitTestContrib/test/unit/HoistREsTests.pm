@@ -14,7 +14,7 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
 
-    my $meta = Foswiki::Meta->new( $this->{session}, 'Web', 'Topic' );
+    my $meta = Foswiki::Store->load(address=>{web=> 'Web', topic=> 'Topic' });
     $meta->putKeyed(
         'FILEATTACHMENT',
         {

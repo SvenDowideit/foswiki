@@ -319,7 +319,7 @@ sub tear_down {
 
 sub check {
     my ( $this, $web, $topic, $emeta, $expected, $num ) = @_;
-    my $meta   = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $meta   = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     my $actual = $meta->text;
     my @old    = split( /\n+/, $expected );
     my @new    = split( /\n+/, $actual );
@@ -338,7 +338,7 @@ sub check {
 sub checkReferringTopics {
     my ( $this, $web, $topic, $all, $expected, $forgiving ) = @_;
 
-    my $m = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $m = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
     my $refs =
       Foswiki::UI::Rename::_getReferringTopics( $this->{session}, $m, $all );
 
@@ -726,7 +726,7 @@ sub test_rename_topic_reference_in_denied_web {
     my $fnord = "FnordMustNotBeFound" . time;
 
     # Create the referred-to topic that we're renaming
-    my $m = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $fnord );
+    my $m = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $fnord });
     $m->text("");
     $m->save();
 
@@ -1189,7 +1189,7 @@ sub test_renameTopic_nonWikiWord_same_web_new_topic_name {
     my $this = shift;
 
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'OldTopic' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'OldTopic' });
     $meta->put( "TOPICPARENT", { name => 'Tmp1' } );
     $meta->save();
 
@@ -1225,7 +1225,7 @@ sub test_renameTopic_nonWikiWord_same_web_new_topic_name {
         !$this->{session}->topicExists( $this->{test_web}, 'Tmp1' ) );
 
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'OldTopic' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'OldTopic' });
 
     $this->assert_str_equals( 'Tmp2', $meta->getParent() );
 }
@@ -1402,7 +1402,7 @@ sub test_renameTopic_ensure_leases_are_released {
 
     # Grab a lease
     my $m =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'OldTopic' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'OldTopic' });
     $m->setLease(1000);
 
     my $query = new Unit::Request(
@@ -1419,7 +1419,7 @@ sub test_renameTopic_ensure_leases_are_released {
     $this->{session} = new Foswiki( $this->{test_user_login}, $query );
     $Foswiki::Plugins::SESSION = $this->{session};
     $this->captureWithKey( rename => $UI_FN, $this->{session} );
-    $m = Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'OldTopic' );
+    $m = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'OldTopic' });
     my $lease = $m->getLease();
     $this->assert_null( $lease, $lease );
 }

@@ -192,7 +192,7 @@ sub verify_rename {
     $this->{session}->{user} = $user;
 
     #$Foswiki::Sandbox::_trace = 1;
-    #my $nmeta = Foswiki::Meta->new( $this->{session}, $newWeb, $newTopic );
+    #my $nmeta = Foswiki::Store->load(address=>{web=> $newWeb, topic=> $newTopic });
     #Foswiki::Store->move( from=>$meta, address=>{web=>$newWeb, topic=>$newTopic}, cuid=>$user );
     
     my $nmeta_bad =
@@ -242,7 +242,7 @@ sub verify_releaselocksonsave {
     };
 
     # get the date
-    my $m = #Foswiki::Meta->load( $this->{session}, $this->{test_web}, $topic );
+    my $m = #Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
           Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$topic} );
 
     my $t1 = $m->getRevisionInfo()->{date};

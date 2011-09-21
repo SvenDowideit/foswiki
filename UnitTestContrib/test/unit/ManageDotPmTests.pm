@@ -841,7 +841,7 @@ EOM
 #TODO: um, really need to test what the output was, and
 #TODO: test if a user was registered..
 #$this->assert( '', $text);
-#my $readMeta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'TemporaryRegistrationTestWebRegistration/UnprocessedRegistrations2Log' );
+#my $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'TemporaryRegistrationTestWebRegistration/UnprocessedRegistrations2Log' });
 #$this->assert( '', $readMeta->text());
     }
     catch Foswiki::OopsException with {
@@ -1060,7 +1060,7 @@ sub test_saveSettings_denied {
 
     # Create a test topic
     my $testTopic =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "SaveSettings" );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> "SaveSettings" });
     $testTopic->text(<<TEXT);
 Philosophers, philosophers, everywhere,
    * Set ALLOWTOPICCHANGE = ZeusAndHera

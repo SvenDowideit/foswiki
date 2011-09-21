@@ -23,7 +23,7 @@ sub _createTopic {
     my ( $this, $web, $topicObject ) = @_;
 
     my $formTopicObject =
-      Foswiki::Meta->new( $this->{session}, $web, 'TestForm', <<FORM);
+      Foswiki::Store->load(address=>{web=> $web, 'TestForm', topic=> <<FORM});
 | *Name*    | *Type* | *Size* |
 | Marjorie  | text   | 30     |
 | Priscilla | text   | 30     |
@@ -136,7 +136,7 @@ sub test_FORMFIELD_topic {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'TestForm' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'TestForm' });
     $this->{session}->{webName} = $this->{test_web};
     my $result = $topicObject->expandMacros('%FORMFIELD{"Marjorie"}%');
     $this->assert_str_equals( '', $result );
@@ -173,7 +173,7 @@ sub test_FORMFIELD_web {
     $this->_createTopic( $this->{other_web}, $topicObject );
 
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'TestForm' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'TestForm' });
     $this->{session}->{webName} = $this->{test_web};
 
     my $result = $topicObject->expandMacros('%FORMFIELD{"Marjorie"}%');

@@ -285,7 +285,7 @@ FORM
         join( ',', sort @{ $f->getOptions() } ) );
 
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'TestForm' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'TestForm' });
     $meta->renderFormForDisplay();
 
     return;
@@ -301,7 +301,7 @@ sub test_makeFromMeta {
 FORM
     $topicObject->save();
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'SplodgeOne' );
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'SplodgeOne' });
     my $form =
       Foswiki::Form->new( $this->{session}, $this->{test_web},
         'NonExistantForm', $meta );
