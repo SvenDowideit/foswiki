@@ -370,7 +370,7 @@ die 'no';
 #        },
 #        ref($class) || $class
 #    );
-    $this->{_session} = $session;
+    $Foswiki::Plugins::SESSION = $session;
     # Index keyed on top level type mapping entry names to their
     # index within the data array.
     $this->{_indices} = undef;
@@ -440,22 +440,51 @@ sub NEWnew {
     my $class = shift;
     use Data::Dumper;
     die Dumper(\@_) unless (defined($_[2]));
+    die Dumper(\@_) unless ($#_ %2);
     my %args = @_;
     
     #copy the Foswiki::Address obj (which by this time it is :/)
     my $this = (ref($class) || $class)->SUPER::new( $args{address} );
     #TODO: fix the Foswiki::Address constructor to allow inheritance
     #TODO: should only copy the keys that are registered data
-    @{$this}{keys(%{$args{data}})} = values(%{$args{data}}) if (defined($args{data}));
+    #@{$this}{keys(%{$args{data}})} = values(%{$args{data}}) if (defined($args{data}));
+    
+    if (defined($args{data}))
+    {
+        #TODO: temporarily using the _indicies to validate the ::Store changes first
+        foreach my $type (keys(%{$args{data}})) {
+            next unless ($VALIDATE{$type}); #only put registered types
+            my $key_array_ref = $args{data}->{$type};
+            
+            
+            foreach my $keys (@$key_array_ref) {
+                if ( $this->isValidEmbedding( $type, $keys ) ) {
+                    if ( defined( $keys->{name} ) ) {
+
+                        # save it keyed if it has a name
+                        $this->putKeyed( $type, $keys );
+                        print STDERR "ok_putKeyed $type : $keys->{name}, value==".(defined($keys->{value})?$keys->{value}:'undef')."\n" if MONITOR;
+                    }
+                    else {
+                        $this->put( $type, $keys );
+                        print STDERR "ok_put $type : ..\n" if MONITOR;
+                    }
+                } else {
+                    print STDERR "notavalidembedding $type : \n" if MONITOR;
+                }
+            }
+        }
+        $this->{_text} = $args{data}->{_text};
+    }
     
     #TODO: remove this.
-    $this->{_session} = $Foswiki::Plugins::SESSION;
+    #$this->{_session} = $Foswiki::Plugins::SESSION;
     # Index keyed on top level type mapping entry names to their
     # index within the data array.
-    $this->{_indices} = undef;
-    $this->{FILEATTACHMENT} = [];
+    #$this->{_indices} = undef;
+    #$this->{FILEATTACHMENT} = [];
     
-    #die "-complete NEWnew --- = ".Dumper($this)."\n";
+    print STDERR "-complete NEWnew --- = ".Dumper($this)."\n";
     
     return $this;
 }
@@ -512,7 +541,7 @@ sub DELETE_THIS_load {
         $this = $proto->new( $session, $web, $topic );
     }
 
-    my $session = $this->{_session};
+    my $session = $Foswiki::Plugins::SESSION;
     if (    defined( $this->topic )
         and ( not defined($rev) )
         and $this->existsInStore() )
@@ -592,7 +621,7 @@ sub finish {
     $this->unload();
     undef $this->{web};
     undef $this->{topic};
-    undef $this->{_session};
+    #undef $Foswiki::Plugins::SESSION;
     if (DEBUG) {
 
     #someone keeps adding random references to Meta so to shake them out..
@@ -619,7 +648,7 @@ it was created.
 =cut
 
 sub session {
-    return $_[0]->{_session};
+    return $Foswiki::Plugins::SESSION;
 }
 
 =begin TML
@@ -656,10 +685,10 @@ sub isSessionTopic {
     return 0
       unless defined $this->{web}
           && defined $this->{topic}
-          && defined $this->{_session}->{webName}
-          && defined $this->{_session}->{topicName};
-    return $this->{web} eq $this->{_session}->{webName}
-      && $this->{topic} eq $this->{_session}->{topicName};
+          && defined $Foswiki::Plugins::SESSION->{webName}
+          && defined $Foswiki::Plugins::SESSION->{topicName};
+    return $this->{web} eq $Foswiki::Plugins::SESSION->{webName}
+      && $this->{topic} eq $Foswiki::Plugins::SESSION->{topicName};
 }
 
 =begin TML
@@ -679,13 +708,13 @@ sub getPreference {
     my ( $this, $key ) = @_;
 
     unless ( $this->{web} || $this->{topic} ) {
-        return $this->{_session}->{prefs}->getPreference($key);
+        return $Foswiki::Plugins::SESSION->{prefs}->getPreference($key);
     }
 
     # make sure the preferences are parsed and cached
     unless ( $this->{_preferences} ) {
         $this->{_preferences} =
-          $this->{_session}->{prefs}->loadPreferences($this);
+          $Foswiki::Plugins::SESSION->{prefs}->loadPreferences($this);
     }
     return $this->{_preferences}->get($key);
 }
@@ -702,10 +731,16 @@ sub getContainer {
     my $this = shift;
 
     if ( $this->{topic} ) {
-        return Foswiki::Meta->new( $this->{_session}, $this->{web} );
+        if (Foswiki::Store->exists(address=>{web=>$this->{web}})) {
+            return Foswiki::Store->load(address=>{web=>$this->{web}});
+        }
+
+        #not really sure what should happen here..
+        return Foswiki::Store->load(address=>{string=>'/'});
+
     }
     if ( $this->{web} ) {
-        return Foswiki::Meta->new( $this->{_session} );
+        return Foswiki::Store->load(address=>{string=>'/'});
     }
     ASSERT( 0, 'no container for this object type' ) if DEBUG;
     return;
@@ -822,7 +857,7 @@ sub populateNewWeb {
     ASSERT( $this->{web} && !$this->{topic}, 'this is not a web object' )
       if DEBUG;
 
-    my $session = $this->{_session};
+    my $session = $Foswiki::Plugins::SESSION;
 
     my ( $parent, $new ) = $this->{web} =~ m/^(.*)\/([^\.\/]+)$/;
 
@@ -1502,21 +1537,21 @@ sub getRev1Info {
     unless ( defined $info->{$attr} ) {
         my $ri = $info->{rev1info};
         unless ($ri) {
-            my $tmp = Foswiki::Meta->load( $this->{_session}, $web, $topic, 1 );
+            my $tmp = Foswiki::Meta->load( $Foswiki::Plugins::SESSION, $web, $topic, 1 );
             $info->{rev1info} = $ri = $tmp->getRevisionInfo();
         }
 
         if ( $attr eq 'createusername' ) {
             $info->{createusername} =
-              $this->{_session}->{users}->getLoginName( $ri->{author} );
+              $Foswiki::Plugins::SESSION->{users}->getLoginName( $ri->{author} );
         }
         elsif ( $attr eq 'createwikiname' ) {
             $info->{createwikiname} =
-              $this->{_session}->{users}->getWikiName( $ri->{author} );
+              $Foswiki::Plugins::SESSION->{users}->getWikiName( $ri->{author} );
         }
         elsif ( $attr eq 'createwikiusername' ) {
             $info->{createwikiusername} =
-              $this->{_session}->{users}->webDotWikiName( $ri->{author} );
+              $Foswiki::Plugins::SESSION->{users}->webDotWikiName( $ri->{author} );
         }
         elsif ($attr eq 'createdate'
             or $attr eq 'createlongdate'
@@ -1574,7 +1609,7 @@ sub merge {
                         'B',
                         $thisD->{value},
                         '.*?\s+',
-                        $this->{_session},
+                        $Foswiki::Plugins::SESSION,
                         $formDef->getField( $thisD->{name} )
                     );
 
@@ -1700,16 +1735,16 @@ sub renderFormForDisplay {
     my $form;
     my $result;
     try {
-        $form = new Foswiki::Form( $this->{_session}, $this->{web}, $fname );
+        $form = new Foswiki::Form( $Foswiki::Plugins::SESSION, $this->{web}, $fname );
         $result = $form->renderForDisplay($this);
     }
     catch Foswiki::OopsException with {
 
         # Make pseudo-form from field data
         $form =
-          new Foswiki::Form( $this->{_session}, $this->{web}, $fname, $this );
+          new Foswiki::Form( $Foswiki::Plugins::SESSION, $this->{web}, $fname, $this );
         $result =
-          $this->{_session}->inlineAlert( 'alerts', 'formdef_missing', $fname );
+          $Foswiki::Plugins::SESSION->inlineAlert( 'alerts', 'formdef_missing', $fname );
         $result .= $form->renderForDisplay($this) if $form;
     };
 
@@ -1756,7 +1791,7 @@ sub renderFormFieldForDisplay {
         my $result;
         try {
             my $form =
-              new Foswiki::Form( $this->{_session}, $this->{web}, $fname );
+              new Foswiki::Form( $Foswiki::Plugins::SESSION, $this->{web}, $fname );
             my $field = $form->getField($name);
             if ($field) {
                 $result = $field->renderForDisplay( $format, $value, $attrs );
@@ -1795,12 +1830,14 @@ may result in the topic being read.
 sub haveAccess {
     my ( $this, $mode, $cUID ) = @_;
     $mode ||= 'VIEW';
-    $cUID ||= $this->{_session}->{user};
+    $cUID ||= $Foswiki::Plugins::SESSION->{user};
 
-    my $session = $this->{_session};
+    my $session = $Foswiki::Plugins::SESSION;
 
+print STDERR "access->haveAccess($mode, $cUID, $this)\n" if MONITOR;
     my $ok = $session->access->haveAccess($mode, $cUID, $this);
     $reason = $session->access->getReason();
+print STDERR "access->haveAccess($mode, $cUID, $this) => $ok, \n" if MONITOR;
     return $ok;
 }
 
@@ -1822,7 +1859,7 @@ sub save {
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
 
-    my $plugins = $this->{_session}->{plugins};
+    my $plugins = $Foswiki::Plugins::SESSION->{plugins};
 
     # make sure version and date in TOPICINFO are up-to-date
     # (side effect of getRevisionInfo)
@@ -1884,11 +1921,11 @@ sub save {
     push( @extras, 'minor' )   if $opts{minor};      # don't notify
     push( @extras, 'dontlog' ) if $opts{dontlog};    # don't statisticify
 
-    $this->{_session}->logEvent(
+    $Foswiki::Plugins::SESSION->logEvent(
         'save',
         $this->{web} . '.' . $this->{topic},
         join( ', ', @extras ),
-        $this->{_session}->{user}
+        $Foswiki::Plugins::SESSION->{user}
     );
 
     return $newRev;
@@ -1908,7 +1945,7 @@ sub save {
 sub _atomicLock {
     my ( $this, $cUID ) = @_;
     if ( $this->{topic} ) {
-        my $logger = $this->{_session}->logger();
+        my $logger = $Foswiki::Plugins::SESSION->logger();
         while (1) {
             my $info = Foswiki::Store->atomicLockInfo(address=>$this);
             my ( $user, $time ) = @$info;
@@ -1943,13 +1980,13 @@ sub _atomicLock {
         my $it = $this->eachWeb();
         while ( $it->hasNext() ) {
             my $web = $this->{web} . '/' . $it->next();
-            my $meta = $this->new( $this->{_session}, $web );
+            my $meta = $this->new( $Foswiki::Plugins::SESSION, $web );
             $meta->_atomicLock($cUID);
         }
         $it = $this->eachTopic();
         while ( $it->hasNext() ) {
             my $meta =
-              $this->new( $this->{_session}, $this->{web}, $it->next() );
+              $this->new( $Foswiki::Plugins::SESSION, $this->{web}, $it->next() );
             $meta->_atomicLock($cUID);
         }
     }
@@ -1964,13 +2001,13 @@ sub _atomicUnlock {
         my $it = $this->eachWeb();
         while ( $it->hasNext() ) {
             my $web = $this->{web} . '/' . $it->next();
-            my $meta = $this->new( $this->{_session}, $web );
+            my $meta = $this->new( $Foswiki::Plugins::SESSION, $web );
             $meta->_atomicUnlock($cUID);
         }
         $it = $this->eachTopic();
         while ( $it->hasNext() ) {
             my $meta =
-              $this->new( $this->{_session}, $this->{web}, $it->next() );
+              $this->new( $Foswiki::Plugins::SESSION, $this->{web}, $it->next() );
             $meta->_atomicUnlock($cUID);
         }
     }
@@ -1995,7 +2032,7 @@ sub move {
         'to is not a moving target' )
       if DEBUG;
 
-    my $cUID = $opts{user} || $this->{_session}->{user};
+    my $cUID = $opts{user} || $Foswiki::Plugins::SESSION->{user};
 
     if ( $this->{topic} ) {
 
@@ -2059,11 +2096,11 @@ sub move {
     # Log rename
     my $old = $this->{web} . '.' . ( $this->{topic} || '' );
     my $new = $to->{web} . '.' .   ( $to->{topic}   || '' );
-    $this->{_session}
-      ->logEvent( 'rename', $old, "moved to $new", $this->{_session}->{user} );
+    $Foswiki::Plugins::SESSION
+      ->logEvent( 'rename', $old, "moved to $new", $Foswiki::Plugins::SESSION->{user} );
 
     # alert plugins of topic move
-    $this->{_session}->{plugins}
+    $Foswiki::Plugins::SESSION->{plugins}
       ->dispatch( 'afterRenameHandler', $this->{web}, $this->{topic} || '',
         '', $to->{web}, $to->{topic} || '', '' );
 }
@@ -2083,7 +2120,7 @@ sub deleteMostRecentRevision {
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
     my $rev;
-    my $cUID = $opts{user} || $this->{_session}->{user};
+    my $cUID = $opts{user} || $Foswiki::Plugins::SESSION->{user};
 
     $this->_atomicLock($cUID);
     try {
@@ -2096,10 +2133,10 @@ sub deleteMostRecentRevision {
     # TODO: delete entry in .changes
 
     # write log entry
-    $this->{_session}->logEvent(
+    $Foswiki::Plugins::SESSION->logEvent(
         'cmd',
         $this->{web} . '.' . $this->{topic},
-        "delRev $rev by " . $this->{_session}->{user}
+        "delRev $rev by " . $Foswiki::Plugins::SESSION->{user}
     );
 }
 
@@ -2121,7 +2158,7 @@ sub replaceMostRecentRevision {
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
 
-    my $cUID = $opts{user} || $this->{_session}->{user};
+    my $cUID = $opts{user} || $Foswiki::Plugins::SESSION->{user};
 
     $this->_atomicLock($cUID);
 
@@ -2164,7 +2201,7 @@ sub replaceMostRecentRevision {
     push( @extras, 'minor' )   if $opts{minor};
     push( @extras, 'dontlog' ) if $opts{dontlog};
     push( @extras, 'forced' )  if $opts{forcedate};
-    $this->{_session}
+    $Foswiki::Plugins::SESSION
       ->logEvent( 'reprev', $this->getPath(), join( ', ', @extras ), $cUID );
 }
 
@@ -2360,7 +2397,7 @@ sub setLease {
       if DEBUG;
     my $t     = time();
     my $lease = {
-        user    => $this->{_session}->{user},
+        user    => $Foswiki::Plugins::SESSION->{user},
         expires => $t + $length,
         taken   => $t
     };
@@ -2426,7 +2463,7 @@ sub onTick {
         while ( $it->hasNext() ) {
             my $web = $it->next();
             $web = $this->getPath() . "/$web" if $this->getPath();
-            my $m = $this->new( $this->{_session}, $web );
+            my $m = $this->new( $Foswiki::Plugins::SESSION, $web );
             $m->onTick($time);
         }
         if ( $this->{web} ) {
@@ -2434,7 +2471,7 @@ sub onTick {
             while ( $it->hasNext() ) {
                 my $topic = $it->next();
                 my $topicObject =
-                  $this->new( $this->{_session}, $this->getPath(), $topic );
+                  $this->new( $Foswiki::Plugins::SESSION, $this->getPath(), $topic );
                 $topicObject->onTick($time);
             }
         }
@@ -2513,7 +2550,7 @@ sub attach {
     my $this = shift;
     my %opts = @_;
     my $action;
-    my $plugins = $this->{_session}->{plugins};
+    my $plugins = $Foswiki::Plugins::SESSION->{plugins};
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
 
@@ -2537,7 +2574,7 @@ sub attach {
             name       => $opts{name},
             attachment => $opts{name},
             stream     => $opts{stream},
-            user       => $this->{_session}->{user},                      # cUID
+            user       => $Foswiki::Plugins::SESSION->{user},                      # cUID
             comment    => defined $opts{comment} ? $opts{comment} : '',
         };
 
@@ -2625,7 +2662,7 @@ sub attach {
             Foswiki::Store
 #              ->save( address=>$this, attachment=>$opts{name}, stream=>$opts{stream},
               ->save( address=>Foswiki::Address->new(web=>$this->web(), topic=>$this->topic(), attachment=>$opts{name}), stream=>$opts{stream},
-                cuid=>($opts{author} || $this->{_session}->{user}) );
+                cuid=>($opts{author} || $Foswiki::Plugins::SESSION->{user}) );
         }
         finally {
             $this->fireDependency();
@@ -2661,7 +2698,7 @@ sub attach {
         my $text = $this->text();
         $text = '' unless defined $text;
         $text .=
-          $this->{_session}->attach->getAttachmentLink( $this, $opts{name} );
+          $Foswiki::Plugins::SESSION->attach->getAttachmentLink( $this, $opts{name} );
         $this->text($text);
     }
 
@@ -2669,11 +2706,11 @@ sub attach {
 
     my @extras = ( $opts{name} );
     push( @extras, 'dontlog' ) if $opts{dontlog};    # no statistics
-    $this->{_session}->logEvent(
+    $Foswiki::Plugins::SESSION->logEvent(
         $action,
         $this->{web} . '.' . $this->{topic},
         join( ', ', @extras ),
-        $this->{_session}->{user}
+        $Foswiki::Plugins::SESSION->{user}
     );
 
     if ( $plugins->haveHandlerFor('afterUploadHandler') ) {
@@ -2799,7 +2836,7 @@ sub moveAttachment {
     my $name = shift;
     my $to   = shift;
     my %opts = @_;
-    my $cUID = $opts{user} || $this->{_session}->{user};
+    my $cUID = $opts{user} || $Foswiki::Plugins::SESSION->{user};
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
     ASSERT( $to->{web} && $to->{topic}, 'to is not a topic object' ) if DEBUG;
@@ -2829,7 +2866,7 @@ sub moveAttachment {
         $fileAttachment->{name}     = $newName;
         $fileAttachment->{movefrom} = $this->getPath() . '.' . $name;
         $fileAttachment->{moveby} =
-          $this->{_session}->{users}->getLoginName($cUID);
+          $Foswiki::Plugins::SESSION->{users}->getLoginName($cUID);
         $fileAttachment->{movedto}   = $to->getPath() . '.' . $newName;
         $fileAttachment->{movedwhen} = time();
         $to->loadVersion();
@@ -2853,11 +2890,11 @@ sub moveAttachment {
     };
 
     # alert plugins of attachment move
-    $this->{_session}->{plugins}
+    $Foswiki::Plugins::SESSION->{plugins}
       ->dispatch( 'afterRenameHandler', $this->{web}, $this->{topic}, $name,
         $to->{web}, $to->{topic}, $newName );
 
-    $this->{_session}->logEvent(
+    $Foswiki::Plugins::SESSION->logEvent(
         'move',
         $this->getPath() . '.' 
           . $name
@@ -2883,7 +2920,7 @@ sub copyAttachment {
     my $name = shift;
     my $to   = shift;
     my %opts = @_;
-    my $cUID = $opts{user} || $this->{_session}->{user};
+    my $cUID = $opts{user} || $Foswiki::Plugins::SESSION->{user};
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
     ASSERT( $to->{web} && $to->{topic}, 'to is not a topic object' ) if DEBUG;
@@ -2933,11 +2970,11 @@ sub copyAttachment {
 
    # alert plugins of attachment move
    # SMELL: no defined handler for attachment copies
-   #    $this->{_session}->{plugins}
+   #    $Foswiki::Plugins::SESSION->{plugins}
    #      ->dispatch( 'afterCopyHandler', $this->{web}, $this->{topic}, $name,
    #        $to->{web}, $to->{topic}, $newName );
 
-    $this->{_session}->logEvent(
+    $Foswiki::Plugins::SESSION->logEvent(
         'copy',
         $this->getPath() . '.' 
           . $name
@@ -2965,7 +3002,7 @@ sub expandNewTopic {
     my ($this) = @_;
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
-    $this->{_session}->expandMacrosOnTopicCreation($this);
+    $Foswiki::Plugins::SESSION->expandMacrosOnTopicCreation($this);
 }
 
 =begin TML
@@ -2983,7 +3020,7 @@ sub expandMacros {
         'this is not a topic object' )
       if DEBUG;
 
-    return $this->{_session}->expandMacros( $text, $this );
+    return $Foswiki::Plugins::SESSION->expandMacros( $text, $this );
 }
 
 =begin TML
@@ -2998,7 +3035,7 @@ sub renderTML {
     my ( $this, $text ) = @_;
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
-    return $this->{_session}->renderer->getRenderedVersion( $text, $this );
+    return $Foswiki::Plugins::SESSION->renderer->getRenderedVersion( $text, $this );
 }
 
 =begin TML
@@ -3443,14 +3480,14 @@ sub setEmbeddedStoreForm {
         if ( $text =~ /<!--TWikiAttachment-->/ ) {
             require Foswiki::Compatibility;
             $text = Foswiki::Compatibility::migrateToFileAttachmentMacro(
-                $this->{_session}, $this, $text );
+                $Foswiki::Plugins::SESSION, $this, $text );
         }
 
         # The T-word string must remain unchanged for the compatibility
         if ( $text =~ /<!--TWikiCat-->/ ) {
             require Foswiki::Compatibility;
             $text =
-              Foswiki::Compatibility::upgradeCategoryTable( $this->{_session},
+              Foswiki::Compatibility::upgradeCategoryTable( $Foswiki::Plugins::SESSION,
                 $this->{web}, $this->{topic}, $this, $text );
         }
     }
@@ -3461,10 +3498,10 @@ sub setEmbeddedStoreForm {
         # The T-word string must remain unchanged for the compatibility
         if ( $text =~ /<!--TWikiCat-->/ ) {
             $text =
-              Foswiki::Compatibility::upgradeCategoryTable( $this->{_session},
+              Foswiki::Compatibility::upgradeCategoryTable( $Foswiki::Plugins::SESSION,
                 $this->{web}, $this->{topic}, $this, $text );
         }
-        Foswiki::Compatibility::upgradeFrom1v0beta( $this->{_session}, $this );
+        Foswiki::Compatibility::upgradeFrom1v0beta( $Foswiki::Plugins::SESSION, $this );
         if ( $this->count('TOPICMOVED') ) {
             my $moved = $this->get('TOPICMOVED');
             $this->put( 'TOPICMOVED', $moved );
@@ -3500,7 +3537,7 @@ message explaining why.
 
 sub isValidEmbedding {
     my ( $this, $macro, $args ) = @_;
-
+#print STDERR "validating $macro : ".ref($args)."\n";
     my $validate = $VALIDATE{$macro};
     return 1 unless $validate;    # not validated
 
