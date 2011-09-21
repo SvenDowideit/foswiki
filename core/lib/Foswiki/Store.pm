@@ -887,6 +887,32 @@ sub finish {
 }
 
 
+
+=begin TML
+
+---++ StaticMethod cleanUpRevID( $rev ) -> $integer
+
+Cleans up (maps) a user-supplied revision ID and converts it to an integer
+number that can be incremented to create a new revision number.
+
+This method should be used to sanitise user-provided revision IDs.
+
+Returns 0 if it was unable to determine a valid rev number from the
+string passed.
+
+=cut
+
+sub cleanUpRevID {
+    my $rev = shift;
+
+    # RCS format: 1.2, or plain integer: 2
+    if ( defined $rev && $rev =~ /^(?:\d+\.)?(\d+)$/ ) {
+        return $1;
+    }
+
+    return 0;
+}
+
 1;
 
 =pod
