@@ -250,7 +250,7 @@ sub verify_CreateSimpleMetaTopic {
           $m->{_loadedRev} = undef;
     }
     $this->assert_deep_equals( $meta, $readMeta );
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$web});
     Foswiki::Store->remove(address=>$webObject);
 }
 
