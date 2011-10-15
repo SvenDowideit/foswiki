@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" comment="" date="1291041934" format="1.1" version="2"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1291041934" format="1.1" version="2"}%
 #VarWEBLINK
 ---+++ WEBLINK
    * create a link to a web
@@ -14,7 +14,7 @@
 The following variables can be used in the format string:
    * $web: full qualified name of the web to link to
    * $topic: name of the topic to link to, defaults to <nop>%HOMETOPIC%
-   * $title: title of the <nop>WebHome topic; this is either the topic name or its title as returned when Foswiki:Extensions/DBCachePlugin is installed
+   * $title: title of the <nop>WebHome topic; this is either the topic name or its title 
    * $name: name of the web, that is the tail of the web specification with all parent webs stripped off
    * $url: url for the link
    * $marker: the marker set to the "marker" string if the link points to the current web

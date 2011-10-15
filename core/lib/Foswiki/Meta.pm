@@ -564,7 +564,6 @@ sub DELETE_THIS_load {
 
     my $loadedRev = $this->loadVersion($rev);
 
-#insane as this seems, load can fail to load, but will give you some kind of valid seeming Meta obecjt.
     if ( not defined($loadedRev) ) {
         ASSERT( not defined( $this->{_loadedRev} ) ) if DEBUG;
 
@@ -573,7 +572,6 @@ sub DELETE_THIS_load {
     }
     else {
 
-#while there is docco, intent and code assuming that loadedRev=0 means the topic is not loaded, its not true - topics with no TOPICINFO get a valid rev=0
         ASSERT( defined( $this->{_loadedRev} ) and ( $this->{_loadedRev} > 0 ) )
           if DEBUG;
         ASSERT( defined( $this->{_latestIsLoaded} ) ) if DEBUG;
@@ -2659,6 +2657,8 @@ sub attach {
 
         # Force reload of the latest version
         #$this = $this->load() unless $this->latestIsLoaded();
+
+	# Note that latestIsLoaded may still be false if the topic doesn't exist yet
 
         my $error;
         try {

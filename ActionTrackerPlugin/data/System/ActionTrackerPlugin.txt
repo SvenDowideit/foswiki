@@ -104,7 +104,6 @@ Write the command =%<nop>ACTIONSEARCH{= _attributes_ =}%= anywhere in a topic. S
 For example,
 <pre>
 %<nop>ACTIONSEARCH{ who="me" state="late" }%
-%<nop>ACTIONSEARCH{ who="me" open late }%
 %<nop>ACTIONSEARCH{ who="WikiGuest" state="open" within="7" }%
 %<nop>ACTIONSEARCH{ web=".*" who="Genghis.Khan@mongol.empire.org" state="open" within="7" }%
 </pre>
@@ -329,7 +328,7 @@ As well as the standard attributes you can add non-standard attributes to action
 Non-standard attributes must be lower-case words. The following names may not be used for non-standard attributes:
 =closed=, =closer=, =created=, =creator=, =dollar=, =due=, =edit=, =format=, =header=, =late=, =n=, =nop=, =notify=, =percnt=, =quot=, =sort=, =state=, =text=, =topic=, =uid=, =web=, =who=, =within=.
 
-To define non-standard attributes you need to set the value of ACTIONTRACKERPLUGIN_EXTRAS - see [[#SettingsAnchor][Settings]] below. All attributes must be given a type, which is used by the formatter, the search engine and the action editor. For example,
+To define non-standard attributes you need to set the value of ACTIONTRACKERPLUGIN_EXTRAS - see [[#SettingsAnchor][Settings]] below. This is a wiki-table format list of attribute names, each with a _type_, a _size_, and optional additional data. For example, to define the non-standard attributes =plaintiffs=, =decision=, and =sentencing=, we might define =ACTIONTRACKERPLUGIN_EXTRAS= as follows:
 
 <pre>
    * <nop>Set ACTIONTRACKERPLUGIN_EXTRAS = |plaintiffs,names,16|decision,text,16|sentencing,date|sentence,select,"life","5 years","community service"|
@@ -338,7 +337,7 @@ To define non-standard attributes you need to set the value of ACTIONTRACKERPLUG
 The following types are supported:
 
 | *Type* | *Format* | *Description* |
-| =select= | select, <i>size</i>, "option 1", "option 2", ... | Can take one of the string values option1, option2,.... etc. |
+| =select= | select, <i>size</i>, "option 1", "option 2", ... | Can take one of the string values option 1, option 2,.... etc. |
 | =names= | names, <i>size</i> | One or more wikinames or e-mail addresses. |
 | =text= | text, <i>size</i> | An arbitrary text field |
 | =date= | date, <i>size</i> | A date in one of the formats described above. See [[#DateFormats][Date Formats]] |
@@ -487,6 +486,7 @@ Thanks are due to the following sponsors, who have helped make this plugin possi
 |  Copyright | Copyright &copy; 2002-2003 Motorola. All Rights Reserved.%BR% Copyright &copy; 2004-2011 Crawford Currie |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
 |  Change History: | |
+|  2.4.6 (24 Sep 2011) | Foswiki:Tasks/Item11141: corrected problem with rendering $link in view |
 |  2.4.5 (26 May 2011) | Foswiki:Tasks/Item2021: added a ink to the text mail notification format |
 |  2.4.4 (18 May 2011) | Foswiki:Tasks/Item10615: fix pop-up editing when an extra select field is not included in the editor. Improve the presentation when a state field changes. |
 |  2.4.3 (19 Apr 2011) | Foswiki:Tasks/Item10613: Fix for calendar popup in action edit form |

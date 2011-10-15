@@ -25,19 +25,10 @@ sub writeDebug {
 }
 
 ###############################################################################
-sub init {
-  Foswiki::Func::addToZone('head', 'MEDIAWIKITABLEPLUGIN:CSS', <<'HERE');
-<link rel="stylesheet" href="%PUBURLPATH%/%SYSTEMWEB%/MediaWikiTablePlugin/styles.css" type="text/css" media="all" />
-HERE
-}
-
-###############################################################################
 sub handleMWTable {
-  my $web = shift;
-  my $topic = shift;
 
   my $i = 0;
-  while ($_[0] =~ s/(^|[\n\r])(\s*{\|(?!.*?(^|[\n\r])\s*{\|).*?[\n\r]\s*\|})/$1.&_handleTable($web, $topic, $2)/ges) {
+  while ($_[0] =~ s/(^|[\n\r])(\s*{\|(?!.*?(^|[\n\r])\s*{\|).*?[\n\r]\s*\|})/$1.&_handleTable($2)/ges) {
     $i++;
     #writeDebug("### nesting $i");
   };
@@ -45,7 +36,7 @@ sub handleMWTable {
 
 ###############################################################################
 sub _handleTable {
-  my ($web, $topic, $text) = @_;
+  my $text = shift;
 
   #writeDebug("### called _handleTable");
   return '' unless $text;

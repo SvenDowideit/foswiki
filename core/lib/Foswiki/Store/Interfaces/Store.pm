@@ -409,6 +409,9 @@ the revision identifiers (which will usually be numbers) starting with the most 
 
 MUST WORK FOR ATTACHMENTS AS WELL AS TOPICS
 
+If the object does not exist, returns an empty iterator ($iterator->hasNext() will be
+false). 
+
 =cut
 
 sub getRevisionHistory {

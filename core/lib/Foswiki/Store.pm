@@ -275,7 +275,7 @@ sub save {
             my $mtime2 = time();
             my $dt     = abs( $mtime2 - $mtime1 );
 
-            if ( $dt < $Foswiki::cfg{ReplaceIfEditedAgainWithin} ) {
+            if ( $dt <= $Foswiki::cfg{ReplaceIfEditedAgainWithin} ) {
                 my $info = Foswiki::Store->getVersionInfo(address=>$args{address});
                 # same user?
                 if ( $info->{author} eq $cUID ) {
@@ -303,6 +303,7 @@ sub save {
           Foswiki::Store->_Simple_save( address=>$args{address}, cuid=>$cUID, %args );
         ASSERT( $checkSave == $nextRev, "$checkSave != $nextRev" ) if DEBUG;
         $args{address}->{_loadedRev} = $nextRev;
+        $args{address}->{_latestIsLoaded} = 1;
     }
     finally {
         $args{address}->_atomicUnlock($cUID);

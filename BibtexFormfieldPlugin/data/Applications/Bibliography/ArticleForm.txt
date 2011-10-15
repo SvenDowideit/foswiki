@@ -10,13 +10,23 @@
 | number | bibtex+field+text | 10  | | The "(issue) number" of a journal, magazine, or tech-report, if applicable. (Most publications have a "volume", but no "number" field.) | |
 | pages | bibtex+field+text | 10  | | Page numbers, separated either by commas or double-hyphens. | |
 | month | bibtex+field+text | 10  | | The month of publication (or, if unpublished, the month of creation) | |
+| part | bibtex+field+text | 10  | | The part of the publication from which the article stems | |
 | | label | | | Misc | |
 | annote | bibtex+field+textarea | 100x8 | | An annotation for annotated bibliography styles (not typical) | |
 | note | bibtex+field+textarea | 100x8  | | Miscellaneous extra information | |
+| review | bibtex+field+textarea | 100x8 | | A review of the article | |
+| file | bibtex+field+textarea | 100x8 | | Files that were attached to the article in JabRef | |
+| abstract | bibtex+field+textarea | 100x8  | | The abstract of the article | |
+| owner | bibtex+field+text | 30 | | Name of creator of bibliography entry | |
+| timestamp | bibtex+field+text | 10 | | Timestamp for the creation date of the entry | |
 | key | bibtex+field+text | 10  | | A hidden field used for specifying or overriding the alphabetical order of entries (when the "author" and "editor" fields are missing). Note that this is very different from the key (mentioned just after this list) that is used to cite or cross-reference the entry. | |
 | | label | | | Identifiers | |
 | issn | bibtex+field+text | 20  | | The International Standard Serial Number. | |
 | url | bibtex+field+text | 100  | | The WWW Universal Resource Locator that points to the item being referenced. This often is used for technical reports to point to the ftp site where the postscript source of the report is located. | |
+| citeseerurl | bibtex+field+text | 100  | | Link to Citesee entry | |
+| eid | bibtex+field+text | 10  | | The EID of the article | |
+| crossref | bibtex+field+text | 100 | | Link to Crossref entry | |
+| comment | bibtex+field+textarea | 100x8  | | Miscellaneous extra information | |
 | doi | bibtex+field+text | 100  | | The [[http://www.doi.org/][Document Object Identifier]], Eg. [[http://dx.doi.org/10.1000/182][10.1000/182]] | |
 | lccn | bibtex+field+text | 20  | | The Library of Congress Call Number | |
 

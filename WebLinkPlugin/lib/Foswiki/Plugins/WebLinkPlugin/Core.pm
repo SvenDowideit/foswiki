@@ -108,7 +108,7 @@ sub WEBLINK {
   if ($theFormat =~ /\$title/) {
     if (Foswiki::Func::getContext()->{DBCachePluginEnabled}) {
       require Foswiki::Plugins::DBCachePlugin;
-      $title = Foswiki::Plugins::DBCachePlugin::getTopicTitle($theWeb, $homeTopic);
+      $title = getTopicTitle($theWeb, $homeTopic);
     }
     $title = $theName if $title eq $homeTopic;
   }
@@ -124,7 +124,46 @@ sub WEBLINK {
   $result =~ s/\$topic/$homeTopic/g;
 
   #writeDebug("result=$result");
-  return $result;
+  return Foswiki::Func::decodeFormatTokens($result);
 }
+
+sub getTopicTitle {
+  my ($web, $topic) = @_;
+
+  if (Foswiki::Func::getContext()->{DBCachePluginEnabled}) {
+    #print STDERR "using DBCachePlugin\n";
+    require Foswiki::Plugins::DBCachePlugin;
+    return Foswiki::Plugins::DBCachePlugin::getTopicTitle($web, $topic);
+  } 
+
+  #print STDERR "using foswiki core means\n";
+
+  my ($meta, undef) = Foswiki::Func::readTopic($web, $topic);
+
+  # read the formfield value
+  my $title = $meta->get('FIELD', 'TopicTitle');
+  $title = $title->{value} if $title;
+
+  # read the topic preference
+  unless ($title) {
+    $title = $meta->get('PREFERENCE', 'TOPICTITLE');
+    $title = $title->{value} if $title;
+  }
+
+  # read the preference
+  unless ($title)  {
+    Foswiki::Func::pushTopicContext($web, $topic);
+    $title = Foswiki::Func::getPreferencesValue('TOPICTITLE');
+    Foswiki::Func::popTopicContext();
+  }
+
+  # default to topic name
+  $title ||= $topic;
+
+  $title =~ s/\s*$//;
+  $title =~ s/^\s*//;
+
+  return $title;
+} 
 
 1;

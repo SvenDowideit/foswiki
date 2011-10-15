@@ -247,8 +247,11 @@ sub render {
 		    $addAnchor = 0;
 		}
 		if ($opts->{js} ne 'ignored') {
-		    # Add container wrapper for JS
-		    $buttons = "<div class='erpJS_container'>$buttons</div>";
+		    # Add container wrapper for JS.
+		    # We forcibly add the row-drag link here because adding it in JS is so
+		    # slow.
+		    # The JS must add ui-icon, though.
+		    $buttons = "<div class='erpJS_container'><a href='#' class='ui-icon-arrow-2-n-s erp_drag_button' title='Click and drag to move row'>move</a>$buttons</div>";
 		}
 		if ($buttons_right) {
 		    push( @cols, $buttons );

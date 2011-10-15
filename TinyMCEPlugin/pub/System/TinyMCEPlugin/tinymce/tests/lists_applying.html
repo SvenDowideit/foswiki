@@ -2,8 +2,10 @@
 <html>
 <head>
 <title>Applying and Unapplying List Tests</title>
-<link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
-<script type="text/javascript" src="qunit/qunit.js"></script>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-git.css" type="text/css" />
+<script src="http://code.jquery.com/qunit/qunit-git.js"></script>
+<script src="qunit/connector.js"></script>
 <script type="text/javascript" src="qunit/runner.js"></script>
 <script type="text/javascript" src="js/utils.js"></script>
 <script type="text/javascript" src="js/tiny_mce_loader.js"></script>
@@ -17,6 +19,7 @@ var EmptyULConvertedToP = '<ul>\n<li>Before</li>\n</ul>\n<p>&nbsp;</p>\n<ul>\n<l
 var NonEmptyOLConvertedToP = '<ol>\n<li>Before</li>\n</ol>\n<p>Test</p>\n<ol>\n<li>After</li>\n</ol>';
 var NonEmptyULConvertedToP = '<ul>\n<li>Before</li>\n</ul>\n<p>Test</p>\n<ul>\n<li>After</li>\n</ul>';
 
+QUnit.config.reorder = false;
 QUnit.config.autostart = false;
 
 module('Lists - Applying', {
@@ -291,28 +294,28 @@ asyncTest('Expanded Selection, Table Types - Unordered List Action', function() 
 	queue.done();
 	// TODO: Tables with BRs.
 });
+var initTinyFunction = function(){
+	tinyMCE.init({
+		mode : "exact",
+		elements : "elm1",
+		theme : "advanced",
+		cleanup: true,
+		// TODO: Determine why TinyMCE defaults to stripping out empty h1,ul,ol and li element since it results in invalid HTML (but only on FF3.0 and IE).
+		extended_valid_elements: 'li[style],ul[type|compact|style],ol[type|compact|style],h1',
+		// Turn this off because we want the list actions to create the right DOM structure from the start.
+		fix_list_elements: false,
+		plugins : 'lists',
+		add_unload_trigger : false,
+		apply_source_formatting : 0,
+		init_instance_callback : function(ed) {
+			editor = ed;
 
-tinyMCE.init({
-	mode : "exact",
-	elements : "elm1",
-	theme : "advanced",
-	cleanup: true,
-	// TODO: Determine why TinyMCE defaults to stripping out empty h1,ul,ol and li element since it results in invalid HTML (but only on FF3.0 and IE).
-	extended_valid_elements: 'li[style],ul[type|compact|style],ol[type|compact|style],h1',
-	// Turn this off because we want the list actions to create the right DOM structure from the start.
-	fix_list_elements: false,
-	plugins : 'lists',
-	add_unload_trigger : false,
-	apply_source_formatting : 0,
-	init_instance_callback : function(ed) {
-		editor = ed;
-
-		ed.onNodeChange.addToTop(function() {
-			return false;
-		});
-	}
-});
-
+			ed.onNodeChange.addToTop(function() {
+				return false;
+			});
+		}
+	});
+};
 </script>
 </head>
 <body>
@@ -327,7 +330,7 @@ tinyMCE.init({
 	<p><input type="text" id="state"><input type="button" value="Load state" onclick="loadState();"></p>
 	<script type="text/javascript" language="JavaScript" src="jsrobot/robot.js"></script>
 	<script>
-	initWhenTinyAndRobotAreReady();
+	initWhenTinyAndRobotAreReady(initTinyFunction);
 
 	function loadState() {
 		window[document.getElementById('state').value]();

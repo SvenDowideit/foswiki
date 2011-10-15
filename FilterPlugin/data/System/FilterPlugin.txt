@@ -263,6 +263,7 @@ compare with [[http://en.wikipedia.org/wiki/Category:Philosophy_articles_needing
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  29 Sep 2011: | fixed SUBST macro =topic= param processing embedded META |
 |  25 Aug 2011: | fixed perl rookie error initializing defaults |
 |  14 Jul 2011: | fixed parsing zero values in lists (by Grzegorz Marszalek) |
 |  06 Apr 2011: | fixed SUBST to removing everything after the last match |

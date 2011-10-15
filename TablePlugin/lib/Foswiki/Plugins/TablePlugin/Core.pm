@@ -250,12 +250,14 @@ sub _parseAttributes {
         _storeAttribute( 'sortAllTables', $sort, $inCollection );
     }
     if ( defined( $inParams->{initsort} )
-          and int($inParams->{initsort}) > 0) {
+        and int( $inParams->{initsort} ) > 0 )
+    {
         _storeAttribute( 'initSort', $inParams->{initsort}, $inCollection );
+
         # override sort attribute: we are sorting after all
-        _storeAttribute( 'sort',          1, $inCollection );
+        _storeAttribute( 'sort', 1, $inCollection );
     }
-      
+
     if ( $inParams->{initdirection} ) {
         _storeAttribute( 'initDirection', $SORT_DIRECTION->{'ASCENDING'},
             $inCollection )
@@ -540,6 +542,7 @@ sub _processTableRow {
             && defined $sortColFromUrl )
         {
             $sortCol = $sortColFromUrl;
+            $sortCol = 0 unless ( $sortCol =~ m/^[0-9]+$/ );
             $sortCol = $MAX_SORT_COLS if ( $sortCol > $MAX_SORT_COLS );
             $currentSortDirection = _getCurrentSortDirection($up);
         }
@@ -730,18 +733,32 @@ sub _processTableRow {
 sub _headerRowCount {
     my ($table) = @_;
 
-    my $count = 0;
+    my $headerCount = 0;
+    my $footerCount = 0;
+    my $endheader   = 0;
 
     # All cells in header are headings?
     foreach my $row (@$table) {
         my $isHeader = 1;
         foreach my $cell (@$row) {
-            $isHeader = 0 if ( $cell->{type} ne 'th' );
+            if ( $cell->{type} ne 'th' ) {
+                $isHeader    = 0;
+                $endheader   = 1;
+                $footerCount = 0 if $footerCount;
+            }
         }
-        $count++ if $isHeader;
+        unless ($endheader) {
+            $headerCount++ if $isHeader;
+        }
+        else {
+            $footerCount++ if $isHeader;
+        }
     }
 
-    return $count;
+    # Some cells came after the footer - so there isn't one.
+    $footerCount = 0 if ( $endheader > 1 );
+
+    return ( $headerCount, $footerCount );
 }
 
 =pod
@@ -908,6 +925,8 @@ sub _getDefaultSortDirection {
 # Gets the current sort direction.
 sub _getCurrentSortDirection {
     my ($currentDirection) = @_;
+    $currentDirection = $SORT_DIRECTION->{'ASCENDING'}
+      unless defined $currentDirection && $currentDirection =~ m/[0-2]+/;
     $currentDirection ||= _getDefaultSortDirection();
     return $currentDirection;
 }
@@ -923,12 +942,16 @@ sub _getNewSortDirection {
     if ( $currentDirection == $SORT_DIRECTION->{'ASCENDING'} ) {
         $newDirection = $SORT_DIRECTION->{'DESCENDING'};
     }
-    if ( $currentDirection == $SORT_DIRECTION->{'DESCENDING'} ) {
+    elsif ( $currentDirection == $SORT_DIRECTION->{'DESCENDING'} ) {
         $newDirection = $SORT_DIRECTION->{'NONE'};
     }
-    if ( $currentDirection == $SORT_DIRECTION->{'NONE'} ) {
+    elsif ( $currentDirection == $SORT_DIRECTION->{'NONE'} ) {
         $newDirection = $SORT_DIRECTION->{'ASCENDING'};
     }
+    else {
+        $newDirection = _getDefaultSortDirection();
+    }
+
     return $newDirection;
 }
 
@@ -1321,16 +1344,17 @@ sub emitTable {
     }
 
     my $sortThisTable =
-      $combinedTableAttrs->{sortAllTables} == 0
+      ( !defined $combinedTableAttrs->{sortAllTables}
+          || $combinedTableAttrs->{sortAllTables} == 0 )
       ? 0
       : $combinedTableAttrs->{sort};
 
     if ( $combinedTableAttrs->{headerrows} == 0 ) {
-        my $headerRowCount = _headerRowCount( \@curTable );
-        $headerRowCount -= $combinedTableAttrs->{footerrows};
+        my ( $headerRowCount, $footerRowCount ) = _headerRowCount( \@curTable );
 
         # override default setting with calculated header count
         $combinedTableAttrs->{headerrows} = $headerRowCount;
+        $combinedTableAttrs->{footerrows} = $footerRowCount;
     }
 
     my $tableTagAttributes = {};
@@ -1415,6 +1439,10 @@ sub emitTable {
                 }
             }
         }
+
+       # url requested sort on column beyond end of table.  Force to last column
+        $sortCol = 0 unless ( $sortCol =~ m/^[0-9]+$/ );
+        $sortCol = $maxCols - 1 if ( $sortCol >= $maxCols );
 
         # only get the column type if within bounds
         if ( $sortCol < $maxCols ) {
@@ -1548,10 +1576,14 @@ sub emitTable {
                     # END html attribute
                 }
 
-                if (   defined $sortCol
+                if (
+                       defined $sortCol
                     && $colCount == $sortCol
                     && defined $requestedTable
-                    && $requestedTable == $tableCount )
+                    && $requestedTable == $tableCount
+                    && (   $combinedTableAttrs->{headerrows}
+                        || $combinedTableAttrs->{footerrows} )
+                  )
                 {
 
                     $tableAnchor =
@@ -1572,8 +1604,12 @@ sub emitTable {
 
                 if (
                     $sortThisTable
-                    && (  !$combinedTableAttrs->{headerrows}
-                        || $rowCount == $combinedTableAttrs->{headerrows} - 1 )
+                    && (
+                        ( $rowCount == $combinedTableAttrs->{headerrows} - 1 )
+                        || (  !$combinedTableAttrs->{headerrows}
+                            && $rowCount ==
+                            $numberOfRows - $combinedTableAttrs->{footerrows} )
+                    )
                     && ( $writingSortLinks || !$sortLinksWritten )
                   )
                 {
@@ -1815,8 +1851,15 @@ sub handler {
 
         $sortColFromUrl =
           $cgi->param('sortcol');              # zero based: 0 is first column
+        if ( defined $sortColFromUrl && $sortColFromUrl !~ m/^[0-9]+$/ ) {
+            $sortColFromUrl = 0;
+        }
+
         $requestedTable = $cgi->param('table');
-        $up             = $cgi->param('up');
+        $requestedTable = 0
+          unless ( defined $requestedTable && $requestedTable =~ m/^[0-9]+$/ );
+
+        $up = $cgi->param('up');
 
         $sortTablesInText = 0;
         $sortAttachments  = 0;

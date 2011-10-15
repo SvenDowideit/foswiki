@@ -22,15 +22,16 @@ package Foswiki::Plugins::MongoDBPlugin::DB;
 
 # Always use strict to enforce variable scoping
 use strict;
-use MongoDB;
-use MongoDB::Cursor;
+use warnings;
+
+use MongoDB();
+use MongoDB::Cursor();
 use Assert;
 use Data::Dumper;
 use Time::HiRes ();
 use Tie::IxHash ();
-use Foswiki::Func;
+use Foswiki::Func();
 use Digest::MD5 qw(md5_hex);
-
 
 #lets declare it ok to run queries on slaves.
 #http://search.cpan.org/~kristina/MongoDB-0.42/lib/MongoDB/Cursor.pm#slave_okay
@@ -40,13 +41,14 @@ $MongoDB::Cursor::slave_okay = 1;
 #use constant MONITOR => $Foswiki::cfg{MONITOR}{'Foswiki::Plugins::MongoDBPlugin'} || 0;
 use constant MONITOR       => 0;
 use constant MONITOR_INDEX => 0;
+my $MAX_NUM_INDEXES = 56;
 
 sub new {
     my $class  = shift;
     my $params = shift;
 
     my $self =
-      bless( { %$params, session => $Foswiki::Func::SESSION }, $class );
+      bless( { session => $Foswiki::Func::SESSION, %{$params} }, $class );
 
     $Foswiki::Func::SESSION->{MongoDB} = $self;
     return $self;
@@ -58,13 +60,15 @@ sub query {
     my $collectionName = shift;
     my $ixhQuery       = shift;
     my $queryAttrs     = shift || {};
-    
-    if (not $self->databaseNameSafeToUse($web)) {
-        print STDERR "ERROR: sorry, $web cannot be cached to MongoDB as there is another web with the same spelling, but different case already cached\n";
+
+    if ( not $self->databaseNameSafeToUse($web) ) {
+        print STDERR
+"ERROR: sorry, $web cannot be cached to MongoDB as there is another web with the same spelling, but different case already cached\n";
         return;
     }
 
-    if ($collectionName eq 'current') {
+    if ( $collectionName eq 'current' ) {
+
         #remove all the history versions from the result.
         if ( ref($ixhQuery) eq 'Tie::IxHash' ) {
             $ixhQuery->Unshift( '_history' => { '$exists' => 0 } );
@@ -76,8 +80,10 @@ sub query {
 
     my $startTime = [Time::HiRes::gettimeofday];
 
-    my $collection = $self->_getCollection( $web, $collectionName);
-    print STDERR "searching mongo ($web -> ".$self->getDatabaseName($web).". $collectionName) : "
+    my $collection = $self->_getCollection( $web, $collectionName );
+    print STDERR "searching mongo ($web -> "
+      . $self->getDatabaseName($web)
+      . ". $collectionName) : "
       . Dumper($ixhQuery) . " , "
       . Dumper($queryAttrs) . "\n"
       if MONITOR;
@@ -86,10 +92,20 @@ sub query {
 #print STDERR "----------------------------------------------------------------------------------\n" if DEBUG;
     my $db = $self->_getDatabase($web);
 
-    $db->run_command({"profile" => 2});
+    if ( exists $Foswiki::cfg{Plugins}{MongoDBPlugin}{ProfilingLevel}
+        and defined $Foswiki::cfg{Plugins}{MongoDBPlugin}{ProfilingLevel} )
+    {
+        $db->run_command(
+            {
+                'profile' =>
+                  $Foswiki::cfg{Plugins}{MongoDBPlugin}{ProfilingLevel}
+            }
+        );
+    }
 
     my $long_count =
       $db->run_command( { "count" => $collectionName, "query" => $ixhQuery } );
+
 #use Devel::Peek;
 #Dump($long_count);
 #print STDERR "----------------------------------------------------------------------------------\n";
@@ -98,9 +114,10 @@ sub query {
 #die $long_count if ($long_count =~ /assert/);
 
     my $cursor = $collection->query( $ixhQuery, $queryAttrs );
+
 #TODO: this is to make sure we're getting the cursor->count before anyone uses the cursor.
     my $count = $long_count;
-    if (($collectionName eq 'current') and ( $count > 100 )) {
+    if ( ( $collectionName eq 'current' ) and ( $count > 100 ) ) {
         $cursor->{noCache} = 1;
         $cursor = $cursor->fields( { _web => 1, _topic => 1 } );
     }
@@ -135,14 +152,15 @@ sub query {
 }
 
 sub update {
-    my $self           = shift;
-    my $web            = shift;
-    
-    if (not $self->databaseNameSafeToUse($web)) {
-        print STDERR "ERROR: sorry, $web cannot be cached to MongoDB as there is another web with the same spelling, but different case already cached\n";
+    my $self = shift;
+    my $web  = shift;
+
+    if ( not $self->databaseNameSafeToUse($web) ) {
+        print STDERR
+"ERROR: sorry, $web cannot be cached to MongoDB as there is another web with the same spelling, but different case already cached\n";
         return;
     }
-    
+
     my $collectionName = shift;
     my $address        = shift;
     my $hash           = shift;
@@ -196,11 +214,8 @@ sub update {
         { 'CREATEINFO.date' => 1 },
         { name              => 'CREATEINFO.date' }
     );
-    $self->ensureIndex(
-        $collection,
-        { 'address' => 1 },
-        { name              => 'address' }
-    );
+    $self->ensureIndex( $collection, { 'address' => 1 },
+        { name => 'address' } );
 
 #TODO: maybe should use the auto indexed '_id' (or maybe we can use this as a tuid - unique foreach rev of each topic..)
 #then again, atm, its totally random, so may be good for sharding.
@@ -229,10 +244,11 @@ sub update {
     #print STDERR "making new entry ".$hash->{address}."\n";
     $collection->update(
         { address  => $hash->{address} },
-        { address  => $hash->{address}, %$hash },
+        { address  => $hash->{address}, %{$hash} },
         { 'upsert' => 1 }
     );
 
+    return;
 }
 
 #BUGGER. compound indexes won't help with large queries
@@ -291,9 +307,9 @@ sub ensureIndex {
             return;
         }
     }
-    if ( scalar( @{ $self->{mongoDBIndexes} } ) >= 40 ) {
+    if ( scalar( @{ $self->{mongoDBIndexes} } ) >= $MAX_NUM_INDEXES ) {
         print STDERR
-"*******************ouch. MongoDB can only have 40 indexes per collection : "
+"*******************ouch. MongoDB can only have $MAX_NUM_INDEXES indexes per collection : "
           . $options->{name} . "\n"
           if MONITOR_INDEX;
         return;
@@ -303,6 +319,8 @@ sub ensureIndex {
     #TODO: consider doing these in a batch at the end of a request, or?
     $collection->ensure_index( $indexRef, $options );
     undef $self->{mongoDBIndexes};    #clear the cache :/
+
+    return;
 }
 
 sub remove {
@@ -311,7 +329,7 @@ sub remove {
     my $collectionName = shift;
     my $mongoDbQuery   = shift;
 
-    if ( scalar( keys(%$mongoDbQuery) ) == 0 ) {
+    if ( scalar( keys( %{$mongoDbQuery} ) ) == 0 ) {
 
         #remove web - so drop database.
         print STDERR "...........Dropping $web\n" if MONITOR;
@@ -321,10 +339,12 @@ sub remove {
     else {
         my $collection = $self->_getCollection( $web, $collectionName );
         print STDERR "...........remove "
-          . join( ',', keys(%$mongoDbQuery) ) . "\n"
+          . join( ',', keys( %{$mongoDbQuery} ) ) . "\n"
           if MONITOR;
         $collection->remove($mongoDbQuery);
     }
+
+    return;
 }
 
 sub updateSystemJS {
@@ -333,11 +353,12 @@ sub updateSystemJS {
     my $functionname = shift;
     my $sourcecode   = shift;
 
-    if (not $self->databaseNameSafeToUse($web)) {
-        print STDERR "ERROR: sorry, $web cannot be cached to MongoDB as there is another web with the same spelling, but different case already cached\n";
+    if ( not $self->databaseNameSafeToUse($web) ) {
+        print STDERR
+"ERROR: sorry, $web cannot be cached to MongoDB as there is another web with the same spelling, but different case already cached\n";
         return;
     }
-    
+
     my $collection = $self->_getCollection( $web, 'system.js' );
 
     use MongoDB::Code;
@@ -349,32 +370,34 @@ sub updateSystemJS {
             value => $code
         }
     );
-    
+
     #update our webmap.
     $collection = $self->_getCollection( 'webs', 'map' );
     $collection->save(
         {
-            _id   => $web,
+            _id  => $web,
             hash => $self->getDatabaseName($web)
         }
-    );    
+    );
+
+    return;
 }
 
 #######################################################
 sub getDatabaseName {
     my $self = shift;
     my $web  = shift;
-    
-    return $web if ($web eq 'webs');
-    return 'web_'.md5_hex($web);
+
+    return $web if ( $web eq 'webs' );
+    return 'web_' . md5_hex($web);
 
     #using webname as database name, so we need to sanitise
     #replace / with __ and pre-pend foswiki__ ?
-    $web =~ s/\//__/g;
+    #$web =~ s/\//__/g;
 
     #remove the 'dots' too.
-    $web =~ s/\./__/g;
-    return 'foswiki__' . $web;
+    #$web =~ s/\./__/g;
+    #return 'foswiki__' . $web;
 }
 
 sub databaseExists {
@@ -421,12 +444,14 @@ sub _getCollection {
     my $self           = shift;
     my $web            = shift;
     my $collectionName = shift;
-    
-    return $self->{collections}{$web}{$collectionName} if (defined($self->{collections}{$web}{$collectionName}));
+
+    return $self->{collections}{$web}{$collectionName}
+      if ( defined( $self->{collections}{$web}{$collectionName} ) );
 
     my $db = $self->_getDatabase($web);
-    $self->{collections}{$web}{$collectionName} = $db->get_collection($collectionName);
-    
+    $self->{collections}{$web}{$collectionName} =
+      $db->get_collection($collectionName);
+
     return $self->{collections}{$web}{$collectionName};
 }
 
