@@ -3,14 +3,17 @@
 <head>
 	<title>Basic editor functionality tests</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-	<link rel="stylesheet" href="qunit/qunit.css" type="text/css" media="screen">
-	<script type="text/javascript" src="qunit/qunit.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-git.css" type="text/css" />
+	<script src="http://code.jquery.com/qunit/qunit-git.js"></script>
+	<script src="qunit/connector.js"></script>
 	<script type="text/javascript" src="qunit/runner.js"></script>
 	<script type="text/javascript" src="js/utils.js"></script>
 	<script type="text/javascript" src="js/tiny_mce_loader.js"></script>
 	<script type="text/javascript" src="js/dsl/dsl.js"></script>
 	<script type="text/javascript">
+		QUnit.config.reorder = false;
 		QUnit.config.autostart = false;
+
 		module('Formatting - Robot Tests', {
 			autostart: false,
 			setup: function() {
@@ -56,18 +59,20 @@
 			queue.done();
 		});
 
-		tinyMCE.init({
-			mode : "exact",
-			elements : "elm1",
-			cleanup: true,
+		var initTinyFunction = function(){
+			tinyMCE.init({
+				mode : "exact",
+				elements : "elm1",
+				cleanup: true,
 
-			add_unload_trigger : false,
-			plugins: "table",
-			init_instance_callback : function(ed) {
-				editor = ed;
+				add_unload_trigger : false,
+				plugins: "table",
+				init_instance_callback : function(ed) {
+					editor = ed;
 
-			}
-		});
+				}
+			});
+		};
 	</script>
 </head>
 <body>
@@ -88,7 +93,7 @@
 </div>
 <script type="text/javascript" language="JavaScript" src="jsrobot/robot.js"></script>
 <script>
-	initWhenTinyAndRobotAreReady();
+	initWhenTinyAndRobotAreReady(initTinyFunction);
 </script>
 </body>
 </html>

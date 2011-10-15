@@ -1237,6 +1237,8 @@ Wiki markup like <code>_text_</code> instead of "font-style:italic".
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  30 Sep 2011: | using a rendering handler instead of a macro handler to parse mediawiki tables; \
+                  deferring css and js initialization until a mediawiki table actually was found on a page |
 |  21 Sep 2010: | fixed adding css to the page (gawd) |
 |  12 Feb 2010: | using Foswiki:Extensions/ZonePlugin to add css to the page; shipping minified and gziped css now |
 |  08 Mar 2009: | added evenrow/oddrow to tables Foswiki:Main/BramVanOosterhout |

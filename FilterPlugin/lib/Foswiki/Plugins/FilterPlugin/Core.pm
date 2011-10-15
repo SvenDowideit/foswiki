@@ -20,6 +20,7 @@ use strict;
 
 use vars qw($currentTopic $currentWeb %seenAnchorNames $makeIndexCounter %filteredTopic);
 use POSIX qw(ceil);
+use Foswiki::Func();
 
 use constant DEBUG => 0; # toggle me
 
@@ -97,7 +98,7 @@ sub handleFilter {
   } else { # topic text
     return '' if $filteredTopic{"$theWeb.$theTopic"};
     $filteredTopic{"$theWeb.$theTopic"} = 1;
-    $text = Foswiki::Func::readTopicText($theWeb, $theTopic);
+    (undef, $text) = Foswiki::Func::readTopic($theWeb, $theTopic);
     if ($text =~ /^No permission to read topic/) {
       return showError("$text");
     }

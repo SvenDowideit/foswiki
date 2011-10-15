@@ -19,7 +19,7 @@ $Foswiki::cfg{JQueryPlugin}{IconSearchPath} = 'FamFamFamSilkIcons, FamFamFamSilk
 # **BOOLEAN**
 # Enable this switch to prevent name conflicts with other javascript frameworks that
 # use <code>$</code>. If enabled <code>$</code> will be renamed to <code>$j</code>.
-# To jQuery plugin authors: in any case try to wrap your plugins into a
+# To jQuery plugin authors: you should always wrap your plugins in a
 # <pre>(function($) { ... })(jQuery);</pre> construct to make use of <code>$</code> locally.
 $Foswiki::cfg{JQueryPlugin}{NoConflict} = 0;
 
@@ -191,34 +191,34 @@ $Foswiki::cfg{JQueryPlugin}{Plugins}{Treeview}{Enabled} = 1;
 $Foswiki::cfg{JQueryPlugin}{Plugins}{UI}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Autocomplete}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Autocomplete'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Resizable}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Resizable'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Draggable}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Draggable'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Accordion}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Accordion'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Tabs}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Tabs'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Slider}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Slider'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Dialog}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Dialog'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Button}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Button'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Datepicker}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Datepicker'}{Enabled} = 1;
 
 # **BOOLEAN**
-$Foswiki::cfg{JQueryPlugin}{Plugins}{UI::Progressbar}{Enabled} = 1;
+$Foswiki::cfg{JQueryPlugin}{Plugins}{'UI::Progressbar'}{Enabled} = 1;
 
 # **BOOLEAN**
 $Foswiki::cfg{JQueryPlugin}{Plugins}{Validate}{Enabled} = 1;

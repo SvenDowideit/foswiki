@@ -27,9 +27,9 @@ the components necessary to address a specific Foswiki resource.
 
 <verbatim>
 my $addr = {
-    web     => 'Web/SubWeb',
-    topic   => 'Topic',
-    tompath => ['attachment', 'Attachment.pdf'],
+    web        => 'Web/SubWeb',
+    topic      => 'Topic',
+    attachment => 'Attachment.pdf',
     rev => 3
 };
 </verbatim>
@@ -193,9 +193,9 @@ The constructor takes two main forms:
 *Example:*
 <verbatim>
 my $addrObj = Foswiki::Address->new(
-    web     => 'Web/SubWeb',
-    topic   => 'Topic',
-    tompath => ['attachment', 'Attachment.pdf'],
+    web        => 'Web/SubWeb',
+    topic      => 'Topic',
+    attachment => 'Attachment.pdf',
     rev => 3
 );</verbatim>
 
@@ -210,8 +210,8 @@ my $addrObj = Foswiki::Address->new(
 
 *path forms:*
 | *tompath*                                           | *Description* |
-| =['attachment']=                                          | All datastreams attached to a topic |
-| =['attachment', 'Attachment.pdf']=                        | Datastream of the file attachment named 'Attachment.pdf' |
+| =['attachment']=                                    | All datastreams attached to a topic |
+| =['attachment', 'Attachment.pdf']=                  | Datastream of the file attachment named 'Attachment.pdf' |
 | =['META']=                                          | All =META= on a topic |
 | =['META', 'FIELD']=                                 | All =META:FIELD= members on a topic |
 | =['META', 'FIELD', { name => 'Colour' }]=           | The =META:FIELD= member whose =name='Colour'= |
@@ -1250,7 +1250,8 @@ sub web {
     if ( not $this->{web} and defined( $this->{webpath} ) ) {
         $this->{web} = join( '/', @{ $this->{webpath} } );
     }
-    ASSERT( $this->{web} ) if DEBUG;
+    print STDERR "web(): no web part!\n" if TRACE and not $this->{web};
+
     return $this->{web};
 }
 

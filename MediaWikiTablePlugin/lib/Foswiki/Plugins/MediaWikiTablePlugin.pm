@@ -17,7 +17,7 @@ package Foswiki::Plugins::MediaWikiTablePlugin;
 use strict;
 use Foswiki::Func ();
 our $VERSION = '$Rev$';
-our $RELEASE = 'v1.30';
+our $RELEASE = '1.31';
 our $NO_PREFS_IN_TOPIC = 1;
 our $SHORTDESCRIPTION = 'Format tables the <nop>MediaWiki way';
 our $doneInit = 0;
@@ -29,15 +29,27 @@ sub initPlugin {
 }
 
 ###############################################################################
-sub commonTagsHandler {
-  # text, topic, web
-  handleMWTable($_[2], $_[1], $_[0]) if $_[0] =~ /(^|[\n\r])\s*{\|/;
+sub preRenderingHandler {
+  handleMWTable($_[0]) if $_[0] =~ /(^|[\n\r])\s*{\|/;
 }
 
 ###############################################################################
-sub handleMWTable {
+sub init {
+
+  return if $doneInit;
+  $doneInit = 1;
+
   require Foswiki::Plugins::MediaWikiTablePlugin::Core;
-  Foswiki::Plugins::MediaWikiTablePlugin::Core::init() unless $doneInit;
+  Foswiki::Func::addToZone('head', 'MEDIAWIKITABLEPLUGIN:CSS', <<'HERE');
+<link rel="stylesheet" href="%PUBURLPATH%/%SYSTEMWEB%/MediaWikiTablePlugin/styles.css" type="text/css" media="all" />
+HERE
+
+}
+
+
+###############################################################################
+sub handleMWTable {
+  init();
   return Foswiki::Plugins::MediaWikiTablePlugin::Core::handleMWTable(@_);
 }
 
