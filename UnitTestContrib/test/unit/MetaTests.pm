@@ -243,7 +243,7 @@ sub test_copyFrom {
 
 sub test_parent {
     my $this = shift;
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$web});
     $webObject->populateNewWeb();
 
     my $testTopic = "TestParent";
@@ -1007,7 +1007,7 @@ HERE
 # 
 # sub testXML_web {
 #     my $this = shift;
-#     my $webObject = Foswiki::Store->load(address=>{web=>new});
+#     my $webObject = Foswiki::Store->load(address=>{web=> "$this->{test_web}/SubWeb"});
 #     $webObject->populateNewWeb();
 #     my $expected = <<'XML';
 # <web name="SubWeb">
@@ -1055,7 +1055,7 @@ HERE
 # </web>
 # XML
 #     my $topicObject =
-#       Foswiki::Store->load(address=>{web=>new});
+#       Foswiki::Store->load(address=>{web=>$this->{test_web}});
 #     $xml = $topicObject->xml();
 #     $this->assert_html_equals($expected, $xml);
 # }

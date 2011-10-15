@@ -28,7 +28,7 @@ sub set_up {
     try {
         $this->{session} = new Foswiki('AdminUser');
 
-        my $webObject = Foswiki::Store->load(address=>{web=>new});
+        my $webObject = Foswiki::Store->load(address=>{web=>$testWeb});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists($testWeb) );
         my $topicObject = Foswiki::Meta->new(
@@ -39,7 +39,7 @@ sub set_up {
         $this->assert( $this->{session}
               ->topicExists( $testWeb, $Foswiki::cfg{HomeTopicName} ) );
 
-        $webObject = Foswiki::Store->load(address=>{web=>new});
+        $webObject = Foswiki::Store->load(address=>{web=>$testWebSubWebPath});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists($testWebSubWebPath) );
         $topicObject =
@@ -60,9 +60,9 @@ sub tear_down {
     my $this = shift;
 
     unlink $Foswiki::cfg{Htpasswd}{FileName};
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$testWebSubWebPath});
     $webObject->removeFromStore();
-    $webObject = Foswiki::Store->load(address=>{web=>new});
+    $webObject = Foswiki::Store->load(address=>{web=>$testWeb});
     $webObject->removeFromStore();
     $this->{session}->finish();
 
@@ -82,13 +82,13 @@ sub test_createSubSubWeb {
 
     my $webTest = 'Item0';
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$testWebSubWebPath/$webTest"});
     $webObject->populateNewWeb();
     $this->assert( $this->{session}->webExists("$testWebSubWebPath/$webTest") );
 
     $webTest = 'Item0_';
     $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>"$testWebSubWebPath/$webTest"});
     $webObject->populateNewWeb();
     $this->assert( $this->{session}->webExists("$testWebSubWebPath/$webTest") );
 }
@@ -170,7 +170,7 @@ sub test_create_subweb_with_same_name_as_a_topic {
 
     # create the subweb with the same name as the page
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$testWebSubWebPath/$testTopic"});
     $webObject->populateNewWeb();
     $this->assert(
         $this->{session}->webExists("$testWebSubWebPath/$testTopic") );
@@ -196,7 +196,7 @@ sub test_createSubweb_missingParent {
     my $user = $this->{session}->{user};
 
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>"Missingweb/Subweb"});
 
     try {
         $webObject->populateNewWeb();
@@ -223,7 +223,7 @@ sub test_createWeb_InvalidBase {
 
     my $webTest = 'Item0';
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$testWebSubWebPath/$webTest"});
 
     try {
         $webObject->populateNewWeb("Missingbase");
@@ -249,7 +249,7 @@ sub test_createWeb_hierarchyDisabled {
 
     my $webTest = 'Item0';
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$testWebSubWebPath/$webTest".'x'});
 
     try {
         $webObject->populateNewWeb();

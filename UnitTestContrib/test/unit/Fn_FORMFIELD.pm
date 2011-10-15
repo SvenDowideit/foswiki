@@ -165,7 +165,7 @@ sub test_FORMFIELD_web {
 
     # create other web
     $this->{other_web} = "$this->{test_web}other";
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$this->{other_web}});
     $webObject->populateNewWeb();
     my $topicObject =
       Foswiki::Meta->new( $this->{session}, $this->{other_web},

@@ -69,7 +69,7 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
 
-    my $testWebObject = Foswiki::Store->load(address=>{web=>new});
+    my $testWebObject = Foswiki::Store->load(address=>{web=>$this->{test_web}});
         $testWebObject->populateNewWeb();
 
     # Disable all plugins
@@ -90,7 +90,7 @@ sub set_up {
     }
     die "Can't find code" unless $found;
     $this->{code_root} = "$found/Foswiki/Plugins/";
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$systemWeb});
     $webObject->populateNewWeb( $Foswiki::cfg{SystemWebName} );
     $Foswiki::cfg{SystemWebName} = $systemWeb;
     $Foswiki::cfg{Plugins}{WebSearchPath} = $systemWeb;

@@ -31,7 +31,7 @@ sub set_up {
         new Unit::Request( { topic => "/$this->{test_web}/OldTopic" } ) );
 
     $this->{new_web} = $this->{test_web} . 'New';
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=> $this->{new_web} });
     $webObject->populateNewWeb();
     $Foswiki::Plugins::SESSION = $this->{session};
 
@@ -731,7 +731,7 @@ sub test_rename_topic_reference_in_denied_web {
     $m->save();
 
     # Create a subweb
-    $m = Foswiki::Store->load(address=>{web=>new});
+    $m = Foswiki::Store->load(address=>{web=>"$this->{test_web}/Swamp"});
     $m->populateNewWeb();
 
     # Create a topic in the subweb that refers to the topic we're renaming
@@ -1140,7 +1140,7 @@ sub test_renameTopic_new_web_same_topic_name_no_access {
     my $this  = shift;
 
     my $m =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$this->{test_web}/Targetweb"});
     $m->populateNewWeb();
     $this->assert( Foswiki::Func::webExists("$this->{test_web}/Targetweb") );
 
@@ -1454,14 +1454,14 @@ sub test_makeSafeTopicName {
 sub test_renameWeb_1307a {
     my $this = shift;
     my $m =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>"$this->{test_web}/Renamedweb"});
     $m->populateNewWeb();
     $m =
       Foswiki::Meta->new( $this->{session},
         "$this->{test_web}/Renamedweb/Subweb" );
     $m->populateNewWeb();
     $m =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$this->{test_web}/Notrenamedweb"});
     $m->populateNewWeb();
     my $vue =
 "$Foswiki::cfg{DefaultUrlHost}/$Foswiki::cfg{ScriptUrlPath}/view$Foswiki::cfg{ScriptSuffix}";
@@ -1529,12 +1529,12 @@ CONTENT
 # Move a root web, ensuring that static links are re-pointed
 sub test_renameWeb_1307b {
     my $this = shift;
-    my $m = Foswiki::Store->load(address=>{web=>new});
+    my $m = Foswiki::Store->load(address=>{web=>"Renamed$this->{test_web}"});
     $m->populateNewWeb();
     $m =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>"Renamed$this->{test_web}/Subweb"});
     $m->populateNewWeb();
-    $m = Foswiki::Store->load(address=>{web=>new});
+    $m = Foswiki::Store->load(address=>{web=>"$this->{test_web}"});
     $m->populateNewWeb();
     my $vue =
 "$Foswiki::cfg{DefaultUrlHost}/$Foswiki::cfg{ScriptUrlPath}/view$Foswiki::cfg{ScriptSuffix}";
@@ -1609,7 +1609,7 @@ EOF
 # Move a root web, ensuring that topics containing web in topic name are not updated.
 sub test_renameWeb_10259 {
     my $this = shift;
-    my $m = Foswiki::Store->load(address=>{web=>new});
+    my $m = Foswiki::Store->load(address=>{web=>"$this->{test_web}EdNet"});
     $m->populateNewWeb();
 
     my $vue =
@@ -1705,10 +1705,10 @@ EOF
 # Move a sub web, ensuring that topics containing web in topic name are not updated.
 sub test_renameSubWeb_10259 {
     my $this = shift;
-    my $m = Foswiki::Store->load(address=>{web=>new});
+    my $m = Foswiki::Store->load(address=>{web=> "$this->{test_web}Root"});
     $m->populateNewWeb();
 
-    $m = Foswiki::Store->load(address=>{web=>new});
+    $m = Foswiki::Store->load(address=>{web=>"$this->{test_web}Root/EdNet"});
     $m->populateNewWeb();
 
     my $vue =
@@ -2101,7 +2101,7 @@ sub do_not_test_rename_attachment_not_on_disc {
 # Move a root web to something with same spelling bug different case (seemed to cause a MonogDB issue)
 sub test_renameWeb_10990 {
     my $this = shift;
-    my $m = Foswiki::Store->load(address=>{web=>new});
+    my $m = Foswiki::Store->load(address=>{web=>"Renamed$this->{test_web}"});
     $m->populateNewWeb();
 
     # need rename access on the root for this one, which is a bit of a

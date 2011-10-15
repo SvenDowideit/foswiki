@@ -35,17 +35,17 @@ sub set_up {
     $this->{user}     = $Foswiki::cfg{AdminUserLogin};
     $this->{session}  = new Foswiki( $this->{user} );
     $this->{test_web} = 'Testsystemweb1234';
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$this->{test_web}});
     $webObject->populateNewWeb();
     $this->{trash_web} = 'Testtrashweb1234';
-    $webObject = Foswiki::Store->load(address=>{web=>new});
+    $webObject = Foswiki::Store->load(address=>{web=>$this->{trash_web}});
     $webObject->populateNewWeb();
     $this->{sandbox_web} = 'Testsandboxweb1234';
-    $webObject = Foswiki::Store->load(address=>{web=>new});
+    $webObject = Foswiki::Store->load(address=>{web=>$this->{sandbox_web}});
     $webObject->populateNewWeb();
     $this->{sandbox_subweb} = 'Testsandboxweb1234/Subweb';
     $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>$this->{sandbox_subweb}});
     $webObject->populateNewWeb();
     $this->{tempdir} = $Foswiki::cfg{TempfileDir} . '/test_ConfigureTests';
     rmtree( $this->{tempdir} ) if (-e $this->{tempdir});    # Cleanup any old tests

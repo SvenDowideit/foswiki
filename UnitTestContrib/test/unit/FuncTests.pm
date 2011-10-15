@@ -245,11 +245,11 @@ sub test_moveWeb {
     $Foswiki::cfg{EnableHierarchicalWebs} = 1;
 
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>$this->{test_web} . "Blah"});
     $webObject->populateNewWeb();
     undef $webObject;
     $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>$this->{test_web} . "Blah/SubWeb"});
     $webObject->populateNewWeb();
 
     $this->assert( Foswiki::Func::webExists( $this->{test_web} . 'Blah' ) );
@@ -803,7 +803,7 @@ sub test_subweb_attachments {
 
     #$web = Assert::TAINT($web);
     #
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$web});
     $webObject->populateNewWeb();
 
     my $stream =
@@ -923,7 +923,7 @@ sub test_getrevinfo {
     $Foswiki::cfg{EnableHierarchicalWebs} = 1;
 
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>$this->{test_web} . "/Blah"});
     $webObject->populateNewWeb();
 
     Foswiki::Func::saveTopicText( $this->{test_web}, $topic, 'blah' );

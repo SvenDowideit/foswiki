@@ -23,11 +23,11 @@ sub set_up {
     $this->SUPER::set_up();
     $Foswiki::cfg{EnableHierarchicalWebs} = 1;
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=>"$this->{test_web}/SubWeb"});
     $webObject->populateNewWeb();
 
     my $webObjectH =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$this->{test_web}Hidden"});
     $webObjectH->populateNewWeb();
 
     my $webPrefsObj =

@@ -1994,7 +1994,7 @@ sub _getTopicList {
     #        excludeTopics  => $excludeTopic,
     #    };
 
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$web});
 
     # Run the search on topics in this web
     my $search = $this->{session}->search();
@@ -3030,7 +3030,7 @@ sub test_groupby_none_using_subwebs {
     my $this = shift;
 
     my $webObject =
-      Foswiki::Store->load(address=>{web=>new});
+      Foswiki::Store->load(address=>{web=> "$this->{test_web}/A"});
     $webObject->populateNewWeb();
     my $topicObject =
       Foswiki::Meta->new( $this->{session}, "$this->{test_web}/A", 'TheTopic',
@@ -3040,7 +3040,7 @@ sub test_groupby_none_using_subwebs {
 CRUD
     $topicObject->save( forcedate => 1000 );
 
-    $webObject = Foswiki::Store->load(address=>{web=>new});
+    $webObject = Foswiki::Store->load(address=>{web=>"$this->{test_web}/B"});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Meta->new( $this->{session}, "$this->{test_web}/B", 'TheTopic',
@@ -3050,7 +3050,7 @@ CRUD
 CRUD
     $topicObject->save( forcedate => 100 );
 
-    $webObject = Foswiki::Store->load(address=>{web=>new});
+    $webObject = Foswiki::Store->load(address=>{web=> "$this->{test_web}/C"});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Meta->new( $this->{session}, "$this->{test_web}/C", 'TheTopic',

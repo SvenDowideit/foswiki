@@ -144,7 +144,7 @@ sub set_up {
     $aurl = $this->{session}->getPubUrl( 1, $testweb, $testform );
     $surl = $this->{session}->getScriptUrl(1);
 
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$testweb});
     $webObject->populateNewWeb();
 
     $Foswiki::Plugins::SESSION = $this->{session};

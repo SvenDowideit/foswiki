@@ -53,7 +53,7 @@ sub set_up {
         $this->{session} = new Foswiki('AdminUser');
 
         my $webObject =
-          Foswiki::Store->load(address=>{web=>new});
+          Foswiki::Store->load(address=>{web=>$this->{test_subweb}});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists( $this->{test_subweb} ) );
         my $topicObject =

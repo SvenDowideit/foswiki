@@ -499,7 +499,7 @@ THIS
     $topicObject->save();
 
     # Now build a subweb with view restricted to MrOrange
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$subweb});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Store->create(address=>{web=>$subweb,
@@ -535,7 +535,7 @@ THIS
     $topicObject->save();
 
     # Now build a subweb with no restrictions
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$subweb});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Store->create(address=>{web=>$subweb,
@@ -569,7 +569,7 @@ THIS
     $topicObject->save();
 
     # Now build a subweb with view restricted to MrOrange
-    my $webObject = Foswiki::Store->load(address=>{web=>new});
+    my $webObject = Foswiki::Store->load(address=>{web=>$subweb});
     $webObject->populateNewWeb();
     $topicObject =
       Foswiki::Store->create(address=>{web=>$subweb,
