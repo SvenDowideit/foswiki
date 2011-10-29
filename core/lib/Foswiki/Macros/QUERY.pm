@@ -22,13 +22,13 @@ sub QUERY {
     if (defined $rev) {
         my $crev = $topicObject->getLoadedRev();
         if (defined $crev && $crev != $rev) {
-            $topicObject = Foswiki::Meta->load(
-                $topicObject->session,
-                $topicObject->web, $topicObject->topic, $rev);
+            $topicObject = Foswiki::Store->load(
+                address=>{web=>$topicObject->web, topic=>$topicObject->topic, rev=>$rev});
         }
     } elsif (!$topicObject->latestIsLoaded()) {
         # load latest rev
-        $topicObject = $topicObject->load();
+            $topicObject = Foswiki::Store->load(
+                address=>{web=>$topicObject->web, topic=>$topicObject->topic});
     }
 
     # Recursion block.

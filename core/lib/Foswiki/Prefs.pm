@@ -135,9 +135,8 @@ sub finish {
 # Get a backend object corresponding to the given $web,$topic
 sub _getBackend {
     my $this       = shift;
-
     return undef unless (Foswiki::Store::exists(address=>{web=>$_[0], topic=>$_[1]}));
-    my $metaObject = Foswiki::Store::load(address=>{web=>$_[0], topic=>$_[1]});
+    my $metaObject = Foswiki::Store::load(cuid=> 'BaseUserMapping_333', address=>{web=>$_[0], topic=>$_[1]});
     my $path = $metaObject->getPath();
     unless ( exists $this->{paths}{$path} ) {
         $this->{paths}{$path} =
@@ -436,6 +435,7 @@ sub getPreference {
 
     my $value;
     my $stack = $this->{main};
+    return unless ($stack->backAtLevel(-2));
     $value = $stack->backAtLevel(-2)->getLocal($key)
       unless $stack->finalizedBefore( $key, -2 );
     if ( !defined $value && $stack->prefIsDefined($key) ) {

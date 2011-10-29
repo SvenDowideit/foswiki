@@ -66,6 +66,7 @@ use warnings;
 use Assert;
 use Foswiki::Func();
 use Foswiki::Meta();
+use Scalar::Util qw(blessed);
 
 #use Data::Dumper;
 use constant TRACE       => 0;    # Don't forget to uncomment dumper
@@ -255,7 +256,7 @@ sub new {
     my $class = shift;
     my $this;
 
-    if ( ref( $_[0] ) and $_[0]->isa('Foswiki::Address') ) {
+    if ( blessed( $_[0] ) and (blessed($_[0]) eq 'Foswiki::Address') ) {
 
         #print STDERR "COPY CONCTRUCTOR ($class, $_[0])\n";
         #need a copy construtor
@@ -263,18 +264,20 @@ sub new {
         $this = bless(
             {
                 webpath    => $_[0]->{webpath},
-                web        => $_[0]->web(),
+                web        => $_[0]->{web},
                 topic      => $_[0]->{topic},
                 tompath    => $_[0]->{tompath},
                 attachment => $_[0]->{attachment},
                 rev        => $_[0]->{rev},
+                root       => $_[0]->{root}
             },
             $class
         );
         return $this;
     }
-
-    my %opts = @_;
+#use Data::Dumper;
+#print STDERR "-------------".Dumper(@_)."\n".ref($_[0])."\n";
+    my %opts = (($#_==0) and (ref($_[0])))?%{$_[0]}:@_;
 
     if ( $opts{string} ) {
         ASSERT( not $opts{topic} or ( $opts{webpath} and $opts{topic} ) )
@@ -1088,11 +1091,14 @@ sub stringify {
 sub getPath {
     my ( $this, %opts ) = @_;
 
-    ASSERT( $this->{web} or ref( $this->{webpath} ) eq 'ARRAY' ) if DEBUG;
+    ASSERT( ($this->{web}) or (ref( $this->{webpath} ) eq 'ARRAY') or ($this->{root}) ) if DEBUG;
 
+    if ($this->{root}) {
+        $this->{stringified} = '/';
+    }
     # If there's a valid address; and check that we haven't already computed
     # the stringification before with the same opts
-    if (
+    elsif (
         $this->isValid()
         and (
             not $this->{stringified}
@@ -1491,7 +1497,7 @@ sub isValid {
         }
         if ( $this->{type} ) {
             $this->{isA} = { $this->{type} => 1 };
-            $this->{root} = 1;
+            $this->{root} = 1 if ($this->{type} eq 'root');
         }
         else {
             $this->{isA} = {};

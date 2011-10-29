@@ -32,6 +32,8 @@ Parse settings from the topic and add them to the preferences in $prefs
 sub parse {
     my ( $topicObject, $prefs ) = @_;
 
+    return if ($topicObject->{root});   #root object itself has nothing.
+
     # Process text first
     my $key   = '';
     my $value = '';

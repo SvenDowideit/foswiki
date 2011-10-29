@@ -322,6 +322,9 @@ sub capture {
         # Capture body
         $responseText .= $response->body() if $response->body();
     }
+    
+    #TODO: why does removing this cause the following test to crash?
+    $this->createNewFoswikiSession();
 
     return ( $responseText, $result, $stdout, $stderr );
 }

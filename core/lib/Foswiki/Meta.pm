@@ -442,7 +442,7 @@ sub new {
 sub NEWnew {
     my $class = shift;
     use Data::Dumper;
-    die Dumper(\@_) unless (defined($_[2]));
+    #die Dumper(\@_) unless (defined($_[2]));
     die Dumper(\@_) unless ($#_ %2);
     my %args = @_;
     
@@ -718,33 +718,6 @@ sub getPreference {
           $Foswiki::Plugins::SESSION->{prefs}->loadPreferences($this);
     }
     return $this->{_preferences}->get($key);
-}
-
-=begin TML
-
----++ ObjectMethod getContainer() -> $containerObject
-
-Get the container of this object; for example, the web that a topic is within
-
-=cut
-
-sub getContainer {
-    my $this = shift;
-
-    if ( $this->{topic} ) {
-        if (Foswiki::Store->exists(address=>{web=>$this->{web}})) {
-            return Foswiki::Store->load(address=>{web=>$this->{web}});
-        }
-
-        #not really sure what should happen here..
-        return Foswiki::Store->load(address=>{string=>'/'});
-
-    }
-    if ( $this->{web} ) {
-        return Foswiki::Store->load(address=>{string=>'/'});
-    }
-    ASSERT( 0, 'no container for this object type' ) if DEBUG;
-    return;
 }
 
 =begin TML
@@ -1083,8 +1056,10 @@ Be warned - it can return undef - when a topic exists but has no topicText.
 
 sub text {
     my ( $this, $val ) = @_;
-
-    ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
+    
+    use Data::Dumper;
+   
+    ASSERT( $this->{web} && $this->{topic}, 'this ('.Dumper($this).') is not a topic object' )
       if DEBUG;
     if ( defined($val) ) {
         $this->{_text} = $val;

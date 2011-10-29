@@ -111,7 +111,7 @@ sub view {
 
         # Load the most recent rev. This *should* be maxRev, but may
         # not say it is because the TOPICINFO could be up the spout
-        $topicObject = Foswiki::Meta->load( $session, $web, $topic );
+        $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
         Foswiki::UI::checkAccess( $session, 'VIEW', $topicObject );
 
         $revIt  = $topicObject->getRevisionHistory();
@@ -137,7 +137,7 @@ sub view {
 
                 # Load the old revision instead
                 $topicObject =
-                  Foswiki::Meta->load( $session, $web, $topic, $showRev );
+                  Foswiki::Store->load( address=>{web=>$web, topic=>$topic, rev=>$showRev} );
                 if ( !$topicObject->haveAccess('VIEW') ) {
                     throw Foswiki::AccessControlException( 'VIEW',
                         $session->{user}, $web, $topic,
@@ -174,7 +174,7 @@ sub view {
         }
     }
     else {    # Topic does not exist yet
-        $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+        $topicObject = Foswiki::Address->new( web=>$web, topic=>$topic );
         $indexableView = 0;
         $session->enterContext('new_topic');
         $session->{response}->status(404);

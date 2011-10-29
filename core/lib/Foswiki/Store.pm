@@ -36,6 +36,7 @@ use Error qw( :try );
 use Assert;
 
 use Foswiki::Address();
+use Foswiki::Meta();
 my $singleton;
 
 =pod
@@ -115,14 +116,21 @@ sub load {
     #print STDERR ".cUID isa ".ref($args{cuid})." ($args{cuid}) - default (".ref($singleton->{cuid}).")\n";
     #ASSERT(not defined($args{cuid}) or ref($args{cuid}) eq '') if DEBUG;
     #die 'here' if (ref($args{cuid}) ne '');
-
+    
     my $access_type = $args{writeable} ? 'CHANGE' : 'VIEW';
 
     my $result;
     $args{address} = $singleton->getResourceAddressOrCachedResource($args{address});
-    die "recursion? - load(".$singleton->{count}{load}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{load}{$args{address}->getPath()}++ > 10);
-
     #print STDERR "-call: load ".($args{address}->getPath())."\n";
+
+    #TODO: look into the different ways someone might ask for the 'root'
+    if ($args{address}->{root} ) {
+        #TODO: use a singleton root obj?
+        #print STDERR "faking up root obj\n";
+        return Foswiki::Meta->NEWnew( address=>{string=>'/'} );
+    }
+
+    die "recursion? - load(".$singleton->{count}{load}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{load}{$args{address}->getPath()}++ > 10);
 
 
     if (ref($args{address}) eq 'Foswiki::Meta') {
@@ -854,7 +862,7 @@ sub cacheResource {
     my $self = shift;
     my %args = @_;
     
-    #ASSERT(defined($obj->{_text})) if DEBUG; if itsa topic.
+    #ASSERT(defined($obj->{_text})) if DEBUG; #if itsa topic.
     #print STDERR "cacheResource(".$args{functionname}.", ".$args{return}->getPath().") \n";
     
     return unless ($args{functionname} eq 'load');
@@ -875,9 +883,10 @@ sub getResourceAddressOrCachedResource {
     $address = Foswiki::Address->new( %$address )
       if (ref($address) eq 'HASH');
     
-    
     my $name = $address->getPath();
+#print STDERR "getResourceAddressOrCachedResource($name)\n";
     return $self->{cache}{$name} if (defined($self->{cache}{$name}));
+#print STDERR "notincache --- getResourceAddressOrCachedResource($name) --> root:".(defined($address->{root})?$address->{root}:'undef')."\n";
     return $address;
 }
 

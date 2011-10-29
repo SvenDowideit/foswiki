@@ -70,13 +70,13 @@ sub haveAccess {
     if ( ref($param1) eq '' ) {
 
         #scalar - treat as web, topic
-        $meta = Foswiki::Store::load(address=>{web=>$param1, topic=>$param2});
+        $meta = Foswiki::Store::load(cuid=> 'BaseUserMapping_333', address=>{web=>$param1, topic=>$param2});
 
         ASSERT(not defined($param3)) if DEBUG;  #attachment ACL not currently supported in traditional topic ACL
     }
     else {
         if ( ref($param1) eq 'Foswiki::Address' ) {
-            $meta = Foswiki::Store::load(address=>$param1);
+            $meta = Foswiki::Store::load(cuid=> 'BaseUserMapping_333', address=>$param1);
         }
         else {
             $meta = $param1;
@@ -96,7 +96,7 @@ sub haveAccess {
     $mode = uc($mode);
 
     my ( $allow, $deny );
-    if ( $meta->{_topic} ) {
+    if ( $meta->{topic} ) {
 
         my $allow = $this->_getACL( $meta, 'ALLOWTOPIC' . $mode );
         my $deny  = $this->_getACL( $meta, 'DENYTOPIC' . $mode );
@@ -130,10 +130,10 @@ sub haveAccess {
             print STDERR 'b ' . $this->{failure}, "\n" if MONITOR;
             return 0;
         }
-        $meta = $meta->getContainer();    # Web
+        $meta = _getContainer($meta);    # Web
     }
 
-    if ( $meta->{_web} ) {
+    if ( $meta->{web} ) {
 
         # Check DENYWEB, but only if DENYTOPIC is not set (even if it
         # is empty - empty means "don't deny anybody")
@@ -205,11 +205,7 @@ sub haveAccess {
 sub _getACL {
     my ( $this, $meta, $mode ) = @_;
 
-    if ( defined $meta->{_topic} && !defined $meta->{_loadedRev} ) {
-
-        # Lazy load the latest version.
-        $meta->loadVersion();
-    }
+    ASSERT( $meta->isa('Foswiki::Meta') ) if DEBUG;
 
     my $text = $meta->getPreference($mode);
     return undef unless defined $text;
@@ -227,6 +223,34 @@ sub _getACL {
 
     return \@list;
 }
+
+=begin TML
+
+---++ StaticMethod _getContainer($meta) -> $containerObject
+
+Get the container of this object; for example, the web that a topic is within
+
+=cut
+
+sub _getContainer {
+    my $meta = shift;
+
+    if ( $meta->{topic} ) {
+        if (Foswiki::Store->exists(address=>{web=>$meta->{web}})) {
+            return Foswiki::Store->load(cuid=> 'BaseUserMapping_333', address=>{web=>$meta->{web}});
+        }
+
+        #not really sure what should happen here..
+        return Foswiki::Store->load(address=>{string=>'/'});
+
+    }
+    if ( $meta->{web} ) {
+        return Foswiki::Store->load(address=>{string=>'/'});
+    }
+    ASSERT( 0, 'no container for this object type' ) if DEBUG;
+    return;
+}
+
 
 1;
 __END__

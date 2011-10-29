@@ -179,7 +179,7 @@ sub INCLUDE {
     }
 
     # See Codev.FailedIncludeWarning for the history.
-    unless ( $this->{store}->topicExists( $includedWeb, $includedTopic ) ) {
+    unless ( $this->topicExists( $includedWeb, $includedTopic ) ) {
         return _includeWarning( $this, $control{warn}, 'topic_not_found',
             $includedWeb, $includedTopic );
     }
@@ -203,7 +203,7 @@ sub INCLUDE {
     $this->{_INCLUDES}->{$key} = 1;
 
     my $includedTopicObject =
-      Foswiki::Meta->load( $this, $includedWeb, $includedTopic, $control{rev} );
+      Foswiki::Store->load( address=>{web=>$includedWeb, topic=>$includedTopic, rev=>$control{rev}} );
     unless ( $includedTopicObject->haveAccess('VIEW') ) {
         if ( isTrue( $control{warn} ) ) {
             return $this->inlineAlert( 'alerts', 'access_denied',
