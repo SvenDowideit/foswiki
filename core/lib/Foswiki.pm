@@ -397,7 +397,7 @@ BEGIN {
     }
 
     $macros{CHARSET} = sub {
-        $Foswiki::cfg{Site}{CharSet} || CGI::charset();
+        $Foswiki::cfg{Site}{CharSet};
     };
 
     $macros{LANG} = sub {
@@ -414,10 +414,7 @@ BEGIN {
     # Build up character class components for use in regexes.
     # Depends on locale mode and Perl version, and finally on
     # whether locale-based regexes are turned off.
-    if (   not $Foswiki::cfg{UseLocale}
-        or $] < 5.006
-        or not $Foswiki::cfg{Site}{LocaleRegexes} )
-    {
+    if ( $] < 5.006 or not $Foswiki::cfg{Site}{LocaleRegexes} ) {
 
         # No locales needed/working, or Perl 5.005, so just use
         # any additional national characters defined in LocalSite.cfg
@@ -612,8 +609,6 @@ use Foswiki::Users    ();
 sub UTF82SiteCharSet {
     my ( $this, $text ) = @_;
 
-    return $text unless ( defined $Foswiki::cfg{Site}{CharSet} );
-
     # Detect character encoding of the full topic name from URL
     return if ( $text =~ $regex{validAsciiStringRegex} );
 
@@ -644,10 +639,6 @@ sub UTF82SiteCharSet {
                   . ' - use Perl 5.8 or higher..' );
         }
 
-        # We still don't have Codev.UnicodeSupport
-        $this->logger->log( 'warning',
-                'UTF-8 not yet supported as site charset -'
-              . 'Foswiki is likely to have problems' );
         return $text;
     }
 
@@ -1632,6 +1623,7 @@ script run. Session objects do not persist between mod_perl runs.
 
 sub new {
     my ( $class, $defaultUser, $query, $initialContext ) = @_;
+
     Monitor::MARK("Static init over; make Foswiki object");
     ASSERT( !$query || UNIVERSAL::isa( $query, 'Foswiki::Request' ) )
       if DEBUG;
@@ -1666,18 +1658,8 @@ sub new {
     $query ||= new Foswiki::Request();
     my $this = bless( { sandbox => 'Foswiki::Sandbox' }, $class );
 
-    if ( defined $Foswiki::cfg{Site}{CharSet} ) {
-
-        # Ensure the auto-encoding in CGI uses the correct character set.
-        # CGI defaults to iso-8859-1, and has a special exception for
-        # iso-8859-1 and windows1252 in CGI::escapeHTML which breaks
-        # UTF-8 content. See Item758. Get this wrong, and CGI will
-        # fail to encode certain UTF-8 characters correctly.
-        # Note we cannot call CGI::charset in begin block. We must have
-        # the CGI object created because otherwise Perl 5.8 versions of
-        # CGI will lose things like its temp files.
-        CGI::charset( $Foswiki::cfg{Site}{CharSet} );
-    }
+    # Tell Foswiki::Response which charset we are using if not default
+    $Foswiki::cfg{Site}{CharSet} ||= 'iso-8859-1';
 
     $this->{request}  = $query;
     $this->{cgiQuery} = $query;    # for backwards compatibility in contribs
@@ -1687,17 +1669,6 @@ sub new {
     # This is required in case we get an exception during
     # initialisation, so that we have a session to handle it with.
     $Foswiki::Plugins::SESSION = $this;
-
-    # Tell Foswiki::Response which charset we are using if not default
-    $Foswiki::cfg{Site}{CharSet} = CGI::charset()
-      || 'iso-8859-1'
-      unless ( defined( $Foswiki::cfg{Site}{CharSet} )
-        and $Foswiki::cfg{Site}{CharSet} ne '' );
-    if ( defined $Foswiki::cfg{Site}{CharSet}
-        && $Foswiki::cfg{Site}{CharSet} !~ /^iso-?8859-?1$/io )
-    {
-        $this->{response}->charset( $Foswiki::cfg{Site}{CharSet} );
-    }
 
     # hash of zone records
     $this->{_zones} = ();
@@ -2212,7 +2183,7 @@ sub logEvent {
         my $agent = $cgiQuery->user_agent();
         if ($agent) {
             $extra .= ' ' if $extra;
-            if ( $agent =~ /(MSIE 6|MSIE 7|Firefox|Opera|Konqueror|Safari)/ ) {
+            if ( $agent =~ /(MSIE 6|MSIE 7|MSIE 8|MSI 9|Firefox|Opera|Konqueror|Chrome|Safari)/ ) {
                 $extra .= $1;
             }
             else {
@@ -2609,14 +2580,7 @@ sub urlEncodeAttachment {
 
     my $usingEBCDIC = ( 'A' eq chr(193) );    # Only true on EBCDIC mainframes
 
-    if (
-        (
-            defined( $Foswiki::cfg{Site}{CharSet} )
-            and $Foswiki::cfg{Site}{CharSet} =~ /^utf-?8$/i
-        )
-        or $usingEBCDIC
-      )
-    {
+    if ( $Foswiki::cfg{Site}{CharSet} =~ /^utf-?8$/i or $usingEBCDIC ) {
 
         # Just let browser do UTF-8 URL encoding
         return $text;

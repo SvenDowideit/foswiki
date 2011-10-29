@@ -235,9 +235,6 @@ sub update {
 sub updateTopic {
   my ($this, $web, $topic, $meta, $text) = @_;
 
-  # SMELL: only in cmdline mode
-  #$topic = $this->fromUtf8($topic);
-
   ($web, $topic) = $this->normalizeWebTopicName($web, $topic);
 
   return if $this->isSkippedWeb($web);
@@ -275,6 +272,8 @@ sub indexTopic {
   unless (defined $meta && defined $text) {
     ($meta, $text) = Foswiki::Func::readTopic($web, $topic);
   }
+
+  #$text = $this->entityDecode($text);
 
   # Eliminate Topic Makup Language elements and newlines.
   my $origText = $text;
@@ -646,7 +645,6 @@ sub indexAttachment {
   if ($indexextensions->{$extension}) {
     $attText = $this->getStringifiedVersion($web, $topic, $name);
     $attText = $this->plainify($attText, $web, $topic);
-    $attText = $this->fromUtf8($attText); # SMELL
   } else {
     #$this->log("not reading attachment $web.$topic.$name");
   }
@@ -930,7 +928,6 @@ sub getStringifiedVersion {
     $attText = Foswiki::Func::readFile($cachedFilename);
   }
 
-  # keep it in utf8
   return $attText;
 }
 
@@ -951,13 +948,13 @@ sub plainify {
   my $wtn = Foswiki::Func::getPreferencesValue('WIKITOOLNAME') || '';
 
   # from Foswiki:Extensions/GluePlugin
-  $text =~ s/^#~~(.*?)$//gom;  # #~~
-  $text =~ s/%~~\s+([A-Z]+[{%])/%$1/gos;  # %~~
-  $text =~ s/\s*[\n\r]+~~~\s+/ /gos;   # ~~~
-  $text =~ s/\s*[\n\r]+\*~~\s+//gos;   # *~~
+  $text =~ s/^#~~(.*?)$//gom;    # #~~
+  $text =~ s/%~~\s+([A-Z]+[{%])/%$1/gos;    # %~~
+  $text =~ s/\s*[\n\r]+~~~\s+/ /gos;        # ~~~
+  $text =~ s/\s*[\n\r]+\*~~\s+//gos;        # *~~
 
   # from Fosiki::Render
-  $text =~ s/\r//g;    # SMELL, what about OS10?
+  $text =~ s/\r//g;                         # SMELL, what about OS10?
   $text =~ s/%META:[A-Z].*?}%//g;
 
   $text =~ s/%WEB%/$web/g;
@@ -967,9 +964,10 @@ sub plainify {
 
   # Format e-mail to add spam padding (HTML tags removed later)
   $text =~ s/$STARTWW((mailto\:)?[a-zA-Z0-9-_.+]+@[a-zA-Z0-9-_.]+\.[a-zA-Z0-9-_]+)$ENDWW//gm;
-  $text =~ s/<!--.*?-->//gs;       # remove all HTML comments
-  $text =~ s/<(?!nop)[^>]*>/ /g;   # remove all HTML tags except <nop>
-  $text =~ s/\&[a-z]+;/ /g;        # remove entities
+  $text =~ s/<!--.*?-->//gs;                                # remove all HTML comments
+  $text =~ s/<(?!nop)[^>]*>/ /g;                            # remove all HTML tags except <nop>
+  $text =~ s/&#\d+;/ /g;                                    # remove html entities
+  $text =~ s/&[a-z]+;/ /g;                                  # remove entities
 
   # keep only link text of legacy [[prot://uri.tld/ link text]]
   $text =~ s/
@@ -990,7 +988,7 @@ sub plainify {
   $text =~ s/[\+\-]+/ /g;               # remove special chars
   $text =~ s/^\s+//;                    # remove leading whitespace
   $text =~ s/\s+$//;                    # remove trailing whitespace
-  $text =~ s/!(\w+)/$1/gs;    # remove all nop exclamation marks before words
+  $text =~ s/!(\w+)/$1/gs;              # remove all nop exclamation marks before words
   $text =~ s/[\r\n]+/\n/s;
   $text =~ s/[ \t]+/ /s;
 
@@ -1005,8 +1003,8 @@ sub plainify {
   $text =~ s/^$//gs;
 
   # Foswiki:Task.Item10258: remove illegal characters
-#  $text =~ s/\p{C}/ /g;
-  
+  #  $text =~ s/\p{C}/ /g;
+
   return $text;
 }
 

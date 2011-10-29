@@ -7,6 +7,7 @@ use strict;
 
 use Foswiki::Contrib::Stringifier::Base();
 use Foswiki::Contrib::Stringifier();
+use utf8;
 
 sub set_up {
         my $this = shift;
@@ -62,7 +63,7 @@ sub test_SpecialCharacters {
 
     my $text  = $stringifier->stringForFile($this->{attachmentDir}.'Simple_example.doc');
 
-    $this->assert(($text =~ m/Grösser/)==1, "Text Grösser not found.");
+    $this->assert(($text =~ m/Größer/)==1, "Text Größer not found.");
 }
 
 1;

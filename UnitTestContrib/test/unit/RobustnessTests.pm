@@ -1,6 +1,10 @@
 # Copyright (C) 2004 Florian Weimer
 package RobustnessTests;
 
+use utf8;    # For test_sanitizeAttachmentNama_unicode
+use strict;
+use warnings;
+
 use FoswikiTestCase;
 our @ISA = qw( FoswikiTestCase );
 require 5.008;
@@ -12,12 +16,24 @@ use Error qw( :try );
 
 my $slash;
 
+sub new {
+    my ( $class, @args ) = @_;
+    my $this = $class->SUPER::new(@args);
+
+    $this->{test_web}   = 'Temporary' . $class . 'TestWeb';
+    $this->{test_topic} = 'TestTopic' . $class;
+
+    return $this;
+}
+
 sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
-    $this->{session} = new Foswiki();
+    $this->{session} = Foswiki->new();
     $slash = ( $^O eq 'MSWin32' ) ? '\\' : '/';
     Foswiki::Sandbox::_assessPipeSupport();
+
+    return;
 }
 
 sub tear_down {
@@ -28,6 +44,8 @@ sub tear_down {
     Foswiki::Sandbox::_assessPipeSupport();
     $this->{session}->finish();
     $this->SUPER::tear_down();
+
+    return;
 }
 
 sub test_untaintUnchecked {
@@ -35,6 +53,8 @@ sub test_untaintUnchecked {
     $this->assert_str_equals( '', Foswiki::Sandbox::untaintUnchecked('') );
     $this->assert_not_null( 'abc', Foswiki::Sandbox::untaintUnchecked('abc') );
     $this->assert_null( Foswiki::Sandbox::untaintUnchecked(undef) );
+
+    return;
 }
 
 sub test_validateAttachmentName {
@@ -63,6 +83,8 @@ sub test_validateAttachmentName {
         Foswiki::Sandbox::validateAttachmentName("..a/") );
     $this->assert_str_equals( "a/..b",
         Foswiki::Sandbox::validateAttachmentName("a/..b") );
+
+    return;
 }
 
 sub _shittify {
@@ -111,15 +133,60 @@ sub test_sanitizeAttachmentName {
          | cgi ))$)x;
     $this->assert_str_equals( ".htaccess.txt", _shittify(".htaccess") );
     for my $i (qw(php shtm phtml pl py cgi PHP SHTM PHTML PL PY CGI)) {
-        my $x = "bog.$i";
-        my $y = "$x.txt";
-        $this->assert_str_equals( $y, _shittify($x) );
+        my $j = "bog.$i";
+        my $y = "$j.txt";
+        $this->assert_str_equals( $y, _shittify($j) );
     }
     for my $i (qw(php phtm shtml PHP PHTM SHTML)) {
-        my $x = "bog.$i.s";
-        my $y = "$x.txt";
-        $this->assert_str_equals( $y, _shittify($x) );
+        my $j = "bog.$i.s";
+        my $y = "$j.txt";
+        $this->assert_str_equals( $y, _shittify($j) );
     }
+
+    return;
+}
+
+# Item11185 - see also: FuncTests::test_unicode_attachment
+sub test_sanitizeAttachmentNama_unicode {
+    my ($this) = shift;
+
+# The second word in the string below consists only of two _graphemes_
+# (logical characters as humans know them) both built from single _base
+# characters_ but then decorated w/additional _modifier_ characters to add
+# vowel marks and other signs.
+#
+# vim, scite, and probably other monospace/grid-based editors have problems
+# with this and may show all five unicode characters separately.
+# It's the word "hindi" in devanagari script. http://translate.google.com/#auto|hi|hindi
+#
+# - "use utf8;" needs to be at the top of this .pm.
+# - Your editor/terminal needs to be editing in utf8.
+# - You might also want ttf-devanagari-fonts or ttf-indic-fonts-core
+# - First word german 'übermaß' to make the failure mode more easy to follow
+    my $uniname = 'übermaß_हिंदी';
+
+    # http://translate.google.com/#auto|hi|standard
+    my $unicomment = 'मानक';
+    $this->assert( utf8::is_utf8($uniname),
+        'Our attachment name string doesn\'t have utf8 flag set' );
+    my $query;
+
+    $Foswiki::cfg{Site}{CharSet} = 'utf-8';
+    require Unit::Request;
+    $query = Unit::Request->new("");
+    $query->path_info("/$this->{test_web}/$this->{test_topic}");
+    $this->{session}  = Foswiki->new( undef, $query );
+    $this->{request}  = $query;
+    $this->{response} = Unit::Response->new();
+    ( $this->{test_topicObject} ) =
+      Foswiki::Func::readTopic( $this->{test_web}, $this->{test_topic} );
+    $this->{test_topicObject}->text("BLEEGLE\n");
+    my ($sanitized) = Foswiki::Func::sanitizeAttachmentName($uniname);
+
+    # Fails without Foswikirev:12780
+    $this->assert_str_equals( $uniname, $sanitized );
+
+    return;
 }
 
 sub test_buildCommandLine {
@@ -205,14 +272,30 @@ sub test_buildCommandLine {
             )
         ]
     );
-    eval { Foswiki::Sandbox::_buildCommandLine('%A|%') };
-    $this->assert_not_null( $@, '' );
-    eval { Foswiki::Sandbox::_buildCommandLine('%A|X%') };
-    $this->assert_not_null( $@, '' );
-    eval { Foswiki::Sandbox::_buildCommandLine( ' %A|N%  ', A => '2/3' ) };
-    $this->assert_not_null( $@, '' );
-    eval { Foswiki::Sandbox::_buildCommandLine( ' %A|S%  ', A => '2/3' ) };
-    $this->assert_not_null( $@, '' );
+
+    my $result;
+    $result = eval { Foswiki::Sandbox::_buildCommandLine('%A|%'); 1; };
+    $this->assert( !$result );
+    $result = eval { Foswiki::Sandbox::_buildCommandLine('%A|X%'); 1; };
+    $this->assert( !$result );
+    my $caught = 0;
+    try { Foswiki::Sandbox::_buildCommandLine( ' %A|N%  ', A => '2/3' ); 1; }
+    otherwise {
+        $caught += 1;
+    };
+    $this->assert_num_equals( 1, $caught );
+
+  # SMELL: Item11185 - this was an assert_not_null that implied the following
+  # invocation should fail. After re-writing it as suggested by perlcritic/PBP,
+  # the invocation actually works fine. PH thinks the old test only accidentally
+  # worked before because of Error.pm try/catch propagation-under-test-craziness
+    $result = eval {
+        Foswiki::Sandbox::_buildCommandLine( ' %A|S%  ', A => '2/3' );
+        1;
+    };
+    $this->assert($result);
+
+    return;
 }
 
 sub verify {
@@ -241,6 +324,8 @@ sub verify {
     ( $out, $exit ) = Foswiki::Sandbox->sysCommand('echo');
     $this->assert_equals( 0, $exit );
     $this->assert_str_equals( `echo`, $out );
+
+    return;
 }
 
 sub test_executeRSP {
@@ -249,6 +334,8 @@ sub test_executeRSP {
     $Foswiki::Sandbox::REAL_SAFE_PIPE_OPEN     = 1;
     $Foswiki::Sandbox::EMULATED_SAFE_PIPE_OPEN = 0;
     $this->verify();
+
+    return;
 }
 
 sub test_executeESP {
@@ -257,6 +344,8 @@ sub test_executeESP {
     $Foswiki::Sandbox::REAL_SAFE_PIPE_OPEN     = 0;
     $Foswiki::Sandbox::EMULATED_SAFE_PIPE_OPEN = 1;
     $this->verify();
+
+    return;
 }
 
 sub test_executeNSP {
@@ -265,6 +354,8 @@ sub test_executeNSP {
     $Foswiki::Sandbox::REAL_SAFE_PIPE_OPEN     = 0;
     $Foswiki::Sandbox::EMULATED_SAFE_PIPE_OPEN = 0;
     $this->verify();
+
+    return;
 }
 
 1;

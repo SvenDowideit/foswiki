@@ -14,7 +14,7 @@
 # For licensing info read LICENSE file in the Foswiki root.
 
 package Foswiki::Contrib::Stringifier::Plugins::PPTX;
-use Foswiki::Contrib::Stringifier::Base;
+use Foswiki::Contrib::Stringifier::Base ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 
 my $pptx2txt = $Foswiki::cfg{StringifierContrib}{pptx2txtCmd} || 'pptx2txt.pl';

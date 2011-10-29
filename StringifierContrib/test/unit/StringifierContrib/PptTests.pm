@@ -7,6 +7,7 @@ use strict;
 
 use Foswiki::Contrib::Stringifier::Base();
 use Foswiki::Contrib::Stringifier();
+use utf8;
 
 sub set_up {
     my $this = shift;
@@ -47,7 +48,7 @@ sub test_SpecialCharacters {
 
     my $text  = $stringifier->stringForFile($this->{attachmentDir}.'Simple_example.ppt');
 
-    $this->assert_matches('Übergang', $text, "Text Übergang not found.");
+    $this->assert_matches('Ãœbergang', $text, "Text Ãœbergang not found.");
 }
 
 # test for Passworded_example.ppt

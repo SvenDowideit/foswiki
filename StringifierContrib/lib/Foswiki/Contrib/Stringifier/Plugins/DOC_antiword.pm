@@ -13,7 +13,7 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 package Foswiki::Contrib::Stringifier::Plugins::DOC_antiword;
-use Foswiki::Contrib::Stringifier::Base;
+use Foswiki::Contrib::Stringifier::Base ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 
 my $antiword = $Foswiki::cfg{StringifierContrib}{antiwordCmd} || 'antiword';
@@ -31,14 +31,13 @@ sub stringForFile {
     
     my $cmd = $antiword . ' %FILENAME|F%';
     my ($text, $exit) = Foswiki::Sandbox->sysCommand($cmd, FILENAME => $file);
-    
+
     return '' unless ($exit == 0);
     
-    # encode text
-    $text = $self->fromUtf8($text);
-    $text =~ s/\n\s*?\n/\n/g;
+    $text =~ s/^\s+//g;
+    $text =~ s/\s+$//g;
 
-    return $text;
+    return $self->fromUtf8($text);
 }
 
 1;

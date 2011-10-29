@@ -14,7 +14,6 @@
 
 package Foswiki::Contrib::Stringifier::Base;
 use strict;
-#use utf8;
 use Encode ();
 
 use Module::Pluggable (require => 1, search_path => [qw/Foswiki::Contrib::Stringifier::Plugins/]);
@@ -63,42 +62,21 @@ sub new {
     $self;
 }
 
-# Service method to remove the director $dir and  
-# all contence including sub directories
-sub rmtree {
-    my ($self, $dir) = @_;
-    local *DIR;
+sub toUtf8 {
+    my ( $self, $string ) = @_;
 
-    # If the dir is infact a file, I just delete that.
-    if (-f $dir) {
-	unlink($dir);
-    }
+    $string = Encode::encode('utf-8', $string);
 
-    opendir (DIR, $dir) || return 0;
-    while (my $file = readdir(DIR)) {
-        # Ignores . and ..
-        next if ($file =~ /^\.{1,2}$/);
-
-        $file = "$dir/$file";
-        if (-d $file) {
-            $self->rmtree($file);
-        } elsif (-f $file) {
-            unlink($file);
-        }
-    }
-    closedir DIR;
-    rmdir($dir);
-    return 1;
+    return $string;
 }
 
 sub fromUtf8 {
-    my ( $self, $text ) = @_;
+    my ( $self, $string ) = @_;
 
-    $text = Encode::encode( "iso-8859-15", $text, 0 ) if utf8::is_utf8($text);
-    $text =~ s/^\s+//;
-    $text =~ s/\s+$//;
+    $string = Encode::decode('utf-8', $string);
+    $string = Encode::encode($Foswiki::cfg{Site}{CharSet}, $string);
 
-    return $text;
+    return $string;
 }
 
 1;

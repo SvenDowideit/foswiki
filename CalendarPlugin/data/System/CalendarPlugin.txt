@@ -350,15 +350,16 @@ A list of Events is just a bullet list like this:
 </table>
 
 ---++ Settings
-Any of the recognized attributes can be overridden using preferences. These
+Any of the recognized =CALENDAR{}= macro attributes can be defaulted using preferences. These
 preferences all start with =CALENDARPLUGIN_= and end with the upper case name
-of the attribute. For example,
-   	*&nbsp;Set CALENDARPLUGIN_FORMAT = $old<br /><small>$description</small>
-	*&nbsp;Set CALENDARPLUGIN_VCELLALIGNMENT = center
-	*&nbsp;Set CALENDARPLUGIN_GMTOFFSET = +10
-	*&nbsp;Set CALENDARPLUGIN_WEEKSTARTSONMONDAY = 0
+of the attribute. For example, the following affect only Calendars on this topic:
+   	* Set CALENDARPLUGIN_FORMAT = $old<br /><small>$description</small>
+	* Set CALENDARPLUGIN_CELLALIGNMENT = center
+	* Set CALENDARPLUGIN_GMTOFFSET = +10
+	* Set CALENDARPLUGIN_WEEKSTARTSONMONDAY = 0
 Preferences can be set at the site, web, topic or user level. See System.PreferenceSettings for more information.
 
+Note: this is different from TWiki CalendarPlugin for significant performance reasons, and because in foswiki, its prefferable not to modify topics in the System web.
 ---++ Installation Instructions
 
 %$INSTALL_INSTRUCTIONS%
@@ -405,6 +406,7 @@ font-weight:bold;
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  2.001 (26 Oct 2011): | Foswiki:Tasks.Item11202: created unit tests! rewrote the parse code to make it testable - Foswiki:Main.SvenDowideit |
 |  2.000 (30 Jun 2010): | Foswiki:Tasks.Item1841: Foswiki:Tasks.Item8421: Foswiki:Tasks.Item1546: added support for macro expansions to provide the event lists. This allows other plugins to generate data sources e.g. by including calendars from e.g. <nop>CalDAV. Restructured for maintenance and performance. Foswiki:Tasks.Item9231: Added topic permission checking. Crawford Currie http://c-dot.co.uk |
 |  12 Aug 2009: | Foswiki:Main.MarcelloBontempoSalgueiro: add =eventbgcolor= attribute for background color when day have a event |
 |  09 March 2009: | Foswiki:Main.SvenDowideit: add =day= attribute for aslist rendering so users can select a start day |

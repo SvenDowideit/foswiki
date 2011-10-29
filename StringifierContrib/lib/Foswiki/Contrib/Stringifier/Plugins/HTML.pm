@@ -14,10 +14,10 @@
 
 
 package Foswiki::Contrib::Stringifier::Plugins::HTML;
-use Foswiki::Contrib::Stringifier::Base;
+use Foswiki::Contrib::Stringifier::Base ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 
-my $html2text = $Foswiki::cfg{StringifierContrib}{htmltotextCmd} || 'html2text -nobs';
+my $html2text = $Foswiki::cfg{StringifierContrib}{htmltotextCmd} || 'html2text';
 
 __PACKAGE__->register_handler("text/html", ".html");
 
@@ -27,7 +27,7 @@ sub stringForFile {
     # check it is a text file
     return '' unless ( -T $filename );
 
-    my $cmd = $html2text . ' -ascii %FILENAME|F%';
+    my $cmd = $html2text . ' -nobs -ascii %FILENAME|F%';
     my ($text, $exit) = Foswiki::Sandbox->sysCommand($cmd, FILENAME => $filename);
     
     # encode text

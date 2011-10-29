@@ -14,10 +14,8 @@
 
 package Foswiki::Contrib::Stringifier::Plugins::DOC_abiword;
 use Foswiki::Contrib::Stringifier::Base ();
-use Foswiki::Contrib::Stringifier ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 use File::Temp qw/tmpnam/;
-use Foswiki;
 
 my $abiword = $Foswiki::cfg{StringifierContrib}{abiwordCmd} || 'abiword';
 
@@ -32,22 +30,24 @@ if (defined($Foswiki::cfg{StringifierContrib}{WordIndexer}) &&
 
 sub stringForFile {
     my ($self, $file) = @_;
-    my $tmp_file = tmpnam() . ".html";
-    
-    return '' if (-f $tmp_file);
+    my $tmp_file = tmpnam() . ".txt";
     
     my $cmd = $abiword . ' --to=%TMPFILE|F% %FILENAME|F%';
     my ($output, $exit) = Foswiki::Sandbox->sysCommand($cmd, TMPFILE => $tmp_file, FILENAME => $file);
 
     return '' unless ($exit == 0);
 
-    # The I use the HTML stringifier to convert HTML to TXT
-    my $text = Foswiki::Contrib::Stringifier->stringFor($tmp_file);
+    open($in, $tmp_file) or return "";
+    local $/ = undef;    # set to read to EOF
+    my $text = <$in>;
+    close($in);
 
     unlink($tmp_file);
-    $self->rmtree($tmp_file . '_files');
 
-    return $text;
+    $text =~ s/^\s+//g;
+    $text =~ s/\s+$//g;
+
+    return $self->fromUtf8($text);
 }
 
 1;

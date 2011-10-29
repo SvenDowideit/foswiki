@@ -25,29 +25,6 @@ sub tear_down {
     $this->SUPER::tear_down();
 }
 
-sub test_rmtree {
-    my $this = shift;
-    my $stringifier = Foswiki::Contrib::Stringifier::Base->new();
-
-    # Lets create a test directory that I will delete afterwards.
-    # Note: Here I use unix commands and don't care on windows compatibility.
-    my $tmp_dir = tmpnam();
-
-    my $cmd = "cp -R $this->{attachmentDir} $tmp_dir";
-    `$cmd`;
-
-    # Now lets try to remove that dir
-    $stringifier->rmtree($tmp_dir);
-
-    $this->assert(! (-f $tmp_dir), "Directory $tmp_dir not deleteted.");
-
-    # Now try to delete just a file
-    $cmd = "cp -R $this->{attachmentDir}\test_file.txt $tmp_dir";
-    $stringifier->rmtree($tmp_dir);
-
-    $this->assert(! (-f $tmp_dir), "File $tmp_dir not deleteted.");
-}
-
 sub test_handler_for {
     my $this = shift;
     my $stringifier = Foswiki::Contrib::Stringifier::Base->new();

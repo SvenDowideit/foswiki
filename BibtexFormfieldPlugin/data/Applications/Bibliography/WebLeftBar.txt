@@ -1,1 +1,1 @@
-/var/www/dev.wiki.monroylab.com/PatternSkin/data/_default/WebLeftBar.txt
+/usr/local/src/github.com/foswiki/PatternSkin/data/_default/WebLeftBar.txt

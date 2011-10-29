@@ -7,6 +7,7 @@ use strict;
 
 use Foswiki::Contrib::Stringifier::Base();
 use Foswiki::Contrib::Stringifier();
+use utf8;
 
 sub set_up {
         my $this = shift;

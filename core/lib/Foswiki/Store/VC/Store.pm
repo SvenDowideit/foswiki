@@ -83,7 +83,7 @@ sub readTopic {
 
     my ( $gotRev, $isLatest ) = $this->askListeners($args{address}, $args{rev});
 
-    if ( defined($gotRev) and ( $gotRev > 0 or ($isLatest)) ) {
+    if ( defined($gotRev) and ( $gotRev > 0 or ($isLatest) ) ) {
         return ( $gotRev, $isLatest );
     }
     ASSERT( not $isLatest ) if DEBUG;
@@ -114,7 +114,7 @@ sub readTopic {
 	# If a checkin is pending, fix the TOPICINFO
         my $ri = $args{address}->get('TOPICINFO');
 	my $truth = $handler->getInfo($args{rev});
-	for my $i qw(author version date) {
+      for my $i qw(author version date) {
 	    $ri->{$i} = $truth->{$i};
 	}
     }

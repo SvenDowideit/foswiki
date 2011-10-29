@@ -14,7 +14,7 @@
 # For licensing info read LICENSE file in the Foswiki root.
 
 package Foswiki::Contrib::Stringifier::Plugins::DOCX;
-use Foswiki::Contrib::Stringifier::Base;
+use Foswiki::Contrib::Stringifier::Base ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 
 my $docx2txt = $Foswiki::cfg{StringifierContrib}{docx2txtCmd} || 'docx2txt.pl';

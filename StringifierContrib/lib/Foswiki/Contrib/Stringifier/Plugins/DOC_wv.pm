@@ -16,14 +16,14 @@ package Foswiki::Contrib::Stringifier::Plugins::DOC_wv;
 use Foswiki::Contrib::Stringifier::Base ();
 use Foswiki::Contrib::Stringifier ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
-use File::Temp qw/tempdir/;
+use File::Temp qw/tmpnam/;
 
-my $wvHtml = $Foswiki::cfg{StringifierContrib}{wvHtmlCmd} || 'wvHtml';
+my $wvText = $Foswiki::cfg{StringifierContrib}{wvTextCmd} || 'wvText';
 
 if (!defined($Foswiki::cfg{StringifierContrib}{WordIndexer}) || 
     ($Foswiki::cfg{StringifierContrib}{WordIndexer} eq 'wv')) {
     # Only if wv exists, I register myself.
-    if (__PACKAGE__->_programExists($wvHtml)){
+    if (__PACKAGE__->_programExists($wvText)){
         __PACKAGE__->register_handler("application/word", ".doc");
     }
 }
@@ -32,28 +32,21 @@ if (!defined($Foswiki::cfg{StringifierContrib}{WordIndexer}) ||
 sub stringForFile {
     my ($self, $file) = @_;
 
-    my $tmp_dir = tempdir();
-    my $tmp_file = $tmp_dir."/output.html";
-
-    my $in;
-    my $text = '';
+    my $tmp_file = tmpnam() . ".txt";
     
-    my $cmd = $wvHtml . ' --charset=utf8 --targetdir=%TMPDIR|F% %FILENAME|F% %TMPFILE|F%';
-    my ($output, $exit) = Foswiki::Sandbox->sysCommand($cmd, 
-      TMPDIR => $tmp_dir, 
-      FILENAME => $file, 
-      TMPFILE => $tmp_file,
-    );
+    my $cmd = $wvText . ' %FILENAME|F% %TMPFILE|F%';
+    my ($output, $exit) = Foswiki::Sandbox->sysCommand($cmd, FILENAME => $file, TMPFILE => $tmp_file);
     
     return '' unless ($exit == 0);
 
-    $text = Foswiki::Contrib::Stringifier->stringFor($tmp_file);
+    open($in, $tmp_file) or return "";
+    local $/ = undef;    # set to read to EOF
+    my $text = <$in>;
+    close($in);
 
-    # Deletes temp files (main html and images)
     unlink($tmp_file);
-    $self->rmtree($tmp_dir);
 
-    return $text;
+    return $self->fromUtf8($text);
 }
 
 1;
