@@ -13,7 +13,7 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 package Foswiki::Contrib::Stringifier::Plugins::PPT;
-use Foswiki::Contrib::Stringifier::Base;
+use Foswiki::Contrib::Stringifier::Base ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 use Foswiki::Contrib::Stringifier  ();
 use File::Temp qw/tmpnam/;
@@ -36,6 +36,7 @@ sub stringForFile {
     my ($output, $exit) = Foswiki::Sandbox->sysCommand($cmd, FILENAME => $filename);
     
     return '' unless ($exit == 0);
+    $output = $self->toUtf8($output);
     
     # put the html into a temporary file
     open(TMPFILE, ">$tmp_file");

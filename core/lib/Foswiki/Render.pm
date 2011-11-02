@@ -324,26 +324,30 @@ sub _addTHEADandTFOOT {
         }
         elsif ( $lines->[$i] =~ s/$TRMARK=(["'])(.*?)\1//i ) {
             if ($2) {
-		# In head or foot
+
+                # In head or foot
                 if ($inFoot) {
-		    #print STDERR "FOOT: $lines->[$i]\n";
+
+                    #print STDERR "FOOT: $lines->[$i]\n";
                     $footLines++;
                 }
                 else {
-		    #print STDERR "HEAD: $lines->[$i]\n";
+
+                    #print STDERR "HEAD: $lines->[$i]\n";
                     $headLines++;
                 }
             }
             else {
-		# In body
-		#print STDERR "BODY: $lines->[$i]\n";
+
+                # In body
+                #print STDERR "BODY: $lines->[$i]\n";
                 $inFoot    = 0;
                 $headLines = 0;
             }
         }
         $i--;
     }
-    $lines->[$i++] = CGI::start_table(
+    $lines->[ $i++ ] = CGI::start_table(
         {
             class       => 'foswikiTable',
             border      => 1,
@@ -353,20 +357,21 @@ sub _addTHEADandTFOOT {
     );
 
     if ($headLines) {
-        splice( @$lines, $i++, 0, '<thead>' );
+        splice( @$lines, $i++,            0, '<thead>' );
         splice( @$lines, $i + $headLines, 0, '</thead>' );
-	$i += $headLines + 1;
+        $i += $headLines + 1;
     }
 
     if ($footLines) {
-	# Extract the foot and stick it in the table after the head (if any)
-	# WRC says browsers prefer this
+
+        # Extract the foot and stick it in the table after the head (if any)
+        # WRC says browsers prefer this
         my $firstFoot = scalar(@$lines) - $footLines;
         my @foot = splice( @$lines, $firstFoot, $footLines );
-	unshift(@foot, '<tfoot>');
-	push( @foot, '</tfoot>' );
-	splice( @$lines, $i, 0, @foot );
-	$i += scalar(@foot);
+        unshift( @foot, '<tfoot>' );
+        push( @foot, '</tfoot>' );
+        splice( @$lines, $i, 0, @foot );
+        $i += scalar(@foot);
     }
     splice( @$lines, $i, 0, '<tbody>' );
     push( @$lines, '</tbody>' );
@@ -794,7 +799,12 @@ sub _handleSquareBracketedLink {
 
         # [[$link][$text]]
         $hasExplicitLinkLabel = 1;
-        $text                 = _escapeAutoLinks($text);
+        if ( my $img = $this->_isImageLink($text) ) {
+            $text = $img;
+        }
+        else {
+            $text = _escapeAutoLinks($text);
+        }
     }
 
     if ( $link =~ m#^($Foswiki::regex{linkProtocolPattern}:|/)# ) {
@@ -817,7 +827,7 @@ sub _handleSquareBracketedLink {
                 $text = _escapeAutoLinks($candidateText);
             }
         }
-        return _externalLink( $this, $link, $text );
+        return $this->_externalLink( $link, $text );
     }
 
     # Extract '?params'
@@ -878,16 +888,29 @@ sub _handleSquareBracketedLink {
         $hasExplicitLinkLabel, $params );
 }
 
+# Check if text is an image # (as indicated by the file type)
+# return an img tag, otherwise nothing
+sub _isImageLink {
+    my ( $this, $url ) = @_;
+
+    return if $url =~ /<nop>/;
+    $url =~ s/^\s+//;
+    $url =~ s/\s+$//;
+    if ( $url =~ m#^https?://[^?]*\.(?:gif|jpg|jpeg|png)$#i ) {
+        my $filename = $url;
+        $filename =~ s@.*/@@;
+        return CGI::img( { src => $url, alt => $filename } );
+    }
+    return;
+}
+
 # Handle an external link typed directly into text. If it's an image
-# (as indicated by the file type), and no text is specified, then use
-# an img tag, otherwise generate a link.
+# and no text is specified, then use an img tag, otherwise generate a link.
 sub _externalLink {
     my ( $this, $url, $text ) = @_;
 
-    if ( $url =~ /^[^?]*\.(gif|jpg|jpeg|png)$/i && !$text ) {
-        my $filename = $url;
-        $filename =~ s@.*/([^/]*)@$1@go;
-        return CGI::img( { src => $url, alt => $filename } );
+    if ( !$text && ( my $img = $this->_isImageLink($url) ) ) {
+        return $img;
     }
     my $opt = '';
     if ( $url =~ /^mailto:/i ) {
@@ -1586,7 +1609,6 @@ sub protectPlainText {
     # encoding (&#nnn;) is identical for first 256 characters.
     # I18N TODO: Convert to Unicode from any site character set.
     if (   $this->{session}->inContext('rss')
-        && defined( $Foswiki::cfg{Site}{CharSet} )
         && $Foswiki::cfg{Site}{CharSet} =~ /^iso-?8859-?1$/i )
     {
         $text =~ s/([\x7f-\xff])/"\&\#" . unpack( 'C', $1 ) .';'/ge;

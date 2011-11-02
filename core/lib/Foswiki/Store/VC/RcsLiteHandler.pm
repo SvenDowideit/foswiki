@@ -549,30 +549,33 @@ sub getInfo {
     my ( $this, $version ) = @_;
 
     _ensureProcessed($this);
-    my $info;
-    if ( $this->{state} ne 'nocommav') {
-        if ( !$version || $version > $this->{head} ) {
-            $version = $this->{head} || 1;
-        }
-        $info = {
-            version => $version,
-            date    => $this->{revs}[$version]->{date},
-            author  => $this->{revs}[$version]->{author},
-            comment => $this->{revs}[$version]->{log}
-        };
-	# We have to check that there is not a pending version in the .txt
-	unless ($this->noCheckinPending()) {
-	    # There's a pending version in the .txt
-	    $info->{version}++;
-	    $info->{author} = $Foswiki::Users::BaseUserMapping::UNKNOWN_USER_CUID;
-	    $info->{comment} = "pending";
-	    $info->{date} = time();
-	}
+
+    if (   ( $this->noCheckinPending() )
+        && ( !$version || $version > $this->_numRevisions() ) )
+    {
+        $version = $this->_numRevisions();
     }
     else {
-        $info = $this->SUPER::getInfo($version);
+        $version = $this->_numRevisions() + 1
+          unless ( $version && $version <= $this->_numRevisions() );
     }
-    return $info;
+
+    my $info;
+    if ( $version <= $this->{head} ) {
+        if ( $this->{state} ne 'nocommav' ) {
+            if ( !$version || $version > $this->{head} ) {
+                $version = $this->{head} || 1;
+            }
+            $info = {
+                version => $version,
+                date    => $this->{revs}[$version]->{date},
+                author  => $this->{revs}[$version]->{author},
+                comment => $this->{revs}[$version]->{log}
+            };
+            return $info;
+        }
+    }
+    return $this->SUPER::getInfo($version);
 }
 
 # Apply delta (patch) to text.  Note that RCS stores reverse deltas,
@@ -643,12 +646,12 @@ sub getRevision {
     my $head = $this->{head};
     return $this->SUPER::getRevision($version) unless $head;
     if ( $version == $head ) {
-        return ($this->{revs}[$version]->{text}, 1);
+        return ( $this->{revs}[$version]->{text}, 1 );
     }
     $version = $head if $version > $head;
     my $headText = $this->{revs}[$head]->{text};
     my $text     = _split($headText);
-    return (_patchN( $this, $text, $head - 1, $version ), 0);
+    return ( _patchN( $this, $text, $head - 1, $version ), 0 );
 }
 
 # Apply reverse diffs until we reach our target rev
@@ -757,9 +760,9 @@ sub getRevisionAtTime {
     my ( $this, $date ) = @_;
 
     _ensureProcessed($this);
-    if ($this->{state} eq 'nocommav') {
- 	return ($date >= (stat($this->{file}))[9]) ? 1 : undef;
-   }
+    if ( $this->{state} eq 'nocommav' ) {
+        return ( $date >= ( stat( $this->{file} ) )[9] ) ? 1 : undef;
+    }
 
     my $version = $this->{head};
     while ( $this->{revs}[$version]->{date} > $date ) {
@@ -767,9 +770,10 @@ sub getRevisionAtTime {
         return undef if $version == 0;
     }
 
-    if ($version == $this->{head} && !$this->noCheckinPending()) {
-	# Check the file date
-	$version++ if ($date >= (stat($this->{file}))[9]);
+    if ( $version == $this->{head} && !$this->noCheckinPending() ) {
+
+        # Check the file date
+        $version++ if ( $date >= ( stat( $this->{file} ) )[9] );
     }
     return $version;
 }

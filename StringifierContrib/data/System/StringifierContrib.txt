@@ -36,7 +36,7 @@ for search engines other than kinosearch.
 If you add other file extensions, they are treated as ASCII files. If needed,
 you can add more specialised stringifiers for further document types (see below).
 
----++ Backend for Indexing Word 2003 Documents
+---++ Backend for Word Documents
 
 To index Word 2003 Documents (=.doc=) you will need to install one of the following:
 
@@ -48,7 +48,7 @@ You can then select the tool to use in =configure=.
 
 ---++ Backend for PDF
 
-To index =.pdf= files you need to install =xpdf-utils=.
+To index =.pdf= files you need to install =proppler-utils=.
 
 ---++ Backend for PPT
 
@@ -139,10 +139,11 @@ See Foswiki:Tasks/StringifierContrib for currently open tasks.
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  05 Sep 2011: | (v2.00) added <nop>OpenDocument serializer; removed dependency left-over on Text::Iconv; added dependency on odt2txt; fixed defaults for wv serializer  |
-|  01 Dec 2010: | (v1.20) moved core from !StringifierContrib to Stringifier not to disturb =configure= |
-|  12 Nov 2010: | (v1.14) Foswiki:Main.PadraigLennon  - Foswikitask:Item9311|
-|  23 Oct 2010: | (v1.12) made system fault-tolerant in case of missing dependencies for a given file type; doc cleanup -- Foswiki:Main.WillNorris |
+|  17 Oct 2011: | (2.10) using wvText instead of wvHtml now; encoding stringified files to the site's charset now; fixed unit tests to use utf8 exclusively |
+|  05 Sep 2011: | (2.00) added <nop>OpenDocument serializer; removed dependency left-over on Text::Iconv; added dependency on odt2txt; fixed defaults for wv serializer  |
+|  01 Dec 2010: | (1.20) moved core from !StringifierContrib to Stringifier not to disturb =configure= |
+|  12 Nov 2010: | (1.14) Foswiki:Main.PadraigLennon  - Foswikitask:Item9311|
+|  23 Oct 2010: | (1.12) made system fault-tolerant in case of missing dependencies for a given file type; doc cleanup -- Foswiki:Main.WillNorris |
 |  12 Feb 2010: | robust parsing of password protected XLS files |
 |  02 Oct 2009: | extracted from Foswiki:Extensions/KinoSearchContrib (MD) |
 |  Dependencies: | %$DEPENDENCIES% |

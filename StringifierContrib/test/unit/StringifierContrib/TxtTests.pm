@@ -7,6 +7,7 @@ use strict;
 
 use Foswiki::Contrib::Stringifier::Base();
 use Foswiki::Contrib::Stringifier ();
+use utf8;
 
 sub set_up {
         my $this = shift;
@@ -48,7 +49,7 @@ sub test_SpecialCharacters {
 
     my $text  = $stringifier->stringForFile($this->{attachmentDir}.'Simple_example.txt');
 
-    $this->assert_matches('Änderung', $text, "Text Änderung not found.");
+    $this->assert_matches('Ã„nderung', $text, "Text Ã„nderung not found.");
 }
 
 # test what would happen if someone uploaded a png and called it a .txt

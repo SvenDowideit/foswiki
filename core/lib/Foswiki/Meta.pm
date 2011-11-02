@@ -560,9 +560,11 @@ sub DELETE_THIS_load {
 #TODO: need to extract the metacache from search, and extract the additional derived info from it too
 #TODO: this mess is because the Listeners cannot assign a cached meta object to an already existing unloaded meta
 #       which in Sven's opinion means we need to invert things better. (I get ~10% (.2S on 2S req's) speedup on simpler SEARCH topics doing reuse)
-#my $m = $session->search->metacache->getMeta( $this->web, $this->topic );
+        my $m =
+          $session->search->metacache->getMeta( $this->web, $this->topic );
+
 #print STDERR "metacache->getMeta ".join(',', ( $this->web, $this->topic, ref($m) ))."\n";
-#return $m if (defined($m));
+        return $m if ( defined($m) );
     }
 
     ASSERT( not( $this->{_latestIsLoaded} ) ) if DEBUG;
@@ -1418,6 +1420,7 @@ sub setRevisionInfo {
     # compatibility; older versions of the code use
     # RCS rev numbers. Save with them so old code can
     # read these topics
+    ASSERT( defined $ti->{version} ) if DEBUG;
     $ti->{version} = 1 if $ti->{version} < 1;
     $ti->{version} = $ti->{version};
     $ti->{format}  = $EMBEDDING_FORMAT_VERSION;
@@ -1539,13 +1542,15 @@ sub getRev1Info {
             or $attr eq 'created' )
         {
             $info->{created} = $ri->{date};
+
             # Don't pass Foswiki::Time an undef value
-            if (defined $ri->{date}) {
+            if ( defined $ri->{date} ) {
                 require Foswiki::Time;
                 $info->{createdate} = Foswiki::Time::formatTime( $ri->{date} );
 
                 #TODO: wow thats disgusting.
-                $info->{created} = $info->{createlongdate} = $info->{createdate};
+                $info->{created} = $info->{createlongdate} =
+                  $info->{createdate};
             }
         }
     }
@@ -1816,7 +1821,7 @@ sub haveAccess {
     my $session = $Foswiki::Plugins::SESSION;
 
 print STDERR "access->haveAccess($mode, $cUID, $this)\n" if MONITOR;
-    my $ok = $session->access->haveAccess($mode, $cUID, $this);
+    my $ok = $session->access->haveAccess( $mode, $cUID, $this );
     $reason = $session->access->getReason();
 print STDERR "access->haveAccess($mode, $cUID, $this) => $ok, \n" if MONITOR;
     return $ok;
@@ -2044,6 +2049,7 @@ sub move {
                     by   => $cUID,
                 }
             );
+
             # save the metadata change without logging
             $this->save(
                 dontlog => 1, # no statistics
@@ -2638,14 +2644,14 @@ sub attach {
         # Force reload of the latest version
         #$this = $this->load() unless $this->latestIsLoaded();
 
-	# Note that latestIsLoaded may still be false if the topic doesn't exist yet
+    # Note that latestIsLoaded may still be false if the topic doesn't exist yet
 
         my $error;
         try {
             Foswiki::Store
 #              ->save( address=>$this, attachment=>$opts{name}, stream=>$opts{stream},
               ->save( address=>Foswiki::Address->new(web=>$this->web(), topic=>$this->topic(), attachment=>$opts{name}), stream=>$opts{stream},
-                cuid=>($opts{author} || $Foswiki::Plugins::SESSION->{user}) );
+                cuid=>($opts{author} || $Foswiki::Plugins::SESSION->{user}), comment => $opts{comment} );
         }
         finally {
             $this->fireDependency();

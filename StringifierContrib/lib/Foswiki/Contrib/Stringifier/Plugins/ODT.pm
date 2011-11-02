@@ -14,10 +14,10 @@
 
 
 package Foswiki::Contrib::Stringifier::Plugins::ODT;
-use Foswiki::Contrib::Stringifier::Base;
+use Foswiki::Contrib::Stringifier::Base ();
 our @ISA = qw( Foswiki::Contrib::Stringifier::Base );
 
-my $odt2text = $Foswiki::cfg{StringifierContrib}{odt2txt} || 'odt2txt --encoding=UTF-8';
+my $odt2text = $Foswiki::cfg{StringifierContrib}{odt2txt} || 'odt2txt';
 
 __PACKAGE__->register_handler("application/vnd.oasis.opendocument.text", ".odt");
 __PACKAGE__->register_handler("application/vnd.oasis.opendocument.text-template", "ott");
@@ -35,7 +35,7 @@ __PACKAGE__->register_handler("application/vnd.sun.xml.impress.template", "sti")
 sub stringForFile {
     my ($self, $filename) = @_;
     
-    my $cmd = $odt2text . ' %FILENAME|F%';
+    my $cmd = $odt2text . ' --encoding=UTF-8 %FILENAME|F%';
     my ($text, $exit) = Foswiki::Sandbox->sysCommand($cmd, FILENAME => $filename);
 
     #print STDERR "text=$text, exit=$exit\n";

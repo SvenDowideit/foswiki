@@ -4,6 +4,7 @@ use FoswikiFnTestCase;
 our @ISA = qw( FoswikiFnTestCase );
 
 use strict;
+use utf8;
 
 use Foswiki::Contrib::Stringifier::Base();
 use Foswiki::Contrib::Stringifier();
@@ -46,12 +47,12 @@ sub test_SpecialCharacters {
 
     my $text  = $stringifier->stringForFile($this->{attachmentDir}.'Simple_example.xls');
     
-    $this->assert($text =~ m\Größer\, "Text Größer not found.");
+    $this->assert($text =~ m\GrÃ¶ÃŸer\, "Text GrÃ¶ÃŸer not found.");
 		  
     $text  = $stringifier->stringForFile($this->{attachmentDir}.'Portuguese_example.xls');
 
     # print "Text = $text\n";
-    $this->assert($text =~ m\Formatação\, "Text Formatação not found.");		  
+    $this->assert($text =~ m\FormataÃ§Ã£o\, "Text FormataÃ§Ã£o not found.");		  
     $this->assert(!($text =~ m\GENERAL\), "Bad string GENERAL appeares.");
 }
 

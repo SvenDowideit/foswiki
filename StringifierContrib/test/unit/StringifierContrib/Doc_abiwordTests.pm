@@ -4,6 +4,7 @@ use FoswikiFnTestCase;
 our @ISA = qw( FoswikiFnTestCase );
 
 use strict;
+use utf8;
 
 use Foswiki::Contrib::Stringifier::Base ();
 use Foswiki::Contrib::Stringifier();
