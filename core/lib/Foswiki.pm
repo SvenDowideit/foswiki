@@ -3683,13 +3683,31 @@ sub topicExists {
 ---+++ ObjectMethod getWorkArea( $key ) -> $directorypath
 
 Gets a private directory uniquely identified by $key. The directory is
-intended as a work area for plugins etc. The directory will exist.
+intended as a work area for plugins.
+
+The standard is a directory named the same as "key" under
+$Foswiki::cfg{WorkingDir}/work_areas
 
 =cut
 
 sub getWorkArea {
     my ( $this, $key ) = @_;
-    return $this->{store}->getWorkArea($key);
+    
+    # untaint and detect nasties. The rules are the same as for
+    # attachment names.
+    $key = Foswiki::Sandbox::untaint( $key,
+        \&Foswiki::Sandbox::validateAttachmentName );
+    throw Error::Simple("Bad work area name $key") unless ($key);
+
+    my $dir = "$Foswiki::cfg{WorkingDir}/work_areas/$key";
+
+    unless ( -d $dir ) {
+        mkdir($dir) || throw Error::Simple(<<ERROR);
+Failed to create $key work area. Check your setting of {WorkingDir}
+in =configure=.
+ERROR
+    }
+    return $dir;
 }
 
 =begin TML

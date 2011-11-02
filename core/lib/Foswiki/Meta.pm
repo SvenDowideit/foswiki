@@ -840,6 +840,7 @@ sub populateNewWeb {
 
     my $session = $Foswiki::Plugins::SESSION;
 
+#TODO: WTF? - replace with Foswiki::Address way of getting parent!
     my ( $parent, $new ) = $this->{web} =~ m/^(.*)\/([^\.\/]+)$/;
 
     if ($parent) {
@@ -849,7 +850,7 @@ sub populateNewWeb {
                   . ' - Hierarchical webs are disabled' );
         }
 
-        unless ( $session->exists(address=>$parent) ) {
+        unless ( Foswiki::Store->exists(address=>{web=>$parent}) ) {
             throw Error::Simple( 'Parent web ' . $parent . ' does not exist' );
         }
     }

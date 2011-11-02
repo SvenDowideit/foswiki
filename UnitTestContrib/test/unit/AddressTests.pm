@@ -278,9 +278,9 @@ sub set_up {
         # SMELL: Why do I need to set this? I don't get our unit tests...
         #$this->{session}->{webName} = $this->{test_web};
 
-        $this->{test_topicObject} = Foswiki::Meta->new(
-            $this->{session},    $this->{test_web},
-            $this->{test_topic}, "BLEEGLE\n"
+        $this->{test_topicObject} = Foswiki::Store->create(
+            address=>{web=>$this->{test_web},
+            topic=>$this->{test_topic}}, data=>{_text=>"BLEEGLE\n"}
         );
 
         $this->gendata( \%testrange );
