@@ -1486,7 +1486,7 @@ sub _getListOfGroups {
         # where %USERSWEB% is protected from view
         local $this->{session}->{user} = $Foswiki::cfg{SuperAdminGroup};
         #$this->{store}->changeDefaultUser($this->{session}->{user});
-die 'set store cuid to undef';
+
         local undef $Foswiki::Store::singleton->{cuid};
 
         $this->{session}->search->searchWeb(

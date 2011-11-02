@@ -20,6 +20,7 @@ about the same topic more than once.
 use Assert;
 use Foswiki::Func ();
 use Foswiki::Meta ();
+use Foswiki::Store ();
 
 #use Monitor ();
 #Monitor::MonitorMethod('Foswiki::MetaCache', 'getTopicListIterator');
@@ -124,7 +125,7 @@ sub addMeta {
 
     if ( not defined($meta) ) {
         $meta =
-          Foswiki::Meta->load( $this->{session}, $web, $topic );
+          Foswiki::Store->load( address=>{web=>$web, topic=>$topic });
     }
     if (
         (defined($meta) and $meta ne '') and

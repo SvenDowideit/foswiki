@@ -37,6 +37,8 @@ use Assert;
 
 use Foswiki::Address();
 use Foswiki::Meta();
+use Foswiki::AccessControlException ();
+
 my $singleton;
 
 =pod
@@ -117,6 +119,17 @@ sub load {
     #ASSERT(not defined($args{cuid}) or ref($args{cuid}) eq '') if DEBUG;
     #die 'here' if (ref($args{cuid}) ne '');
     
+    #really should insist that if the caller wants to over-ride the data of a loaded (and thus existant object), that they also say they want to write..
+    #as this shall become a copy of a loaded/cache obj, not the original
+    #ASSERT(
+    #       (defined($args{data}) and $args{writeable}) or
+    #       not defined($args{data})) if DEBUG;
+    #TODO: for now, auto set writeable
+    $args{writeable} = 1 if (defined($args{data}));
+    #assume that $args{data} is just for topics?
+    ASSERT((defined($args{data}) and defined($args{address}->{topic})) or
+           not defined($args{data})) if DEBUG;
+    
     my $access_type = $args{writeable} ? 'CHANGE' : 'VIEW';
 
     my $result;
@@ -138,7 +151,7 @@ sub load {
     } else {
 
     #see if we are _able_ to test permissions using just an unloaded topic, if not, fall through to load&then test
-        throw AccessException( $singleton->{access}->getReason() )
+        throw Foswiki::AccessControlException( $access_type, $args{cuid}, $args{address}->web(), $args{address}->topic(), $singleton->{access}->getReason() )
           if (  defined( $args{cuid} )  and 
                 not ($singleton->{access}
               ->haveAccess( $access_type, $args{cuid}, $args{address}, 
@@ -190,13 +203,19 @@ sub load {
         ASSERT(ref($args{cuid}) eq '');
         #print STDERR "..cUID isa ".ref($args{cuid})." ($args{cuid})\n";
 
-        throw AccessException( $singleton->{access}->getReason() )
+        throw Foswiki::AccessControlException( $access_type, $args{cuid}, $result->web(), $result->topic(), $singleton->{access}->getReason() )
           if (  defined( $args{cuid} )  and 
                 not ($singleton->{access}
               ->haveAccess( $access_type, $args{cuid}, $result ) ));
     }
           
-    $singleton->{count}{load}{$args{address}->getPath()}--;          
+    $singleton->{count}{load}{$args{address}->getPath()}--;
+    
+    if (defined($args{data})) {
+        #TODO: need to deep__ copy the loaded object's data into a new, uncached obj, and then over-ride with data..
+        my $newResource =  Foswiki::Meta->NEWnew( address=>$result, data=>{%$result, %{$args{data}}} );
+        $result = $newResource;
+    }
 
     return $result;
 }
@@ -322,7 +341,7 @@ sub save {
 
 #TODO: kill this. make it a param to save.
 sub repRev {
-    return template_function( 'repRev', @_ );
+    return template_function( 'repRev', @_, writeable=>1 );
 }
 
 =pod
@@ -345,7 +364,7 @@ Returns the new revision identifier.
 =cut
 
 sub _Simple_save {
-    return template_function( 'save', @_ );
+    return template_function( 'save', @_, writeable=>1 );
 }
 
 =pod
@@ -361,7 +380,7 @@ delete a topic or attachment _without_ invoking plugin handlers.
 =cut
 
 sub remove {
-    return template_function( 'remove', @_ );
+    return template_function( 'remove', @_, writeable=>1 );
 }
 
 =pod
@@ -388,7 +407,7 @@ sub move {
     if (ref($args{from}) ne 'Foswiki::Meta') {
         $args{from} = Foswiki::Store->load(writeable=>1, address=>$args{from});
     }
-    return template_function( 'move', %args );
+    return template_function( 'move', %args, writeable=>1 );
 }
 
 =pod
@@ -410,7 +429,7 @@ sub move {
 
 sub copy {
     die 'is there a good reason to do this?';
-    return template_function( 'copy', @_ );
+    return template_function( 'copy', @_ , writeable=>1);
 }
 
 =pod
@@ -678,7 +697,28 @@ for this)
 =cut
 
 sub query {
-    return template_function( 'query', @_ );
+    shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
+    #return template_function( 'query', @_ );
+    my $functionname = 'query';
+    
+    my $result;
+    
+    foreach my $impl ( @{ $singleton->{stores} } ) {
+
+    #the impl is also able to throw exceptions - as there might be a store based permissions impl
+        if (not defined($impl->{impl})) {
+            eval "require ".$impl->{module};
+            ASSERT( !$@, $@ ) if DEBUG;
+            $impl->{impl} = $Foswiki::cfg{Store}{Implementation}->new();
+        }
+        #$impl->{impl} ||= $impl.'::new'( store => $impl ) || next;
+        $result = $impl->{impl}->$functionname(@_);
+        last if ( defined($result) );
+    }
+    #TODO: ok, so this is very wrong, need to iterate over all impls and then combin results
+    #but i think it might actually work for single store
+    
+    return $result;
 }
 
 =pod
@@ -759,6 +799,9 @@ sub template_function {
     
     #default cuid from the singleton
     my %args = ( cuid=>$singleton->{cuid}, @_ );
+    
+    ASSERT(defined($args{address})) if DEBUG;
+    
     $args{functionname} = $functionname;
     
     #print STDERR ".cUID isa ".ref($args{cuid})." ($args{cuid}) - default (".ref($singleton->{cuid}).")\n";
@@ -766,13 +809,17 @@ sub template_function {
     #die 'here' if (ref($args{cuid}) ne '');
 
     my $access_type = $args{writeable} ? 'CHANGE' : 'VIEW';
-
+    
     my $result;
-    $args{address} = $singleton->getResourceAddressOrCachedResource($args{address});
+    if (($access_type eq 'CHANGE') and
+        (ref($args{address}) eq 'Foswiki::Meta')) {
+        #we already have a valid meta obj - so we're likely going to use it to commit to the store?
+    } else {
+        $args{address} = $singleton->getResourceAddressOrCachedResource($args{address});
+    }
     #die "recursion? - $functionname(".$singleton->{count}{$functionname}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{$functionname}{$args{address}->getPath()}++ > 10);
 
     #print STDERR "-call: $functionname: ".($args{address}->getPath())."\n";
-
 
 #    if (ref($args{address}) eq 'Foswiki::Meta') {
 #        $result = $args{address};
@@ -780,7 +827,7 @@ sub template_function {
 {
 
     #see if we are _able_ to test permissions using just an unloaded topic, if not, fall through to load&then test
-        throw AccessException( $singleton->{access}->getReason() )
+        throw Foswiki::AccessControlException( $access_type, $args{cuid}, $args{address}->web(), $args{address}->topic(), $singleton->{access}->getReason() )
           if (  defined( $args{cuid} )  and 
                 not ($singleton->{access}
               ->haveAccess( $access_type, $args{cuid}, $args{address}, 
@@ -846,7 +893,7 @@ sub template_function {
         ASSERT(ref($args{cuid}) eq '');
         #print STDERR "..cUID isa ".ref($args{cuid})." ($args{cuid})\n";
 
-        throw AccessException( $singleton->{access}->getReason() )
+        throw Foswiki::AccessControlException( $access_type, $args{cuid}, $result->web(), $result->topic(), $singleton->{access}->getReason() )
           if (  defined( $args{cuid} )  and 
                 not ($singleton->{access}
               ->haveAccess( $access_type, $args{cuid}, $result ) ));

@@ -480,6 +480,11 @@ sub NEWnew {
         $this->{_text} = $args{data}->{_text};
     }
     
+    #TODO: er, this is dumb.
+    #TODO: don't really want to have to touch the rcs to find out if a requested rev == top rev
+    $this->{_latestIsLoaded} = 1 unless (defined($args{address}->{rev}));
+    $this->{_loadedRev} = $this->{TOPICINFO}->[0]->{version} if (defined($this->{TOPICINFO}));
+    
     #TODO: remove this.
     #$this->{_session} = $Foswiki::Plugins::SESSION;
     # Index keyed on top level type mapping entry names to their

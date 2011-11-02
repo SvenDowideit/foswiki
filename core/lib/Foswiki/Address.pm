@@ -1091,6 +1091,8 @@ sub stringify {
 sub getPath {
     my ( $this, %opts ) = @_;
 
+#use Data::Dumper;
+#    print STDERR Dumper($this) unless ( ($this->{web}) or (ref( $this->{webpath} ) eq 'ARRAY') or ($this->{root}) );
     ASSERT( ($this->{web}) or (ref( $this->{webpath} ) eq 'ARRAY') or ($this->{root}) ) if DEBUG;
 
     if ($this->{root}) {

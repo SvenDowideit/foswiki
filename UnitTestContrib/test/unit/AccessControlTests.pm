@@ -144,8 +144,8 @@ sub PERMITTED {
 sub test_denytopic {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If DENYTOPIC is set to a list of wikinames
     * people in the list will be DENIED.
    * Set DENYTOPICVIEW = MrGreen
@@ -168,8 +168,8 @@ THIS
 sub test_empty_denytopic {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If DENYTOPIC is set to empty ( i.e. Set DENYTOPIC = )
     * access is PERMITTED _i.e _ no-one is denied access to this topic
    * Set DENYTOPICVIEW=
@@ -190,8 +190,8 @@ THIS
 sub test_whitespace_denytopic {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If DENYTOPIC is set to empty ( i.e. Set DENYTOPIC = )
     * access is PERMITTED _i.e _ no-one is denied access to this topic
    * Set DENYTOPICVIEW =   
@@ -212,8 +212,8 @@ THIS
 sub test_denytopic_whitespace {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If DENYTOPIC is set to empty ( i.e. Set DENYTOPIC = )
     * access is PERMITTED _i.e _ no-one is denied access to this topic
    * Set DENYTOPICVIEW = MrBlue  
@@ -234,8 +234,8 @@ THIS
 sub test_allowtopic {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If ALLOWTOPIC is set
    1. people in the list are PERMITTED
    2. everyone else is DENIED
@@ -243,7 +243,7 @@ If ALLOWTOPIC is set
 THIS
     $topicObject->save();
 
-    $this->createNewFoswikiSession( );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
     $this->PERMITTED( "VIEW", $MrOrange );
     $this->DENIED( "VIEW", $MrGreen );
     $this->DENIED( "VIEW", $MrYellow );
@@ -258,8 +258,8 @@ THIS
 sub test_allowtopic_a {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If ALLOWTOPIC is set
    1. people in the list are PERMITTED
    2. everyone else is DENIED
@@ -271,15 +271,11 @@ THIS
     $topicquery->path_info("/$this->{test_web}/$this->{test_topic}");
 
     # renew Foswiki, so WebPreferences gets re-read
-    $this->createNewFoswikiSession( undef, $topicquery );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin}, $topicquery );
     $this->PERMITTED( "VIEW", $MrOrange );
-    $this->createNewFoswikiSession( undef, $topicquery );
     $this->DENIED( "VIEW", $MrGreen );
-    $this->createNewFoswikiSession( undef, $topicquery );
     $this->DENIED( "VIEW", $MrYellow );
-    $this->createNewFoswikiSession( undef, $topicquery );
     $this->DENIED( "VIEW", $MrWhite );
-    $this->createNewFoswikiSession( undef, $topicquery );
     $this->DENIED( "view", $MrBlue );
 
     return;
@@ -291,8 +287,8 @@ THIS
 sub test_allowtopic_b {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If ALLOWTOPIC is set
    1. people in the list are PERMITTED
    2. everyone else is DENIED
@@ -301,15 +297,11 @@ THIS
     $topicObject->save();
 
     # renew Foswiki, so WebPreferences gets re-read
-    $this->createNewFoswikiSession(  );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
     $this->PERMITTED( "VIEW", $MrOrange );
-    $this->createNewFoswikiSession(  );
     $this->DENIED( "VIEW", $MrGreen );
-    $this->createNewFoswikiSession(  );
     $this->DENIED( "VIEW", $MrYellow );
-    $this->createNewFoswikiSession(  );
     $this->DENIED( "VIEW", $MrWhite );
-    $this->createNewFoswikiSession(  );
     $this->DENIED( "view", $MrBlue );
 
     return;
@@ -321,7 +313,7 @@ sub test_allowtopic_c {
     my $this = shift;
     my $topicObject =
       Foswiki::Store->load(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'});
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If ALLOWTOPIC is set
    1. people in the list are PERMITTED
    2. everyone else is DENIED
@@ -338,15 +330,11 @@ THIS
     $topicObject->save();
 
     # renew Foswiki, so WebPreferences gets re-read
-    $this->createNewFoswikiSession(  );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
     $this->PERMITTED( "VIEW", $MrOrange );
-    $this->createNewFoswikiSession(  );
     $this->DENIED( "VIEW", $MrGreen );
-    $this->createNewFoswikiSession(  );
     $this->PERMITTED( "VIEW", $MrYellow );
-    $this->createNewFoswikiSession(  );
     $this->DENIED( "VIEW", $MrWhite );
-    $this->createNewFoswikiSession(  );
     $this->DENIED( "view", $MrBlue );
 
     return;
@@ -356,7 +344,7 @@ THIS
 sub test_denyweb {
     my $this = shift;
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
         topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"THIS"});
 If DENYWEB is set to a list of wikiname
     * people in the list are DENIED access
@@ -366,7 +354,7 @@ THIS
 
     # renew Foswiki, so WebPreferences gets re-read
     $this->createNewFoswikiSession(  );
-    $topicObject = Foswiki::Store->create(
+    $topicObject = Foswiki::Store->load(
         address=>{web=>$this->{test_web},
         topic=>$this->{test_topic}}, data=>{_text=>"Null points"}
     );
@@ -383,9 +371,9 @@ THIS
 # Test that ALLOWWEB works in a top-level web with no finalisation
 sub test_allow_web {
     my $this        = shift;
-    my $topicObject = Foswiki::Store->create(
+    my $topicObject = Foswiki::Store->load(
         address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{WebPrefsTopicName}},
-        data=>{_text=><<'THIS'}
+        data=>{_text=><<"THIS"}
 If ALLOWWEB is set to a list of wikinames
     * people in the list will be PERMITTED
     * everyone else will be DENIED
@@ -395,8 +383,8 @@ THIS
     $topicObject->save();
 
     # renew Foswiki, so WebPreferences gets re-read
-    $this->createNewFoswikiSession(  );
-    $topicObject = Foswiki::Store->create(
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
+    $topicObject = Foswiki::Store->load(
         address=>{web=>$this->{test_web},
         topic=>$this->{test_topic}}, data=>{_text=>"Null points"}
     );
@@ -413,9 +401,9 @@ THIS
 # Test that Web.UserName is equivalent to UserName in ACLs
 sub test_webDotUserName {
     my $this        = shift;
-    my $topicObject = Foswiki::Store->create(
+    my $topicObject = Foswiki::Store->load(
         address=>{web=>$this->{test_web}, topic=>$this->{test_topic}},
-        data=>{_text=><<'THIS'}
+        data=>{_text=><<"THIS"}
 If ALLOWTOPIC is set
    1. people in the list are PERMITTED
    2. everyone else is DENIED
@@ -423,7 +411,7 @@ If ALLOWTOPIC is set
 THIS
     );
     $topicObject->save();
-    $this->createNewFoswikiSession(  );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
     $this->PERMITTED( "VIEW", $MrOrange );
     $this->DENIED( "VIEW", $MrGreen );
     $this->PERMITTED( "VIEW", $MrYellow );
@@ -466,11 +454,11 @@ sub test_SetInText {
 
     my $topicObject =
       Foswiki::Store->load(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'} );
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"} );
    * Set ALLOWTOPICVIEW = %USERSWEB%.MrGreen
 THIS
     $topicObject->save();
-    $this->createNewFoswikiSession(  );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
     $topicObject =
       Foswiki::Store->load(address=>{web=>$this->{test_web},
         topic=>$this->{test_topic}} );
@@ -494,7 +482,7 @@ sub test_setInMETA {
     };
     $topicObject->putKeyed( 'PREFERENCE', $args );
     $topicObject->save();
-    $this->createNewFoswikiSession(  );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
     $topicObject =
       Foswiki::Store->load(address=>{web=>$this->{test_web},
         topic=>$this->{test_topic}} );
@@ -510,7 +498,7 @@ sub test_setInSetAndMETA {
 
     my $topicObject =
       Foswiki::Store->load(address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<'THIS'} );
+        topic=>$this->{test_topic}}, data=>{_text=><<"THIS"} );
    * Set ALLOWTOPICVIEW = %USERSWEB%.MrOrange
 THIS
     my $args = {
@@ -521,7 +509,7 @@ THIS
     };
     $topicObject->putKeyed( 'PREFERENCE', $args );
     $topicObject->save();
-    $this->createNewFoswikiSession(  );
+    $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
     $topicObject =
       Foswiki::Store->load(address=>{web=>$this->{test_web},
         topic=>$this->{test_topic}} );
@@ -539,23 +527,23 @@ sub test_subweb_controls_override_parent {
 
     # First build a parent web with view restricted to MrGreen
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
         topic=>$this->{test_topic}}, data=>{_text=>"Nowt"} );
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"THIS"});
    * Set ALLOWWEBVIEW = MrGreen
 THIS
     $topicObject->save();
 
     # Now build a subweb with view restricted to MrOrange
-    my $webObject = Foswiki::Store->load(address=>{web=>$subweb});
+    my $webObject = Foswiki::Store->create(address=>{web=>$subweb});
     $webObject->populateNewWeb();
     $topicObject =
-      Foswiki::Store->create(address=>{web=>$subweb,
-        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$subweb,
+        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"THIS"});
    * Set ALLOWWEBVIEW = MrOrange
 THIS
     $topicObject->save();
@@ -580,19 +568,19 @@ sub test_subweb_inherits_from_parent {
     # First build a parent web with view restricted to MrGreen, and
     # finalise the setting
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"THIS"});
    * Set ALLOWWEBVIEW = MrGreen
    * Set FINALPREFERENCES = ALLOWWEBVIEW
 THIS
     $topicObject->save();
 
     # Now build a subweb with no restrictions
-    my $webObject = Foswiki::Store->load(address=>{web=>$subweb});
+    my $webObject = Foswiki::Store->create(address=>{web=>$subweb});
     $webObject->populateNewWeb();
     $topicObject =
-      Foswiki::Store->create(address=>{web=>$subweb,
-        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$subweb,
+        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"THIS"});
 THIS
     $topicObject->save();
     $this->createNewFoswikiSession(  );
@@ -614,19 +602,19 @@ sub test_finalised_parent_overrides_subweb {
     # First build a parent web with view restricted to MrGreen, and
     # finalise the setting
     my $topicObject =
-      Foswiki::Store->create(address=>{web=>$this->{test_web},
-        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$this->{test_web},
+        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"THIS"});
    * Set ALLOWWEBVIEW = MrGreen
    * Set FINALPREFERENCES = ALLOWWEBVIEW
 THIS
     $topicObject->save();
 
     # Now build a subweb with view restricted to MrOrange
-    my $webObject = Foswiki::Store->load(address=>{web=>$subweb});
+    my $webObject = Foswiki::Store->create(address=>{web=>$subweb});
     $webObject->populateNewWeb();
     $topicObject =
-      Foswiki::Store->create(address=>{web=>$subweb,
-        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<'THIS'});
+      Foswiki::Store->load(address=>{web=>$subweb,
+        topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"THIS"});
    * Set ALLOWWEBVIEW = MrOrange
 THIS
     $topicObject->save();
@@ -648,9 +636,9 @@ sub test_login_redirect_preserves_anchor {
     my $test_topic = 'TestAnchor';
 
     # Create a topic with an anchor, viewable only by MrYellow
-    my $topicObject = Foswiki::Store->create(
+    my $topicObject = Foswiki::Store->load(
         address=>{web=>$this->{test_web}, topic=>$test_topic},
-        data=>{_text=><<'THIS'}
+        data=>{_text=><<"THIS"}
 If there is an anchor, and some access restrictions,
 anchor is preserved after login.
 #anchor
