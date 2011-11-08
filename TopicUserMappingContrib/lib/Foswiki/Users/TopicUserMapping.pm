@@ -292,7 +292,7 @@ sub addUser {
         # They exist; their password must match
         unless ( $this->{passwords}->checkPassword( $login, $password ) ) {
             throw Error::Simple(
-                'New password did not match existing password for this user');
+                'New password did not match existing password for this user: '.$login);
         }
 
         # User exists, and the password was good.
@@ -1519,7 +1519,13 @@ sub _getListOfGroups {
         local $this->{session}->{user} = $Foswiki::cfg{SuperAdminGroup};
         #$this->{store}->changeDefaultUser($this->{session}->{user});
 
-        local undef $Foswiki::Store::singleton->{cuid};
+        #I WISHlocal undef $Foswiki::Store::singleton->{cuid};
+        #$Foswiki::Store::singleton->{cuid} = 'BaseUserMapping_333';
+        
+        #and how do i set it back?
+        #OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
+        #and then for the query impl to pass that on correctly.
+        Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
 
         $this->{session}->search->searchWeb(
             _callback => \&_collateGroups,

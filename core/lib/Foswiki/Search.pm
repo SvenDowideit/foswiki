@@ -248,7 +248,7 @@ sub searchWeb {
     ASSERT( defined $session->{webName} ) if DEBUG;
     my %params = @_;
 
-    my $baseWebObject = Foswiki::Meta->new( $session, $session->{webName} );
+    my $baseWebObject = Foswiki::Store->load( address=>{web=>$session->{webName}} );
 
     my ( $callback, $cbdata ) = setup_callback( \%params, $baseWebObject );
 

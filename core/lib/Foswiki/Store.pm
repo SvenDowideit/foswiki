@@ -112,10 +112,10 @@ sub load {
     shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
     
     #default cuid from the singleton
-    my %args = ( cuid=>$singleton->{cuid}, @_ );
+    my %args = ( 'cuid', $singleton->{cuid}, @_ );
     $args{functionname} = 'load';
     
-    #print STDERR ".cUID isa ".ref($args{cuid})." ($args{cuid}) - default (".ref($singleton->{cuid}).")\n";
+#    print STDERR ".cUID isa ".ref($args{cuid})." ($args{cuid}) - default (".ref($singleton->{cuid}).") == $singleton->{cuid}\n";
     #ASSERT(not defined($args{cuid}) or ref($args{cuid}) eq '') if DEBUG;
     #die 'here' if (ref($args{cuid}) ne '');
     
@@ -180,8 +180,9 @@ sub load {
         }
 
         #throw Error::Simple('Cannot load: '.$args{address}->stringify())
-        die 'cant load '.$args{address}->getPath()
-          unless ( defined($result) );
+        unless ( defined($result) ) {
+            die 'cant load '.$args{address}->getPath()
+        }
       }
 
     if (ref($result) eq 'Foswiki::Meta') {

@@ -84,8 +84,8 @@ sub setup_new_session() {
     $this->{session}->finish();
     $this->{session} = new Foswiki( undef, $query );
     $this->{test_topicObject} =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store->load( address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}} );
 }
 
 sub set_up_user {
@@ -223,14 +223,14 @@ sub std_tests {
 
     #test that all 4 raw internal values are ok cUIDs
     my $nob =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'CuidWithMappers' );
+      Foswiki::Store->create( address=>{web=>$this->{test_web},
+        topic=>'CuidWithMappersNEW'} );
     my $info = $nob->getRevisionInfo();
     $this->assert_not_null( $info->{author} );
 
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web},
-        'CuidWithMappers' );
+      Foswiki::Store->load( address=>{web=>$this->{test_web},
+        topic=>'CuidWithMappers'} );
 
     my $topicinfo = $meta->get('TOPICINFO');
     $this->assert_not_null( $topicinfo->{author} );
@@ -355,7 +355,7 @@ sub verify_BaseMapping_handleUser {
 __END__
 Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 
-Copyright (C) 2008-2010 Foswiki Contributors. Foswiki Contributors
+Copyright (C) 2008-2011 Foswiki Contributors. Foswiki Contributors
 are listed in the AUTHORS file in the root of this distribution.
 NOTE: Please extend that file, not this notice.
 

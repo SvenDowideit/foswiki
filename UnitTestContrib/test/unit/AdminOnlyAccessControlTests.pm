@@ -43,13 +43,15 @@ my $MrYellow;
 
 sub set_up {
     my $this = shift;
-    $this->SUPER::set_up();
 
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session},
-        $Foswiki::cfg{UsersWebName},
-        $Foswiki::cfg{DefaultUserWikiName}, ''
-    );
+    $this->SUPER::set_up();
+    
+    my $topicObject = Foswiki::Store->create(
+            address=>{
+                    web=>$Foswiki::cfg{UsersWebName},
+                    topic=>$Foswiki::cfg{DefaultUserWikiName}
+                    },
+            data=>{_text=>''});
     $topicObject->save();
     $this->registerUser( 'white', 'Mr', "White", 'white@example.com' );
     $MrWhite = $this->{session}->{users}->getCanonicalUserID('white');
@@ -63,8 +65,8 @@ sub set_up {
     $MrYellow = $this->{session}->{users}->getCanonicalUserID('yellow');
 
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        "ReservoirDogsGroup", <<"THIS");
+      Foswiki::Store->create( address=>{web=>$this->{users_web},
+        topic=>"ReservoirDogsGroup"}, data=>{_text=><<"THIS"});
    * Set GROUP = MrWhite, $this->{users_web}.MrBlue
 THIS
     $topicObject->save();
