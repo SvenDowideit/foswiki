@@ -135,7 +135,7 @@ sub finish {
 # Get a backend object corresponding to the given $web,$topic
 sub _getBackend {
     my $this       = shift;
-    return undef unless (Foswiki::Store::exists(address=>{web=>$_[0], topic=>$_[1]}));
+    return undef unless (Foswiki::Store::exists(cuid=> 'BaseUserMapping_333', address=>{web=>$_[0], topic=>$_[1]}));
     my $metaObject = Foswiki::Store::load(cuid=> 'BaseUserMapping_333', address=>{web=>$_[0], topic=>$_[1]});
     my $path = $metaObject->getPath();
     unless ( exists $this->{paths}{$path} ) {
