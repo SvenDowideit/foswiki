@@ -603,6 +603,13 @@ sub eachGroupMember {
 
     #    print STDERR "eachGroupMember called for $group - expand $expand \n";
 
+    #and how do i set it back?
+    #OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
+    #and then for the query impl to pass that on correctly.
+    Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
+
+    
+    
     if ( !$expand && defined( $this->{singleGroupMembers}->{$group} ) ) {
 
         #        print STDERR "Returning cached unexpanded list for $group\n";
