@@ -45,7 +45,7 @@ sub buildNewTopic {
 
     # Prevent creating a topic in a web without change access
     unless ($topicExists) {
-        my $webObject = Foswiki::Meta->new( $session, $topicObject->web );
+        my $webObject = Foswiki::Store->load( address=>{web=>$topicObject->web} );
         Foswiki::UI::checkAccess( $session, 'CHANGE', $webObject );
     }
 
@@ -131,7 +131,7 @@ sub buildNewTopic {
         }
 
         # Initialise new topic from template topic
-        $ttom = Foswiki::Meta->load( $session, $templateWeb, $templateTopic );
+        $ttom = Foswiki::Store->load( address=>{web=>$templateWeb, topic=>$templateTopic} );
         Foswiki::UI::checkAccess( $session, 'VIEW', $ttom );
 
         $text = $ttom->text();
@@ -372,7 +372,7 @@ sub expandAUTOINC {
     if ( $topic =~ /X{10}/ ) {
         my $n           = 0;
         my $baseTopic   = $topic;
-        my $topicObject = Foswiki::Meta->new( $session, $web, $baseTopic );
+        my $topicObject = Foswiki::Store->create( address=>{web=>$web, topic=>$baseTopic} );
         $topicObject->clearLease();
         do {
             $topic = $baseTopic;
@@ -388,9 +388,9 @@ sub expandAUTOINC {
         my $start       = $2;
         my $pad         = length($start);
         my $post        = $3;
-        my $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+        my $topicObject = Foswiki::Store->create( address=>{web=>$web, topic=>$topic} );
         $topicObject->clearLease();
-        my $webObject = Foswiki::Meta->new( $session, $web );
+        my $webObject = Foswiki::Store->load( address=>{web=>$web} );
         my $it = $webObject->eachTopic();
 
         while ( $it->hasNext() ) {

@@ -175,7 +175,7 @@ sub bulkRegister {
     Foswiki::UI::checkValidationKey($session);
 
     #-- Read the topic containing the table of people to be registered
-    my $meta = Foswiki::Meta->load( $session, $web, $topic );
+    my $meta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
 
     my @fields;
     my @data;
@@ -228,7 +228,7 @@ sub bulkRegister {
     ( $logWeb, $logTopic ) = $session->normalizeWebTopicName( '', $logTopic );
 
     #-- Save the LogFile as designated, link back to the source topic
-    $meta = Foswiki::Meta->new( $session, $logWeb, $logTopic, $log );
+    $meta = Foswiki::Store->create( address=>{web=>$logWeb, topic=>$logTopic}, data=>{_text=>$log} );
     unless ( $meta->haveAccess('CHANGE') ) {
         throw Foswiki::AccessControlException( 'CHANGE', $session->{user},
             $logWeb, $logTopic, $Foswiki::Meta::reason );
@@ -1216,8 +1216,8 @@ sub _buildConfirmationEmail {
     $templateText =~ s/%WIKINAME%/$data->{WikiName}/go;
     $templateText =~ s/%EMAILADDRESS%/$data->{Email}/go;
 
-    my $topicObject = Foswiki::Meta->new( $session, $Foswiki::cfg{UsersWebName},
-        $data->{WikiName} );
+    my $topicObject = Foswiki::Store->load( address=>{web=>$Foswiki::cfg{UsersWebName},
+        topic=>$data->{WikiName}} );
     $templateText = $topicObject->expandMacros($templateText);
 
     #add LoginName to make it clear to new users
@@ -1444,8 +1444,8 @@ sub sendEmail {
     $text =~ s/%INTRODUCTION%/$p->{Introduction}/go;
     $text =~ s/%VERIFICATIONCODE%/$p->{VerificationCode}/go;
     $text =~ s/%PASSWORD%/$p->{PasswordA}/go;
-    my $topicObject = Foswiki::Meta->new( $session, $Foswiki::cfg{UsersWebName},
-        $p->{WikiName} );
+    my $topicObject = Foswiki::Store->load( address=>{web=>$Foswiki::cfg{UsersWebName},
+        topic=>$p->{WikiName}} );
     $text = $topicObject->expandMacros($text);
 
     return $session->net->sendEmail($text);

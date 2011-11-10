@@ -181,6 +181,7 @@ sub load {
 
         #throw Error::Simple('Cannot load: '.$args{address}->stringify())
         unless ( defined($result) ) {
+            #HOW TO FIND OUT WHY?
             die 'cant load '.$args{address}->getPath()
         }
       }

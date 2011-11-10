@@ -1863,7 +1863,8 @@ sub setTopicEditLock {
         Foswiki::Store->setLease( address=>{web=>$web, topic=>$topic}, length=>$Foswiki::cfg{LeaseLength} );
     }
     else {
-        Foswiki::Store->clearLease( address=>{web=>$web, topic=>$topic} );
+        #clear the lease
+        Foswiki::Store->setLease( address=>{web=>$web, topic=>$topic} );
     }
     return '';
 }
@@ -2426,7 +2427,9 @@ sub expandCommonVariables {
         $web   || $Foswiki::Plugins::SESSION->{webName},
         $topic || $Foswiki::Plugins::SESSION->{topicName}
     );
-    $meta ||= Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    #SMELL: it seems that there is a legacy assumption that we cna render using WebHome even if it does not exist.
+    #this _might_ be a 1.1 artifact, but SD doubts it.
+    $meta ||= Foswiki::Store->load( create=>1, address=>{web=>$web, topic=>$topic} );
 
     return $meta->expandMacros($text);
 }

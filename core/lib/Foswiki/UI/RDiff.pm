@@ -471,7 +471,7 @@ sub diff {
     Foswiki::UI::checkWebExists( $session, $web, 'diff' );
     Foswiki::UI::checkTopicExists( $session, $web, $topic, 'diff' );
 
-    my $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+    my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic });
 
     my $renderStyle =
          $query->param('render')
@@ -556,16 +556,16 @@ sub diff {
 
         # Load the revs being diffed
         $toms{$rHigh} =
-          Foswiki::Meta->load( $session, $topicObject->web, $topicObject->topic,
-            $rHigh )
+          Foswiki::Store->load( address=>{web=>$topicObject->web, topic=>$topicObject->topic,
+            rev=>$rHigh })
           unless $toms{$rHigh};
         ASSERT(
             $toms{$rHigh}->getLoadedRev() == $rHigh,
             $toms{$rHigh}->getLoadedRev() . " == $rHigh"
         ) if DEBUG;
         $toms{$rLow} =
-          Foswiki::Meta->load( $session, $topicObject->web, $topicObject->topic,
-            $rLow )
+          Foswiki::Store->load( address=>{web=>$topicObject->web, topic=>$topicObject->topic,
+            rev=>$rLow })
           unless $toms{$rLow};
         ASSERT(
             $toms{$rLow}->getLoadedRev() == $rLow,

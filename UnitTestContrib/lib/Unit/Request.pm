@@ -27,6 +27,10 @@ sub new {
             }
         }
     }
+
+    # it seems that Unit::Request will contain ?param=asd, and it then causes below to go boom.
+    ASSERT(not($this->{path_info} =~ /[?#\/]/)) if DEBUG;
+
     return $this;
 }
 

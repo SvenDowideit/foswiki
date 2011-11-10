@@ -86,6 +86,9 @@ sub new {
     elsif ( ref($initializer) && UNIVERSAL::isa( $initializer, 'GLOB' ) ) {
         $this->load($initializer);
     }
+    # it seems that Unit::Request will contain ?param=asd, and it then causes below to go boom.
+    ASSERT(not($this->{path_info} =~ /[?#\/]/)) if DEBUG;
+
     return $this;
 }
 
@@ -746,6 +749,38 @@ Convenience method to get Referer uri.
 =cut
 
 sub referer { shift->header('Referer') }
+
+sub setUrl {
+    my ( $this, $queryString ) = @_;
+
+    #print STDERR "---- setUrl($queryString)\n";
+
+    my $path      = $queryString;
+    my $urlParams = '';
+    if ( $queryString =~ /(.*)\?(.*)/ ) {
+        $path      = $1;
+        $urlParams = $2;
+    }
+
+    my @pairs = split /[&;]/, $urlParams;
+    my ( $param, $value, %params, @plist );
+    foreach (@pairs) {
+        ( $param, $value ) =
+          map { tr/+/ /; s/%([0-9a-fA-F]{2})/chr(hex($1))/oge; $_ }
+          split '=', $_, 2;
+        push @{ $params{$param} }, $value;
+        push @plist, $param;
+    }
+    foreach my $param (@plist) {
+        $this->queryParam( $param, $params{$param} );
+
+        #print STDERR "\t setting $param, ".join(',', @{$params{$param}})."\n";
+    }
+    $this->path_info( Foswiki::Sandbox::untaintUnchecked($path) );
+
+    #print STDERR "pathinfo = $path\n";
+}
+
 
 1;
 __END__

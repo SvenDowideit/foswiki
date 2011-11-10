@@ -68,7 +68,7 @@ sub init_edit {
 
     Foswiki::UI::checkWebExists( $session, $web, 'edit' );
 
-    my $topicObject = Foswiki::Meta->load( $session, $web, $topic );
+    my $topicObject = Foswiki::Store->load( create=>1, address=>{web=>$web, topic=>$topic} );
     my $extraLog    = '';
     my $topicExists = $session->topicExists( $web, $topic );
 
@@ -207,7 +207,7 @@ sub init_edit {
         # Load $topicObject with the right revision
         $topicObject->unload();
         $topicObject->finish();
-        $topicObject = Foswiki::Meta->load( $session, $web, $topic, $revision );
+        $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic, rev=>$revision} );
     }
 
     my $templateWeb = $web;
@@ -265,7 +265,7 @@ sub init_edit {
         $tmpl =~ s/%NEWTOPIC%/1/;
 
         my $ttom =
-          Foswiki::Meta->load( $session, $templateWeb, $templateTopic );
+          Foswiki::Store->load( address=>{web=>$templateWeb, topic=>$templateTopic} );
         Foswiki::UI::checkAccess( $session, 'VIEW', $ttom );
         $templateTopic = $templateWeb . '.' . $templateTopic;
 
@@ -350,7 +350,7 @@ sub init_edit {
         # works by allowing an edit of the embedded store form of
         # the topic, which is then saved over the previous
         # top revision.
-        my $basemeta = Foswiki::Meta->load( $session, $web, $topic );
+        my $basemeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
 
         # No need to check permissions; we are admin if we got here.
         $topicObject->text( $basemeta->getEmbeddedStoreForm() );
@@ -373,7 +373,7 @@ sub init_edit {
     # reloads it. This can happen if certain macros are present, and
     # will damage the object.
     my $tmplObject =
-      Foswiki::Meta->new( $session, $topicObject->web, $topicObject->topic );
+      Foswiki::Store->create( address=>{web=>$topicObject->web, topic=>$topicObject->topic} );
     $tmplObject->copyFrom($topicObject);
 
     $tmpl = $tmplObject->expandMacros($tmpl);
@@ -420,7 +420,7 @@ sub init_edit {
         }
     }
     else {
-        my $webObject = Foswiki::Meta->new( $session, $web );
+        my $webObject = Foswiki::Store->load( address=>{web=>$web} );
         my @forms = Foswiki::Form::getAvailableForms($topicObject);
         if ( scalar(@forms) ) {
             $formText = $session->templates->readTemplate('addform');

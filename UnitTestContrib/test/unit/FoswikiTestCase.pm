@@ -425,7 +425,9 @@ sub getUIFn {
 
 cleans up the existing Foswiki object, and creates a new one
 
-params are passed directly to the new Foswiki() call
+params are passed directly to the new Foswiki() call:
+   1 loginname - defaults to undef
+   2 query object (defaults to a new query object path to )
 
 typically called to force a full re-initialisation either with new preferences, topics, users, groups or CFG
 
@@ -435,9 +437,17 @@ __DO NOT CALL session->finish() yourself__
 
 sub createNewFoswikiSession {
     my $this = shift;
+    my $login = shift;
+    my $query = shift;
     
     $this->{session}->finish();
-    $this->{session} = new Foswiki(@_ );
+
+    if (not defined($query)) {
+        $query = new Unit::Request("");
+        $query->path_info("/$this->{test_web}/$this->{test_topic}");
+    }
+    
+    $this->{session} = new Foswiki($login, $query, @_ );
     $Foswiki::Plugins::SESSION = $this->{session};
     
     return $this->{session};

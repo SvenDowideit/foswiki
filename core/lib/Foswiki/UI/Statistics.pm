@@ -361,7 +361,7 @@ sub _processWeb {
 
     # DEBUG
     # $statsTopic = 'TestStatistics';		# Create this by hand
-    my $meta = Foswiki::Meta->load( $session, $web, $statsTopic );
+    my $meta = Foswiki::Store->load( address=>{web=>$web, topic=>$statsTopic} );
     Foswiki::UI::checkAccess( $session, 'CHANGE', $meta );
     my @lines = split( /\r?\n/, $meta->text );
     my $statLine;

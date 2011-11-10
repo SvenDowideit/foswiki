@@ -42,7 +42,7 @@ sub attach {
     Foswiki::UI::checkWebExists( $session, $web,, 'attach' );
     Foswiki::UI::checkTopicExists( $session, $web, $topic, 'upload files to' );
 
-    my $topicObject = Foswiki::Meta->load( $session, $web, $topic );
+    my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     Foswiki::UI::checkAccess( $session, 'VIEW',   $topicObject );
     Foswiki::UI::checkAccess( $session, 'CHANGE', $topicObject );
 

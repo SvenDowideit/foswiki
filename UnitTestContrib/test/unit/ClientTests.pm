@@ -26,9 +26,9 @@ sub set_up {
     $this->SUPER::set_up();
     $EDIT_UI_FN ||= $this->getUIFn('edit');
     $VIEW_UI_FN ||= $this->getUIFn('view');
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session},    $this->{test_web},
-        $this->{test_topic}, <<CONSTRAINT);
+    my $topicObject = Foswiki::Store->load(
+        address=>{web=>$this->{test_web},
+        topic=>$this->{test_topic}}, data=>{_text=><<CONSTRAINT});
    * Set ALLOWTOPICCHANGE = AdminGroup
 CONSTRAINT
     $topicObject->save();
@@ -117,11 +117,7 @@ sub verify_edit {
     my ( $query, $text );
 
     #close this Foswiki session - its using the wrong mapper and login
-    $this->{session}->finish();
-
-    $query = new Unit::Request();
-    $query->path_info("/$this->{test_web}/$this->{test_topic}");
-    $this->{session} = new Foswiki( undef, $query );
+    $this->createNewFoswikiSession();
 
     $this->set_up_user();
     try {
@@ -134,10 +130,10 @@ sub verify_edit {
         $this->assert( 0, shift->stringify() );
     };
 
-    $query = new Unit::Request();
-    $query->path_info("/$this->{test_web}/$this->{test_topic}?breaklock=1");
     $this->{session}->finish();
-
+    $query = new Unit::Request();
+    #$query->setUrl("/$this->{test_web}/$this->{test_topic}?breaklock=1");
+    $query->setUrl("/$this->{test_web}/WebHome?breaklock=1");
     $this->{session} = new Foswiki( undef, $query );
 
     try {
@@ -155,13 +151,8 @@ sub verify_edit {
         }
     };
 
-    $query = new Unit::Request();
-    $query->path_info("/$this->{test_web}/$this->{test_topic}");
-    $this->{session}->finish();
-
     $this->annotate("new session using $userLogin\n");
-
-    $this->{session} = new Foswiki( $userLogin, $query );
+    $this->createNewFoswikiSession($userLogin);
 
 #clear the lease - one of the previous tests may have different usermapper & thus different user
     Foswiki::Func::setTopicEditLock( $this->{test_web}, $this->{test_topic},
