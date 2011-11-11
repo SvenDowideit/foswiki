@@ -73,7 +73,7 @@ important *not* to write new data directly into the structure, but *always*
 to go through the methods exported from here.
 
 As required by the contract with Foswiki::Store, version numbers are required
-to be positive, non-zero integers. When passing in version numbers, 0, 
+to be positive, non-zero integers. When passing in version numbers, 0,
 undef and '' are treated as referring to the *latest* (most recent)
 revision of the object. Version numbers are required to increase (later
 version numbers are greater than earlier) but are *not* required to be
@@ -360,7 +360,7 @@ die 'no';
 
     ASSERT(( caller(0) )[3] eq 'load') if DEBUG;
     #die 'asdf';
-    
+
 
     my $this = (ref($class) || $class)->SUPER::new( web=>$web, topic=>$topic );
 #    my $this = bless(
@@ -430,10 +430,10 @@ sub new {
 
     #ASSERT(( caller(0) )[3] eq 'load') if DEBUG;
     #die 'asdf';
-    
+
 
     #my $this = (ref($class) || $class)->SUPER::new( web=>$web, topic=>$topic );
-    
+
     my $metaObject = Foswiki::Store::load(address=>{web=>$web, topic=>$topic});
     return $metaObject;
 }
@@ -445,21 +445,21 @@ sub NEWnew {
     #die Dumper(\@_) unless (defined($_[2]));
     die Dumper(\@_) unless ($#_ %2);
     my %args = @_;
-    
+
     #copy the Foswiki::Address obj (which by this time it is :/)
     my $this = (ref($class) || $class)->SUPER::new( $args{address} );
     #TODO: fix the Foswiki::Address constructor to allow inheritance
     #TODO: should only copy the keys that are registered data
     #@{$this}{keys(%{$args{data}})} = values(%{$args{data}}) if (defined($args{data}));
-    
+
     if (defined($args{data}))
     {
         #TODO: temporarily using the _indicies to validate the ::Store changes first
         foreach my $type (keys(%{$args{data}})) {
             next unless ($VALIDATE{$type}); #only put registered types
             my $key_array_ref = $args{data}->{$type};
-            
-            
+
+
             foreach my $keys (@$key_array_ref) {
                 if ( $this->isValidEmbedding( $type, $keys ) ) {
                     if ( defined( $keys->{name} ) ) {
@@ -479,21 +479,21 @@ sub NEWnew {
         }
         $this->{_text} = $args{data}->{_text};
     }
-    
+
     #TODO: er, this is dumb.
     #TODO: don't really want to have to touch the rcs to find out if a requested rev == top rev
     $this->{_latestIsLoaded} = 1 unless (defined($args{address}->{rev}));
     $this->{_loadedRev} = $this->{TOPICINFO}->[0]->{version} if (defined($this->{TOPICINFO}));
-    
+
     #TODO: remove this.
     #$this->{_session} = $Foswiki::Plugins::SESSION;
     # Index keyed on top level type mapping entry names to their
     # index within the data array.
     #$this->{_indices} = undef;
     #$this->{FILEATTACHMENT} = [];
-    
+
     print STDERR "-complete NEWnew --- = ".Dumper($this)."\n" if MONITOR;
-    
+
     return $this;
 }
 
@@ -510,7 +510,7 @@ named web/topic.
 
 This method is functionally identical to:
 <verbatim>
-$this = Foswiki::Meta->new( $session, $web, $topic );
+$this = Foswiki::Store->create( address=>{web=>$web, topic=>$topic });
 $this->loadVersion( $rev );
 </verbatim>
 
@@ -944,11 +944,11 @@ s/($Foswiki::regex{setRegex}$key\s*=).*?$/$1 $opts->{$key}/gm
 ---++ StaticMethod query($query, $inputTopicSet, \%options) -> $outputTopicSet
 
 Search for topic information
-=$query= must be a =Foswiki::*::Node= object. 
+=$query= must be a =Foswiki::*::Node= object.
 
    * $inputTopicSet is a reference to an iterator containing a list
      of topic in this web, if set to undef, the search/query algo will
-     create a new iterator using eachTopic() 
+     create a new iterator using eachTopic()
      and the web, topic and excludetopics options (as per SEARCH)
    * web option - The web/s to search in - string can have the same form
      as the =web= param of SEARCH
@@ -1064,9 +1064,9 @@ Be warned - it can return undef - when a topic exists but has no topicText.
 
 sub text {
     my ( $this, $val ) = @_;
-    
+
     use Data::Dumper;
-   
+
     ASSERT( $this->{web} && $this->{topic}, 'this ('.Dumper($this).') is not a topic object' )
       if DEBUG;
     if ( defined($val) ) {
@@ -1350,12 +1350,12 @@ sub copyFrom {
     if ($type) {
         return if $type =~ /^_/;
         my @data;
-        
+
         #HACK. DELETE and replace with serialise only registered tpes?
         return unless (ref($other->{$type}) eq 'ARRAY');    #data from Foswiki::Address
         return if ($type eq 'webpath');
 
-        
+
         foreach my $item ( @{ $other->{$type} } ) {
             if ( !$filter
                 || ( $item->{name} && $item->{name} =~ /$filter/ ) )
@@ -2294,14 +2294,14 @@ sub getLoadedRev {
 Use with great care! Removes all trace of the given web, topic
 or attachment from the store, possibly including all its history.
 
-Also does not ensure consistency of the store 
+Also does not ensure consistency of the store
 (for eg, if you delete an attachment, it does not update the intopic META)
 
 =cut
 
 sub DELETE_USE_STORE_DIRECTLYremoveFromStore {
     my ( $this, $attachment ) = @_;
-    
+
     ASSERT( $this->{web}, 'this is not a removable object' ) if DEBUG;
 
     if ( !Foswiki::Store->exists(address=> {web=>$this->{web}}  )) {
@@ -2518,7 +2518,7 @@ sub getAttachmentRevisionInfo {
       * =author= - Optional. cUID of author of change. Defaults to current.
       * =notopicchange= - Optional. if the topic is *not* to be modified.
         This may result in incorrect meta-data stored in the topic, so must
-        be used with care. Only has a meaning if the store implementation 
+        be used with care. Only has a meaning if the store implementation
         stores meta-data in topics.
 
 Saves a new revision of the attachment, invoking plugin handlers as
@@ -2886,7 +2886,7 @@ sub moveAttachment {
 
     $Foswiki::Plugins::SESSION->logEvent(
         'move',
-        $this->getPath() . '.' 
+        $this->getPath() . '.'
           . $name
           . ' moved to '
           . $to->getPath() . '.'
@@ -2966,7 +2966,7 @@ sub copyAttachment {
 
     $Foswiki::Plugins::SESSION->logEvent(
         'copy',
-        $this->getPath() . '.' 
+        $this->getPath() . '.'
           . $name
           . ' copied to '
           . $to->getPath() . '.'
@@ -3043,10 +3043,10 @@ The =\%searchOptions= hash may contain the following options:
    * =casesensitive= - false to ignore case (default true)
    * =wordboundaries= - if type is 'keyword'
    * =tokens= - array ref of search tokens
-   
+
 TODO: should this really be in Meta? it seems like a rendering issue to me.
 
-   
+
 =cut
 
 sub summariseText {
@@ -3143,7 +3143,7 @@ The =\%searchOptions= hash may contain the following options:
    * =casesensitive= - false to ignore case (default true)
    * =wordboundaries= - if type is 'keyword'
    * =tokens= - array ref of search tokens
-   
+
 =cut
 
 sub _summariseTextWithSearchContext {
@@ -3276,12 +3276,12 @@ sub summariseChanges {
     #print "SSSSSS ntext\n($ntext)\nSSSSSS\n\n";
 
     my $oldTopicObject =
-      Foswiki::Meta->load( $session, $this->web, $this->topic, $orev );
+      Foswiki::Store->load( address=>{web=>$this->web, topic=>$this->topic, rev=>$orev });
     unless ( $oldTopicObject->haveAccess('VIEW') ) {
 
         # No access to old rev, make a blank topic object
         $oldTopicObject =
-          Foswiki::Meta->new( $session, $this->web, $this->topic, '' );
+          Foswiki::Store->create( address=>{web=>$this->web, topic=>$this->topic}, data=>{_text=>'' });
     }
 
     my $ostring = $oldTopicObject->stringify();
@@ -3369,7 +3369,7 @@ stored in the meta is taken as the topic text.
 TODO: Soooo.... if we wanted to make a meta->setPreference('VARIABLE', 'Values...'); we would have to change this to
    1 see if that preference is set in the {_text} using the    * Set syntax, in which case, replace that
    2 or let the META::PREF.. work as it does now..
-   
+
 yay :/
 
 TODO: can we move this code into Foswiki::Serialise ?

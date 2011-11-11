@@ -280,7 +280,7 @@ sub login {
         ERROR     => $error
     );
 
-    my $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+    my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
     $tmpl = $topicObject->expandMacros($tmpl);
     $tmpl = $topicObject->renderTML($tmpl);
     $tmpl =~ s/<nop>//g;

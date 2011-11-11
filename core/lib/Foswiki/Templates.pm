@@ -203,11 +203,11 @@ Reads a template, loading the definitions therein.
 
 Return value: expanded template text
 
-By default throws an OopsException if the template was not found or the 
+By default throws an OopsException if the template was not found or the
 access controls denied access.
 
 %options include:
-   * =skin= - skin name, 
+   * =skin= - skin name,
    * =web= - web to search
    * =no_oops= - if true, will not throw an exception. Instead, returns undef.
 
@@ -368,7 +368,7 @@ sub _readTemplateFile {
         # to explicit include that topic. No further searching required.
         if ( $session->topicExists( $userdirweb, $userdirname ) ) {
             my $meta =
-              Foswiki::Meta->load( $session, $userdirweb, $userdirname );
+              Foswiki::Store->load( address=>{web=>$userdirweb, topic=>$userdirname} );
 
             # Check we are allowed access
             unless ( $meta->haveAccess( 'VIEW', $session->{user} ) ) {
@@ -379,7 +379,7 @@ sub _readTemplateFile {
             $text = '' unless defined $text;
 
             $text =
-                "<!--$userdirweb/$userdirname-->" 
+                "<!--$userdirweb/$userdirname-->"
               . $text
               . "<!--/$userdirweb/$userdirname-->"
               if (TRACE);
@@ -504,7 +504,7 @@ sub _readTemplateFile {
                   1;
 
                 # access control
-                my $meta = Foswiki::Meta->load( $session, $web1, $name1 );
+                my $meta = Foswiki::Store->load( address=>{web=>$web1, topic=>$name1} );
                 next unless $meta->haveAccess( 'VIEW', $session->{user} );
 
                 my $text = $meta->text();

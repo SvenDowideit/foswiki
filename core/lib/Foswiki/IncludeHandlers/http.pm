@@ -37,7 +37,7 @@ sub INCLUDE {
         # FIXME: Check for MIME type, not file suffix
         if ( $incAtt =~ m/\.(txt|html?)$/i ) {
             my $topicObject =
-              Foswiki::Meta->new( $session, $incWeb, $incTopic );
+              Foswiki::Store->load( address=>{web=>$incWeb, topic=>$incTopic} );
             unless ( $topicObject->hasAttachment($incAtt) ) {
                 return $session->_includeWarning( $control->{warn},
                     'bad_attachment', $url );

@@ -316,7 +316,7 @@ save the topic.
       * =USELOCAL => 1= Use local archives if found (Used by shell installations)
       * =EXPANDED => 1= Archive file has already been expanded - preventing any downloads - for unit tests
       * =NODEPS   => 1= Don't install any dependents
-      * =SIMULATE => 1= Don't actually install, just report expected results.  No logs are written. 
+      * =SIMULATE => 1= Don't actually install, just report expected results.  No logs are written.
 
 
 =cut
@@ -437,7 +437,7 @@ sub install {
 
 ---++ ObjectMethod install()
 
-Install files listed in the manifest.  
+Install files listed in the manifest.
 
 =cut
 
@@ -574,8 +574,8 @@ sub _install {
                     if ($contents) {
                         $feedback .=
                           "${simulated}Checked in: $file  as $tweb.$ttopic\n";
-                        my $meta = Foswiki::Meta->new( $session, $tweb, $ttopic,
-                            $contents );
+                        my $meta = Foswiki::Store->create( address=>{web=>$tweb, topic=>$ttopic,
+                            data=>{_text=>$contents });
 
                         ( my $afdbk, $err ) =
                           _installAttachments( $this, $dir, "$web/$topic",

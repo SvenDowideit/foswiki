@@ -80,7 +80,7 @@ sub query {
     }
 
     # Fold constants
-    my $context = Foswiki::Meta->new( $session, $session->{webName} );
+    my $context = Foswiki::Store->load( address=>{web=>$session->{webName}} );
     print STDERR "--- before: " . $query->stringify() . "\n" if MONITOR;
     $query->simplify( tom => $context, data => $context );
     print STDERR "--- simplified: " . $query->stringify() . "\n" if MONITOR;
@@ -208,7 +208,7 @@ sub getWebIterator {
             # can't process what ain't thar
             return 0 unless $session->webExists($web);
 
-            my $webObject = Foswiki::Meta->new( $session, $web );
+            my $webObject = Foswiki::Store->load( address=>{web=>$web} );
             my $thisWebNoSearchAll =
               Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
 
@@ -459,7 +459,7 @@ sub getListOfWebs {
                             \&Foswiki::Sandbox::validateWebName );
                         ASSERT($web) if DEBUG;
                         push( @tmpWebs, $web );
-                        $webObject = Foswiki::Meta->new( $session, $web );
+                        $webObject = Foswiki::Store->load( address=>{web=>$web} );
                     }
                     my $it = $webObject->eachWeb(1);
                     while ( $it->hasNext() ) {
@@ -490,8 +490,7 @@ sub getListOfWebs {
             \&Foswiki::Sandbox::validateWebName );
         push( @tmpWebs, $web );
         if ( Foswiki::isTrue($recurse) ) {
-            require Foswiki::Meta;
-            my $webObject = Foswiki::Meta->new( $session, $session->{webName} );
+            my $webObject = Foswiki::Store->load( address=>{web=>$session->{webName}} );
             my $it =
               $webObject->eachWeb( $Foswiki::cfg{EnableHierarchicalWebs} );
             while ( $it->hasNext() ) {

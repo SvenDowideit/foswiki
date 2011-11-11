@@ -53,7 +53,7 @@ sub TOC {
 
             # Data for topic coming from another topic
             $params->{differentTopic} = 1;
-            $topicObject = Foswiki::Meta->load( $session, $tocWeb, $tocTopic );
+            $topicObject = Foswiki::Store->load( address=>{web=>$tocWeb, topic=>$tocTopic });
             if ( !$topicObject->haveAccess('VIEW') ) {
                 return $session->inlineAlert(
                     'alerts', 'access_denied', $tocWeb, $tocTopic );
@@ -193,7 +193,7 @@ sub TOC {
         $text =~ s/(^|[\s\-\*\(])
                    ([$Foswiki::regex{mixedAlphaNum}]+\:)/$1<nop>$2/gox;
 
-        # Prevent duplicating id attributes 
+        # Prevent duplicating id attributes
         $text =~ s/id=["'][^"']*?["']//gi;
 
         # create linked bullet item, using a relative link to anchor

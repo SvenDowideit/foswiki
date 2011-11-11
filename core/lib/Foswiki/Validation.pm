@@ -122,7 +122,7 @@ sub generateValidationKey {
       . $timeout . "\n"
       if TRACE && !defined $actions->{$action};
     $actions->{$action} = $timeout;
-    
+
     #used to store the actions in case there are more than one form..
     $cgis->param( 'VALID_ACTIONS', $actions );
 
@@ -337,7 +337,7 @@ sub validate {
         # is ever defined can be replaced by any other undefined 4xx code.
         $session->{response}->status(419);
 
-        my $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+        my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
         $tmpl = $topicObject->expandMacros($tmpl);
         $tmpl = $topicObject->renderTML($tmpl);
         $tmpl =~ s/<nop>//g;

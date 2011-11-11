@@ -260,7 +260,7 @@ sub _userReallyExists {
 
 ---++ ObjectMethod addUser ($login, $wikiname, $password, $emails) -> $cUID
 
-throws an Error::Simple 
+throws an Error::Simple
 
 Add a user to the persistant mapping that maps from usernames to wikinames
 and vice-versa. The default implementation uses a special topic called
@@ -273,7 +273,7 @@ This function must return a *canonical user id* that it uses to uniquely
 identify the user. This can be the login name, or the wikiname if they
 are all guaranteed unigue, or some other string consisting only of 7-bit
 alphanumerics and underscores.
-if you fail to create a new user (for eg your Mapper has read only access), 
+if you fail to create a new user (for eg your Mapper has read only access),
             throw Error::Simple(
                'Failed to add user: '.$ph->error());
 
@@ -608,8 +608,8 @@ sub eachGroupMember {
     #and then for the query impl to pass that on correctly.
     Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
 
-    
-    
+
+
     if ( !$expand && defined( $this->{singleGroupMembers}->{$group} ) ) {
 
         #        print STDERR "Returning cached unexpanded list for $group\n";
@@ -1319,7 +1319,7 @@ sub mapper_setEmails {
     my $user = $session->{users}->getWikiName($cUID);
 
     my $topicObject =
-      Foswiki::Meta->new( $session, $Foswiki::cfg{UsersWebName}, $user );
+      Foswiki::Store->load( address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$user} );
 
     if ( $topicObject->get('FORM') ) {
 
@@ -1528,7 +1528,7 @@ sub _getListOfGroups {
 
         #I WISHlocal undef $Foswiki::Store::singleton->{cuid};
         #$Foswiki::Store::singleton->{cuid} = 'BaseUserMapping_333';
-        
+
         #and how do i set it back?
         #OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
         #and then for the query impl to pass that on correctly.

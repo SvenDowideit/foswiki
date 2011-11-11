@@ -35,7 +35,7 @@ This will raise an exception that uses the =bathplugin.tmpl= template. If
 <verbatim>
 oops?template=bathplugin;param1=bigtoe;param2=hot%20tap
 </verbatim>
-The =bathplugin.tmpl= might contain: 
+The =bathplugin.tmpl= might contain:
 (&lt;nop> inserted to prevent translation interface from extracting these examples)
 <verbatim>
 %TMPL:INCLUDE{"oops"}%
@@ -163,7 +163,7 @@ sub stringify {
         my $message = $session->templates->expandTemplate( $this->{def} )
           || "Failed to find '$this->{def}' in 'oops$this->{template}'";
         my $topicObject =
-          Foswiki::Meta->new( $session, $this->{web}, $this->{topic} );
+          Foswiki::Store->load( address=>{web=>$this->{web}, topic=>$this->{topic}} );
         $message = $topicObject->expandMacros($message);
         my $n = 1;
         foreach my $param ( @{ $this->{params} } ) {
