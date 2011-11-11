@@ -39,7 +39,10 @@
   then="$percntFORMAT{
     \"%WEBFORMS%\"
     type=\"topic\"
-    format=\"<div><input type='radio' name='formtemplate' value='$web.$topic' id='$topic'/> <label for='$topic'><a class='foswikiLink' href='$percntSCRIPTURLPATH{view}$percnt/$web/$topic' title='$formfield(Description)'>$formfield(Type)</a></label></div>\"
+    format=\"<div><input type='radio' name='formtemplate' value='$web.$topic' id='$topic' $dollarpercntIF{
+        \\"'$index'='1'\\"
+        then=\\"checked='checked'\\"
+      }$dollarpercnt/> <label for='$topic'><a class='foswikiLink' href='$percntSCRIPTURLPATH{view}$percnt/$web/$topic' title='$formfield(Description)'>$formfield(Type)</a></label></div>\"
   }$percnt"
   else="<blockquote class='foswikiHelp'>$percntX$percnt The =WEBFORMS= [[%SYSTEMWEB%.PreferenceSettings][preference setting]] is empty or undefined. It needs to be set (probably in [[%BASEWEB%.%WEBPREFSTOPIC%][%WEBPREFSTOPIC%]]) so that bibliography records can be created. See the [[%SYSTEMWEB%.DataForms#EnablingForms][_enabling forms_ documentation]] or [[_Bibliography.%WEBPREFSTOPIC%]] for an example</blockquote>"
 }%
