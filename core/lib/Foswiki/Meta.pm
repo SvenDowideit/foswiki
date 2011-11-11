@@ -434,7 +434,7 @@ sub new {
 
     #my $this = (ref($class) || $class)->SUPER::new( web=>$web, topic=>$topic );
     
-    my $metaObject = Foswiki::Store::load(address=>{web=>$web, topic=>$topic});
+    my $metaObject = Foswiki::Store->load(address=>{web=>$web, topic=>$topic});
     return $metaObject;
 }
 

@@ -140,7 +140,7 @@ sub verify_NoHistory_NoTOPICINFO_getRevisionInfo {
     # A topic without history should be rev 1
     my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     # 3
-    my $it = $this->{session}->{store}->getRevisionHistory($meta);
+    my $it = $this->{session}->{store}->getRevisionHistory(address => $meta);
     $this->assert($it->hasNext());
     $this->assert_num_equals( 1, $it->next() );
     # 1
@@ -155,9 +155,9 @@ sub verify_NoHistory_NoTOPICINFO_getRevisionInfo {
     }
 
     # 5
-    $this->assert_num_equals(2, $this->{session}->{store}->getNextRevision($meta));
+    $this->assert_num_equals(2, $this->{session}->{store}->getNextRevision(address => $meta));
     # 17
-    my $info = $this->{session}->{store}->getVersionInfo($meta);
+    my $info = $this->{session}->{store}->getVersionInfo(address => $meta);
     # the TOPICINFO{version} should be ignored if the ,v does not exist, and the rev
     # number reverted to 1
     $this->assert_num_equals(1, $info->{version});
@@ -175,9 +175,9 @@ sub verify_NoHistory_TOPICINFO_getRevisionInfo {
     my $date = $this->_createNoHistoryTopic(1);
 
     # A topic without history should be rev 1
-    my $meta = Foswiki::Meta->load( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     # 3
-    my $it = $this->{session}->{store}->getRevisionHistory($meta);
+    my $it = $this->{session}->{store}->getRevisionHistory(address => $meta);
     $this->assert($it->hasNext());
     $this->assert_num_equals( 1, $it->next() );
     # 1
@@ -191,9 +191,9 @@ sub verify_NoHistory_TOPICINFO_getRevisionInfo {
     }
 
     # 5
-    $this->assert_num_equals(2, $this->{session}->{store}->getNextRevision($meta));
+    $this->assert_num_equals(2, $this->{session}->{store}->getNextRevision(address => $meta));
     # 17
-    my $info = $this->{session}->{store}->getVersionInfo($meta);
+    my $info = $this->{session}->{store}->getVersionInfo(address => $meta);
     # the TOPICINFO{version} should be ignored if the ,v does not exist, and the rev
     # number reverted to 1
     $this->assert_num_equals(1, $info->{version});
@@ -209,11 +209,11 @@ sub verify_InconsistentTopic_getRevisionInfo {
     my $date = $this->_createInconsistentTopic();
     my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     # 4
-    my $it = $this->{session}->{store}->getRevisionHistory($meta);
+    my $it = $this->{session}->{store}->getRevisionHistory(address => $meta);
     $this->assert($it->hasNext());
     $this->assert_num_equals( 2, $it->next() );
     # 6
-    $this->assert_num_equals(3, $this->{session}->{store}->getNextRevision($meta));
+    $this->assert_num_equals(3, $this->{session}->{store}->getNextRevision(address => $meta));
 
     # The content should come from the mauled topic
     # 2
@@ -224,7 +224,7 @@ sub verify_InconsistentTopic_getRevisionInfo {
 #    my $ti = $meta->get('TOPICINFO');
 #    $this->assert_num_equals(2, $ti->{version});
 #    $this->assert_str_equals($Foswiki::Users::BaseUserMapping::UNKNOWN_USER_CUID, $ti->{author});
-    my $info = $this->{session}->{store}->getVersionInfo($meta);
+    my $info = $this->{session}->{store}->getVersionInfo(address => $meta);
     $this->assert_num_equals(2, $info->{version});
     $this->assert_str_equals($Foswiki::Users::BaseUserMapping::UNKNOWN_USER_CUID, $info->{author});
     $this->assert_num_equals( $date, $info->{date} );
@@ -238,14 +238,14 @@ sub verify_NoHistory_implicitSave {
 
     # There's no history, but the current .txt is implicit rev 1
     my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} }); 
-    my $it = $this->{session}->{store}->getRevisionHistory($meta);
+    my $it = $this->{session}->{store}->getRevisionHistory(address => $meta);
     $this->assert($it->hasNext());
     $this->assert_num_equals( 1, $it->next() );
 
     # Save (but *don't* force) a new rev.
     $meta->text( $TEXT2 );
-    my $checkSave = $this->{session}->{store}->saveTopic(
-	$meta,  $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, { comment => "unit test" } );
+    $this->{session}->{store}->save(
+	address => $meta,  cuid => $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, comment => "unit test" );
 
     # Save of a file without an existing history should never modify Rev 1,
     # but should instead create the first revision, so rev 1 represents
@@ -264,7 +264,7 @@ sub verify_NoHistory_implicitSave {
     $this->assert_num_equals( $date, $info->{date} );
 
     # Make sure that rev 1 exists and has the original text pre-history.
-    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 1 });
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic => $this->{test_topic}, rev => 1 });
     $this->assert_matches( qr/^\s*\Q$TEXT1\E\s*$/s, $readMeta->text() );
 }
 
@@ -279,8 +279,8 @@ sub verify_Inconsistent_implicitSave {
 
     # Save (but *don't* force) a new rev. Should always create a 3.
     $meta->text( $TEXT3 );
-    my $checkSave = $this->{session}->{store}->saveTopic(
-	$meta,  $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, { comment => "unit test" } );
+    my $checkSave = $this->{session}->{store}->save(
+	address => $meta,  cuid => $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, comment => "unit test" );
 
     # Save of a file without an existing history should never modify Rev 1,
     # but should instead create the first revision, so rev 1 represents
@@ -317,8 +317,8 @@ sub verify_NoHistory_repRev {
     my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->text($TEXT2);
     # save using a different user (implicit save is done by UNKNOWN user)
-    $this->{session}->{store}->repRev( $meta, $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID );
-    my $info = $this->{session}->{store}->getVersionInfo($meta);
+    $this->{session}->{store}->repRev( address => $meta, cuid => $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID );
+    my $info = $this->{session}->{store}->getVersionInfo(address => $meta);
     $this->assert_num_equals( 1, $info->{version} );
     $this->assert_str_equals( $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, $info->{author} );
     $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
@@ -333,8 +333,8 @@ sub verify_Inconsistent_repRev {
     my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->text($TEXT3);
     # save using a different user (implicit save is done by UNKNOWN user)
-    $this->{session}->{store}->repRev( $meta, $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID );
-    my $info = $this->{session}->{store}->getVersionInfo($meta);
+    $this->{session}->{store}->repRev( address => $meta, cuid => $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID );
+    my $info = $this->{session}->{store}->getVersionInfo(address => $meta);
     $this->assert_num_equals( 2, $info->{version} );
     $this->assert_str_equals( $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID, $info->{author} );
     $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
@@ -349,8 +349,8 @@ sub verify_NoHistory_getRevisionAtTime {
     my $now = time;
 
     my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
-    $this->assert_num_equals(1, $this->{session}->{store}->getRevisionAtTime($meta, $now));
-    $this->assert_null($this->{session}->{store}->getRevisionAtTime($meta, $then-1));
+    $this->assert_num_equals(1, $this->{session}->{store}->getRevisionAtTime(address => $meta, time => $now));
+    $this->assert_null($this->{session}->{store}->getRevisionAtTime(address => $meta, time => $then-1));
 }
 
 # A pending checkin is assumed to have been created at the file modification time of the
@@ -362,9 +362,9 @@ sub verify_Inconsistent_getRevisionAtTime {
     my $date = $this->_createInconsistentTopic();
 
     my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
-    $this->assert_num_equals(2, $this->{session}->{store}->getRevisionAtTime($meta, time));
-    $this->assert_num_equals(1, $this->{session}->{store}->getRevisionAtTime($meta, $then));
-    $this->assert_null($this->{session}->{store}->getRevisionAtTime($meta, $then-1));
+    $this->assert_num_equals(2, $this->{session}->{store}->getRevisionAtTime(address => $meta, time => time));
+    $this->assert_num_equals(1, $this->{session}->{store}->getRevisionAtTime(address => $meta, time => $then));
+    $this->assert_null($this->{session}->{store}->getRevisionAtTime(address => $meta, time => $then-1));
 }
 
 # Note this test uses Foswiki::Meta because it is that module that handles the
