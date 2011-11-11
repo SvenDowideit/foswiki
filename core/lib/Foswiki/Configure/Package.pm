@@ -574,15 +574,15 @@ sub _install {
                     if ($contents) {
                         $feedback .=
                           "${simulated}Checked in: $file  as $tweb.$ttopic\n";
-                        my $meta = Foswiki::Meta->new( $session, $tweb, $ttopic,
-                            $contents );
+                        my $meta = Foswiki::Store->load( address => {web => $tweb, topic => $ttopic}, writeable => 1);
+                        $meta->text($contents );
 
                         ( my $afdbk, $err ) =
                           _installAttachments( $this, $dir, "$web/$topic",
                             "$tweb/$ttopic", $meta );
                         $feedback .= $afdbk;
                         $errors .= $err if ($err);
-                        $meta->saveAs( $tweb, $ttopic, %opts )
+                        $meta->save( %opts )
                           unless $this->{_options}->{SIMULATE};
                     }
                     next;

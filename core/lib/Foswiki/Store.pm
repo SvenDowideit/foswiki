@@ -447,6 +447,7 @@ sub copy {
 =cut
 
 sub exists {
+    ASSERT($singleton) if DEBUG;
     return template_function( 'exists', @_ );
 }
 
@@ -799,6 +800,7 @@ sub template_function {
     my $functionname = shift;
     shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
     
+    ASSERT($singleton) if DEBUG;
     # Help track down old-style calling convention
     ASSERT(!(scalar(@_) % 2 )) if DEBUG;
     #default cuid from the singleton
