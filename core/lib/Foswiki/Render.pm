@@ -1020,16 +1020,15 @@ sub renderFORMFIELD {
     # this may have been a one-off optimisation.
     my $formTopicObject = $this->{ffCache}{ $topicObject->getPath() . $rev };
     unless ($formTopicObject) {
-        $formTopicObject =
-          Foswiki::Meta->load( $this->{session}, $topicObject->web,
-            $topicObject->topic, $rev );
-        unless ( $formTopicObject->haveAccess('VIEW') ) {
+        if (Foswiki::Store->exists(address => $topicObject)) {
+          $formTopicObject = Foswiki::Store->load( address => $topicObject );
+        }
+        unless ( $formTopicObject and $formTopicObject->haveAccess('VIEW') ) {
 
             # Access violation, create dummy meta with empty text, so
             # it looks like it was already loaded.
             $formTopicObject =
-              Foswiki::Meta->new( $this->{session}, $topicObject->web,
-                $topicObject->topic, '' );
+              Foswiki::Address->new( address => $topicObject);
         }
         $this->{ffCache}{ $formTopicObject->getPath() . $rev } =
           $formTopicObject;

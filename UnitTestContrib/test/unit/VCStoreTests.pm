@@ -105,7 +105,7 @@ sub _createInconsistentTopic {
 
     $this->{test_topic} .= "Inconsistent" unless $this->{test_topic} =~ /Inconsistent/;;
 
-    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
+    my $meta = Foswiki::Store->load(create => 1, address=>{web=> $this->{test_web}, topic=> $this->{test_topic} });
     $meta->text($TEXT1);
     $meta->save(); # we should have a history now, with topic 1 as the latest rev
 
@@ -299,11 +299,11 @@ sub verify_Inconsistent_implicitSave {
     $this->assert_num_equals( $date, $info->{date} );
 
     # Make sure that previous revs exist and have the right content
-    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 1 });
-    $this->assert_matches( qr/^\s*\Q$TEXT1\E\s*/s, $readMeta->text() );
-    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 2 });
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic => $this->{test_topic}, rev => 1 });
+    $this->assert_str_equals( $TEXT1, $readMeta->text() );
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic => $this->{test_topic}, rev => 2 });
     $this->assert_matches( qr/^\s*\Q$TEXT2\E\s*/s, $readMeta->text() );
-    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 3 });
+    $readMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic => $this->{test_topic}, rev => 3 });
     $this->assert_matches( qr/^\s*\Q$TEXT3\E\s*/s, $readMeta->text() );
 }
 
@@ -395,7 +395,7 @@ sub verify_NoHistory_saveAttachment {
     $this->assert_num_equals( 2, $info->{version} );
 
     # Make sure that rev 1 exists, has the right text
-    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, $this->{test_topic}, topic=> 1 });
+    $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic => $this->{test_topic}, rev => 1 });
     $this->assert_matches( qr/^\s*\Q$TEXT1\E\s*$/s, $meta->text() );
 }
 
