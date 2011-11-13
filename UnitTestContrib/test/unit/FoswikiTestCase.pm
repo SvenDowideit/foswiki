@@ -444,6 +444,8 @@ sub createNewFoswikiSession {
 
     if (not defined($query)) {
         $query = new Unit::Request("");
+        die unless defined $this->{test_web};
+        $this->{test_topic} ||= '';
         $query->path_info("/$this->{test_web}/$this->{test_topic}");
     }
     

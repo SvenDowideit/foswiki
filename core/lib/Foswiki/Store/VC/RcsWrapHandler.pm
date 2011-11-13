@@ -106,11 +106,6 @@ sub initText {
 sub ci {
     my ( $this, $isStream, $data, $comment, $user, $date ) = @_;
 
-    #    unless ( -e $this->{rcsFile} ) {    #
-    #                                        # SMELL: what is this for?
-    #        _lock($this);
-    #        _ci( $this, $comment, $user, $date );
-    #    }
     _lock($this);
     if ($isStream) {
         $this->saveStream($data);
@@ -118,7 +113,42 @@ sub ci {
     else {
         $this->saveFile( $this->{file}, $data );
     }
-    _ci( $this, $comment, $user, $date );
+
+    $comment = 'none' unless $comment;
+
+    my ( $cmd, $rcsOutput, $exit );
+    if ( defined($date) ) {
+        require Foswiki::Time;
+        $date = Foswiki::Time::formatTime( $date, '$rcs', 'gmtime' );
+        $cmd = $Foswiki::cfg{RCS}{ciDateCmd};
+        ( $rcsOutput, $exit ) = Foswiki::Sandbox->sysCommand(
+            $cmd,
+            USERNAME => $user,
+            FILENAME => $this->{file},
+            COMMENT  => $comment,
+            DATE     => $date
+        );
+    }
+    else {
+        $cmd = $Foswiki::cfg{RCS}{ciCmd};
+        ( $rcsOutput, $exit ) = Foswiki::Sandbox->sysCommand(
+            $cmd,
+            USERNAME => $user,
+            FILENAME => $this->{file},
+            COMMENT  => $comment
+        );
+    }
+    $rcsOutput ||= '';
+
+    if ($exit) {
+        throw Error::Simple( $cmd . ' of '
+              . $this->hidePath( $this->{file} )
+              . ' failed: '
+              . $exit . ' '
+              . $rcsOutput );
+    }
+
+    chmod( $Foswiki::cfg{RCS}{filePermission}, $this->{file} );
 }
 
 # implements VC::Handler
@@ -173,6 +203,10 @@ sub _deleteRevision {
     my ( $rcsOut, $exit ) =
       Foswiki::Sandbox->sysCommand( $Foswiki::cfg{RCS}{unlockCmd},
         FILENAME => $this->{file} );
+    if ( $exit ) {
+	throw Error::Simple( $Foswiki::cfg{RCS}{unlockCmd} . ' failed: '
+			     . $rcsOut );
+    }
 
     chmod( $Foswiki::cfg{RCS}{filePermission}, $this->{file} );
 
@@ -241,9 +275,13 @@ sub getRevision {
         $tmpRevFile = $tmpfile . ',v';
         require File::Copy;
         File::Copy::copy( $this->{rcsFile}, $tmpRevFile );
-        my ( $tmp, $status ) =
+        my ( $rcsOutput, $status ) =
           Foswiki::Sandbox->sysCommand( $Foswiki::cfg{RCS}{tmpBinaryCmd},
             FILENAME => $tmpRevFile );
+	if ($status) {
+	    throw Error::Simple( $Foswiki::cfg{RCS}{tmpBinaryCmd} . ' failed: '
+              . $rcsOutput );
+	}
         $file = $tmpfile;
         $coCmd =~ s/-p%REVISION/-r%REVISION/;
     }
@@ -444,46 +482,6 @@ sub parseRevisionDiff {
         }
     }
     return \@diffArray;
-}
-
-sub _ci {
-    my ( $this, $comment, $user, $date ) = @_;
-
-    $comment = 'none' unless $comment;
-
-    my ( $cmd, $rcsOutput, $exit );
-    if ( defined($date) ) {
-        require Foswiki::Time;
-        $date = Foswiki::Time::formatTime( $date, '$rcs', 'gmtime' );
-        $cmd = $Foswiki::cfg{RCS}{ciDateCmd};
-        ( $rcsOutput, $exit ) = Foswiki::Sandbox->sysCommand(
-            $cmd,
-            USERNAME => $user,
-            FILENAME => $this->{file},
-            COMMENT  => $comment,
-            DATE     => $date
-        );
-    }
-    else {
-        $cmd = $Foswiki::cfg{RCS}{ciCmd};
-        ( $rcsOutput, $exit ) = Foswiki::Sandbox->sysCommand(
-            $cmd,
-            USERNAME => $user,
-            FILENAME => $this->{file},
-            COMMENT  => $comment
-        );
-    }
-    $rcsOutput ||= '';
-
-    if ($exit) {
-        throw Error::Simple( $cmd . ' of '
-              . $this->hidePath( $this->{file} )
-              . ' failed: '
-              . $exit . ' '
-              . $rcsOutput );
-    }
-
-    chmod( $Foswiki::cfg{RCS}{filePermission}, $this->{file} );
 }
 
 sub _lock {

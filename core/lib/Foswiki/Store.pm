@@ -447,6 +447,7 @@ sub copy {
 =cut
 
 sub exists {
+    ASSERT($singleton) if DEBUG;
     return template_function( 'exists', @_ );
 }
 
@@ -799,6 +800,9 @@ sub template_function {
     my $functionname = shift;
     shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
     
+    ASSERT($singleton) if DEBUG;
+    # Help track down old-style calling convention
+    ASSERT(!(scalar(@_) % 2 )) if DEBUG;
     #default cuid from the singleton
     my %args = ( cuid=>$singleton->{cuid}, @_ );
     
@@ -866,13 +870,14 @@ sub template_function {
                     ($functionname eq 'eachWeb') or
                     ($functionname eq 'eachTopic') or
                     ($functionname eq 'eachAttachment') or
+                    ($functionname eq 'getRevisionAtTime') or
                     1==0
                     ) {
             #use Data::Dumper;
             #print STDERR "-$functionname => ".(defined($result)?Dumper($result):'undef')."\n";
             return $result ;
         }
-        throw DoesNotExist(%args)
+        throw Error::Simple("No such method '$functionname' accessing " . $args{address}->stringify())
           unless ( defined($result) );
       }
 

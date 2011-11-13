@@ -226,6 +226,7 @@ sub typehandler_kml {
         $strategy = ", new OpenLayers.Strategy.Cluster()";
     } else {
         $clustering = 'false';
+        $strategy = '';
     }
     
     if ($clustering eq 'true') {
@@ -650,12 +651,12 @@ HERE
 
         push @scriptVariable, <<"HERE";
 
+    //var viewportcorner = new OpenLayers.LonLat($mapViewPort);
     var proj = new OpenLayers.Projection("EPSG:4326");
-    if (map.isValidLonLat($mapViewPort) && $mapViewPortZoom) {
+    if (map.isValidLonLat(new OpenLayers.LonLat($mapViewPort)) && $mapViewPortZoom) {
         var point = new OpenLayers.LonLat($mapViewPort);
         point.transform(proj, map.getProjectionObject());
         map.setCenter(point, $mapViewPortZoom);
-        //map.moveTo($mapViewPort,$mapViewPortZoom);
     }
     
     map.render('$mapElement');

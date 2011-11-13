@@ -159,9 +159,19 @@ Below is the default configuration. If it is to be modified, it should be copied
 "theme_advanced_resizing" : true,
 "theme_advanced_path" : false,
 "theme_advanced_statusbar_location" : "bottom",
-"skin" : "o2k7",
-"skin_variant" : "silver",
-"keep_styles" : false,
+"skin" : "%IF{
+    "defined 'TINYMCEPLUGIN_MCESKIN'"
+    then="%TINYMCEPLUGIN_MCESKIN%"
+    else="%STARTSECTION{"MCESKIN"}%o2k7%ENDSECTION{"MCESKIN"}%"
+}%",
+%IF{
+    "defined 'TINYMCEPLUGIN_MCESKIN_VARIANT' AND $'TINYMCEPLUGIN_MCESKIN_VARIANT'"
+    then="\"skin_variant\" : \"%TINYMCEPLUGIN_MCESKIN_VARIANT%\",$n"
+    else="%IF{
+      "NOT defined 'TINYMCEPLUGIN_MCESKIN' OR $'TINYMCEPLUGIN_MCESKIN'='o2k7'"
+      then="\\"skin_variant\\" : \\"%STARTSECTION{"MCESKIN_VARIANT"}%silver%ENDSECTION{"MCESKIN_VARIANT"}%\\",$dollarn"
+    }%"
+}%"keep_styles" : false,
 "content_css" : "%PUBURLPATH%/%SYSTEMWEB%/TinyMCEPlugin/wysiwyg%IF{
     "$TINYMCEPLUGIN_DEBUG"
     then="_src"
@@ -193,6 +203,8 @@ Example:
 | =TINYMCEPLUGIN_BAD_BROWSERS= | =(?i-xsm:Konqueror)= | A regular expression that matches the user-agent string of any browser for which !TinyMCE should not be loaded. |
 | =TINYMCEPLUGIN_DEBUG= | 0 | If set to 1, the uncompressed version of !TinyMCE Javascript and CSS sources will be loaded by the browser. Useful for debugging. |
 | =TINYMCEPLUGIN_ENTITY_ENCODING= | %INCLUDE{"%TOPIC%" section="ENTITY_ENCODING"}% | Controls how entities/characters get processed by !TinyMCE. Allowed values: =named, numeric, raw= |
+| =TINYMCEPLUGIN_MCESKIN= | %INCLUDE{"%TOPIC%" section="MCESKIN"}% | The !TinyMCE skin to use. Possible values: =default, highcontrast, o2k7= |
+| =TINYMCEPLUGIN_MCESKIN_VARIANT= | %INCLUDE{"%TOPIC%" section="MCESKIN_VARIANT"}% | A !TinyMCE skin may have _variants_. =o2k7= skin has =silver= and =black= variants. |
 
 ---+++ Browser Specific Settings
 Additional options may be set for specific browsers. You can define extra options for MSIE, OPERA, GECKO and SAFARI. For example,
@@ -294,6 +306,7 @@ Another great Foswiki extension from the <a style="text-decoration:none" href="h
 |  Version: | %$VERSION% |
 |  Release: | %$RELEASE% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  08 Nov 2011 (1.2.2) | Foswikitask:Item10724: Testing release of !TinyMCE 3.4.7. |
 |  24 Sep 2011 (1.2.1) | Foswikitask:Item10724: Testing release of !TinyMCE 3.4.6. %BR%\
                          Foswikitask:Item8981: Fixed in !TinyMCE 3.4 (copy and paste list items) |
 |  20 Aug 2011 (1.2.0) | Foswikitask:Item10724: Testing release of !TinyMCE 3.4.4 |

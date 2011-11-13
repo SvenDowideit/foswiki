@@ -52,11 +52,24 @@ sub RcsWrap {
     $class = 'Foswiki::Store::VC::RcsWrapHandler';
 }
 
+sub RcsWrap_coMustCopy {
+    my $this = shift;
+    $this->RcsWrap();
+    $Foswiki::cfg{RCS}{coMustCopy} = 1;
+}
+
 sub fixture_groups {
     my $this   = shift;
-    my $groups = ['RcsLite'];
+    my $groups = [];
 
-    push( @$groups, 'RcsWrap' ) if ( FoswikiStoreTestCase::rcs_is_installed() );
+    push ( @$groups, 'RcsLite' );
+
+    if ( FoswikiStoreTestCase::rcs_is_installed() ) {
+	push( @$groups, 'RcsWrap' );
+	unless ($Foswiki::cfg{RCS}{coMustCopy}) {
+	    push( @$groups, 'RcsWrap_coMustCopy' );
+	}
+    }
 
     return ($groups);
 }
@@ -199,10 +212,8 @@ sub verify_RcsWrapOnly_ciLocked {
     unlink("$topic.txt");
 
     # file is now locked by blocker_socker, save some new text
-    $rcs->saveFile( $rcs->{file}, "Shimmy Dimmy" );
+    $rcs->ci(0, "Shimmy Dimmy", 'Gotcha', 'SheikAlot', time() );
 
-    # check it in
-    $rcs->_ci( "Gotcha", "SheikAlot" );
     my $txt = $rcs->readFile($vfile);
     $this->assert_matches( qr/Gotcha/s,      $txt );
     $this->assert_matches( qr/BungditDin/s,  $txt );
@@ -602,14 +613,14 @@ sub verify_OutOfDate_RevInfo {
     $this->assert_str_equals( 'ThirdUser',    $info->{author} );
     $this->assert_str_equals( 'ThirdComment', $info->{comment} );
 
-    sleep 5;
+    sleep 1;
     open( FH, '>>', "$rcs->{file}" );
     print FH "Modified";
     close FH;
 
     $info = $rcs->getInfo(0);
     my $time1 = "$info->{date}\n";
-    sleep 5;
+    sleep 1;
     $info = $rcs->getInfo(0);
     my $time2 = "$info->{date}\n";
 
