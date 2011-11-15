@@ -480,18 +480,18 @@ or by registering extensions, such as new macros, scripts, or meta-data types.
 
 Should only be called from initPlugin.
 
-Register a function to handle a simple variable. Handles both %<nop>VAR% and 
-%<nop>VAR{...}%. Registered variables are treated the same as internal macros, 
+Register a function to handle a simple variable. Handles both %<nop>VAR% and
+%<nop>VAR{...}%. Registered variables are treated the same as internal macros,
 and are expanded at the same time. This is a _lot_ more efficient than using the =commonTagsHandler=.
-   * =$var= - The name of the variable, i.e. the 'MYVAR' part of %<nop>MYVAR%. 
+   * =$var= - The name of the variable, i.e. the 'MYVAR' part of %<nop>MYVAR%.
    The variable name *must* match /^[A-Z][A-Z0-9_]*$/ or it won't work.
    * =\&fn= - Reference to the handler function.
    * =$syntax= can be 'classic' (the default) or 'context-free'. (context-free may be removed in future)
-   'classic' syntax is appropriate where you want the variable to support classic syntax 
-   i.e. to accept the standard =%<nop>MYVAR{ "unnamed" param1="value1" param2="value2" }%= syntax, 
-   as well as an unquoted default parameter, such as =%<nop>MYVAR{unquoted parameter}%=. 
-   If your variable will only use named parameters, you can use 'context-free' syntax, 
-   which supports a more relaxed syntax. For example, 
+   'classic' syntax is appropriate where you want the variable to support classic syntax
+   i.e. to accept the standard =%<nop>MYVAR{ "unnamed" param1="value1" param2="value2" }%= syntax,
+   as well as an unquoted default parameter, such as =%<nop>MYVAR{unquoted parameter}%=.
+   If your variable will only use named parameters, you can use 'context-free' syntax,
+   which supports a more relaxed syntax. For example,
    %MYVAR{param1=value1, value 2, param3="value 3", param4='value 5"}%
 
 The variable handler function must be of the form:
@@ -581,7 +581,7 @@ sub registerTagHandler {
 
 Should only be called from initPlugin.
 
-Adds a function to the dispatch table of the REST interface 
+Adds a function to the dispatch table of the REST interface
    * =$alias= - The name .
    * =\&fn= - Reference to the function.
    * =%options= - additional options affecting the handler
@@ -942,7 +942,7 @@ wikiname.
 
 returns undef if the WikiName is not found.
 
-=cut 
+=cut
 
 sub wikiToUserName {
     my ($wiki) = @_;
@@ -1318,8 +1318,8 @@ Check access permission for a topic based on the
    * =$topic=    - Topic name, optional, e.g. ='PrivateStuff'=, '' or =undef=
       * If undefined, the Web preferences are checked.
       * If null, the default (WebHome) topic is checked.
-      * If topic specified but does not exist, the web preferences are checked, 
-      allowing the caller to determine 
+      * If topic specified but does not exist, the web preferences are checked,
+      allowing the caller to determine
       _"If the topic existed, would the operation be permitted"._
    * =$web=      - Web name, required, e.g. ='Sandbox'=
       * If missing, the default Users Web (Main) is used.
@@ -1536,7 +1536,7 @@ sub readTopic {
 
 =begin TML
 
----+++ getRevisionInfo($web, $topic, $rev, $attachment ) -> ( $date, $user, $rev, $comment ) 
+---+++ getRevisionInfo($web, $topic, $rev, $attachment ) -> ( $date, $user, $rev, $comment )
 
 Get revision info of a topic or attachment
    * =$web= - Web name, optional, e.g. ='Main'=
@@ -1737,7 +1737,6 @@ sub createWeb {
     ($web) = _validateWTA($web);
     if ( defined $baseweb ) {
         ($baseweb) = _validateWTA($baseweb);
-        $baseweb = Foswiki::Store->load( address=>{web=>$baseweb} );
     }
     ASSERT($Foswiki::Plugins::SESSION) if DEBUG;
 
@@ -1875,7 +1874,7 @@ sub setTopicEditLock {
 
    * =$web= - web for the topic
    * =$topic= - topic name
-   * =$meta= - reference to Foswiki::Meta object 
+   * =$meta= - reference to Foswiki::Meta object
      (optional, set to undef to create a new topic containing just text,
      or to just change that topic's text)
    * =$text= - text of the topic (without embedded meta-data!!!
@@ -2228,7 +2227,7 @@ sub copyAttachment {
 
 Get an iterator over the list of all the changes in the given web between
 =$time= and now. $time is a time in seconds since 1st Jan 1970, and is not
-guaranteed to return any changes that occurred before (now - 
+guaranteed to return any changes that occurred before (now -
 {Store}{RememberChangesFor}). {Store}{RememberChangesFor}) is a
 setting in =configure=. Changes are returned in *most-recent-first*
 order.
@@ -2257,7 +2256,7 @@ sub eachChangeSince {
     ASSERT( $Foswiki::Plugins::SESSION->webExists($web) ) if DEBUG;
 
     my $changes = Foswiki::Store->eachChange( address=>{web=>$web}, time=>$time );
-    
+
     # eachChange returns changes with cUIDs. these have to be mapped
     # to wikinames per the Foswiki::Func 'spec' (changes used to be stored
     # with wikinames)
@@ -2463,7 +2462,7 @@ sub expandVariablesOnTopicCreation {
     ASSERT($Foswiki::Plugins::SESSION) if DEBUG;
     my $topicObject = Foswiki::Store->create(
         address=> {web=>$Foswiki::Plugins::SESSION->{webName},
-        topic=>$Foswiki::Plugins::SESSION->{topicName}}, 
+        topic=>$Foswiki::Plugins::SESSION->{topicName}},
         data=>{_text=>$_[0]}
     );
     $topicObject->expandNewTopic();
@@ -2740,14 +2739,14 @@ sub normalizeWebTopicName {
 Query the topic data in the specified webs. A programatic interface to SEARCH results.
 
    * =$searchString= - the search string, as appropriate for the selected type
-   * =$topics= - undef OR reference to a ResultSet, Iterator, or array containing the web.topics to be evaluated. 
+   * =$topics= - undef OR reference to a ResultSet, Iterator, or array containing the web.topics to be evaluated.
                  if undef, then all the topics in the webs specified will be evaluated.
    * =\%option= - reference to an options hash
 The =\%options= hash may contain the following options:
    * =type= - =regex=, =keyword=, =query=, ... defaults to =query=
    * =web= - The web/s to search in - string can have the same form as the =web= param of SEARCH (if not specified, defaults to BASEWEB)
    * =casesensitive= - false to ignore case (default true)
-   * =files_without_match= - true to return files only (default false). If =files_without_match= is specified, it will return on the first match in each topic (i.e. it will return only one match per 
+   * =files_without_match= - true to return files only (default false). If =files_without_match= is specified, it will return on the first match in each topic (i.e. it will return only one match per
    * topic, excludetopic and other params as per SEARCH
 
 To iterate over the returned topics use:
@@ -3031,7 +3030,7 @@ sub writeWarning {
 
 ---+++ writeDebug( $text )
 
-Log debug message to the debug log 
+Log debug message to the debug log
    * =$text= - Text to write; timestamp gets added
 
 =cut
@@ -3542,7 +3541,7 @@ sub addToHEAD {
 __WARNING: This function has been deprecated in foswiki 1.1.0 for scalability reasons__
 
 
-Search for a string in the content of a web. The search is over all content, including meta-data. 
+Search for a string in the content of a web. The search is over all content, including meta-data.
 Meta-data matches will be returned as formatted lines within the topic content (meta-data matches are returned as lines of the format %META:\w+{.*}%)
    * =$searchString= - the search string, in egrep format
    * =$web= - The web/s to search in - string can have the same form as the =web= param of SEARCH

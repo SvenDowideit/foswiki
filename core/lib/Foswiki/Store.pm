@@ -14,7 +14,7 @@ Foswiki::Store - Factory for Foswiki Data Objects - webs, topics, attachments...
                 {module=>'Foswiki::Store::RcsWrap', root=>'foswiki/data'}
             )
   );
-  
+
   $result->load(address=>'Main.WebHome');
 
 =head1 DESCRIPTION
@@ -82,9 +82,9 @@ sub changeDefaultUser {
 
     ASSERT(not defined($singleton->{cuid}) or ref($singleton->{cuid}) eq '') if DEBUG;
     die 'snow '.ref($singleton->{cuid}) if (ref($singleton->{cuid}) ne '');
-    
+
     ASSERT((not defined($singleton->{cuid}))
-                or 
+                or
            (defined($singleton->{cuid}) and defined($singleton->{access}))) if DEBUG;
 }
 
@@ -99,26 +99,26 @@ sub changeDefaultUser {
      TODO: or should it be create=>'Foswiki::Object::Web', and er, from what?
      TODO: or kill create=> and use some kind of 'copy' with defered commit
    * writeable=>1
-   
+
 
 returns an object of the appropriate type from the Foswiki::Object:: hieracy
 
-TODO: note that most of the methods here will have the same codepath as load(), 
+TODO: note that most of the methods here will have the same codepath as load(),
 so it might be better to write it all as a switchboard..
 
 =cut
 
 sub load {
     shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
-    
+
     #default cuid from the singleton
     my %args = ( 'cuid', $singleton->{cuid}, @_ );
     $args{functionname} = 'load';
-    
+
 #    print STDERR ".cUID isa ".ref($args{cuid})." ($args{cuid}) - default (".ref($singleton->{cuid}).") == $singleton->{cuid}\n";
     #ASSERT(not defined($args{cuid}) or ref($args{cuid}) eq '') if DEBUG;
     #die 'here' if (ref($args{cuid}) ne '');
-    
+
     #really should insist that if the caller wants to over-ride the data of a loaded (and thus existant object), that they also say they want to write..
     #as this shall become a copy of a loaded/cache obj, not the original
     #ASSERT(
@@ -129,7 +129,7 @@ sub load {
     #assume that $args{data} is just for topics?
     ASSERT((defined($args{data}) and defined($args{address}->{topic})) or
            not defined($args{data})) if DEBUG;
-    
+
     my $access_type = $args{writeable} ? 'CHANGE' : 'VIEW';
 
     my $result;
@@ -152,11 +152,11 @@ sub load {
 
     #see if we are _able_ to test permissions using just an unloaded topic, if not, fall through to load&then test
         throw Foswiki::AccessControlException( $access_type, $args{cuid}, $args{address}->web(), $args{address}->topic(), $singleton->{access}->getReason() )
-          if (  defined( $args{cuid} )  and 
+          if (  defined( $args{cuid} )  and
                 not ($singleton->{access}
-              ->haveAccess( $access_type, $args{cuid}, $args{address}, 
+              ->haveAccess( $access_type, $args{cuid}, $args{address},
                   dontload => 1 ) ));
-          
+
     #$cfg::Foswiki{Stores} is an ordered list, managed by configure that prioritises the cache stores first.
         foreach my $impl ( @{ $singleton->{stores} } ) {
 
@@ -174,15 +174,15 @@ sub load {
             #ok, we have a resource object that actually exists in a store
             $singleton->cacheResource(%args, return=>$result);
         }
-        
+
         if ( not defined($result) and $args{create} ) {
             $result = create(%args);
         }
 
-        #throw Error::Simple('Cannot load: '.$args{address}->stringify())
         unless ( defined($result) ) {
             #HOW TO FIND OUT WHY?
-            die 'cant load '.$args{address}->getPath()
+            throw Error::Simple('Cannot load: '.$args{address}->getPath())
+            #die 'cant load '.$args{address}->getPath()
         }
       }
 
@@ -206,13 +206,13 @@ sub load {
         #print STDERR "..cUID isa ".ref($args{cuid})." ($args{cuid})\n";
 
         throw Foswiki::AccessControlException( $access_type, $args{cuid}, $result->web(), $result->topic(), $singleton->{access}->getReason() )
-          if (  defined( $args{cuid} )  and 
+          if (  defined( $args{cuid} )  and
                 not ($singleton->{access}
               ->haveAccess( $access_type, $args{cuid}, $result ) ));
     }
-          
+
     $singleton->{count}{load}{$args{address}->getPath()}--;
-    
+
     if (defined($args{data})) {
         #TODO: need to deep__ copy the loaded object's data into a new, uncached obj, and then over-ride with data..
         my $newResource =  Foswiki::Meta->NEWnew( address=>$result, data=>{%$result, %{$args{data}}} );
@@ -233,7 +233,7 @@ sub load {
    * from=>address (like copy, but without commit)
    * cuid=>$cuid (canonical user id) - if undefined, presume 'admin' (or no perms check) access
    * writeable=>1
-   
+
 returns an object of the appropriate type from the Foswiki::Object:: hieracy
 
 =cut
@@ -317,6 +317,9 @@ sub save {
                     $args{address}->setRevisionInfo(%$info);
                     Foswiki::Store->repRev( address=>$args{address}, cuid=>$cUID, %args );
                     $args{address}->{_loadedRev} = $currentRev;
+
+$singleton->unCacheResource(%args);
+
                     return $currentRev;
                 }
             }
@@ -333,6 +336,7 @@ sub save {
         ASSERT( $checkSave == $nextRev, "$checkSave != $nextRev" ) if DEBUG;
         $args{address}->{_loadedRev} = $nextRev;
         $args{address}->{_latestIsLoaded} = 1;
+$singleton->unCacheResource(%args);
     }
     finally {
         $args{address}->_atomicUnlock($cUID);
@@ -405,7 +409,7 @@ sub remove {
 sub move {
     shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
     my %args = ( cuid=>$singleton->{cuid}, @_ );
-    
+
     if (ref($args{from}) ne 'Foswiki::Meta') {
         $args{from} = Foswiki::Store->load(writeable=>1, address=>$args{from});
     }
@@ -460,7 +464,7 @@ sub exists {
       * Foswiki::Address
       * Foswiki::Object impl
    * cuid=>$cuid (canonical user id) - if undefined, presume 'admin' (or no perms check) access
-   
+
 Get an iterator over the list of revisions of the object. The iterator returns
 the revision identifiers (which will usually be numbers) starting with the most
 recent revision.
@@ -480,7 +484,7 @@ sub getRevisionHistory {
 
 =head2 ClassMethod getNextRevision ( address=>$address  ) -> $revision
    * =$address= - address of datum
-   
+
 Get the ientifier for the next revision of the topic. That is, the identifier
 for the revision that we will create when we next save.
 
@@ -537,7 +541,7 @@ sub getRevisionDiff {
       * Foswiki::Address
       * Foswiki::Object impl
    * cuid=>$cuid (canonical user id) - if undefined, presume 'admin' (or no perms check) access
-   
+
 Return %info with at least:
 | date | in epochSec |
 | user | user *object* |
@@ -688,7 +692,7 @@ Search for data in the store (not web based).
    * =$query= either a =Foswiki::Search::Node= or a =Foswiki::Query::Node=.
    * =$inputTopicSet= is a reference to an iterator containing a list
      of topic in this web, if set to undef, the search/query algo will
-     create a new iterator using eachTopic() 
+     create a new iterator using eachTopic()
      and the topic and excludetopics options
 
 Returns a =Foswiki::Search::InfoCache= iterator
@@ -703,9 +707,9 @@ sub query {
     shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
     #return template_function( 'query', @_ );
     my $functionname = 'query';
-    
+
     my $result;
-    
+
     foreach my $impl ( @{ $singleton->{stores} } ) {
 
     #the impl is also able to throw exceptions - as there might be a store based permissions impl
@@ -720,7 +724,7 @@ sub query {
     }
     #TODO: ok, so this is very wrong, need to iterate over all impls and then combin results
     #but i think it might actually work for single store
-    
+
     return $result;
 }
 
@@ -799,23 +803,23 @@ a switchboard function that contains the implementation to delegate to the store
 sub template_function {
     my $functionname = shift;
     shift if ((ref($_[0]) eq 'Foswiki::Store') or ($_[0] eq 'Foswiki::Store'));
-    
+
     ASSERT($singleton) if DEBUG;
     # Help track down old-style calling convention
     ASSERT(!(scalar(@_) % 2 )) if DEBUG;
     #default cuid from the singleton
     my %args = ( cuid=>$singleton->{cuid}, @_ );
-    
+
     ASSERT(defined($args{address})) if DEBUG;
-    
+
     $args{functionname} = $functionname;
-    
+
     #print STDERR ".cUID isa ".ref($args{cuid})." ($args{cuid}) - default (".ref($singleton->{cuid}).")\n";
     #ASSERT(not defined($args{cuid}) or ref($args{cuid}) eq '') if DEBUG;
     #die 'here' if (ref($args{cuid}) ne '');
 
     my $access_type = $args{writeable} ? 'CHANGE' : 'VIEW';
-    
+
     my $result;
     if (($access_type eq 'CHANGE') and
         (ref($args{address}) eq 'Foswiki::Meta')) {
@@ -829,16 +833,16 @@ sub template_function {
 
 #    if (ref($args{address}) eq 'Foswiki::Meta') {
 #        $result = $args{address};
-#    } else 
+#    } else
 {
 
     #see if we are _able_ to test permissions using just an unloaded topic, if not, fall through to load&then test
         throw Foswiki::AccessControlException( $access_type, $args{cuid}, $args{address}->web(), $args{address}->topic(), $singleton->{access}->getReason() )
-          if (  defined( $args{cuid} )  and 
+          if (  defined( $args{cuid} )  and
                 not ($singleton->{access}
-              ->haveAccess( $access_type, $args{cuid}, $args{address}, 
+              ->haveAccess( $access_type, $args{cuid}, $args{address},
                   dontload => 1 ) ));
-          
+
 #        if ( defined( $args{from} ) ) {
 #
 #            #load will throw exceptions if things go wrong
@@ -860,12 +864,12 @@ sub template_function {
             last if ( defined($result) );
         }
         if (
-                    ($functionname eq 'move') or 
-                    ($functionname eq 'exists') or 
-                    ($functionname eq 'getVersionInfo') or 
-                    ($functionname eq 'setLease') or 
-                    ($functionname eq 'getLease') or 
-                    ($functionname eq 'atomicLockInfo') or 
+                    ($functionname eq 'move') or
+                    ($functionname eq 'exists') or
+                    ($functionname eq 'getVersionInfo') or
+                    ($functionname eq 'setLease') or
+                    ($functionname eq 'getLease') or
+                    ($functionname eq 'atomicLockInfo') or
                     ($functionname eq 'atomicLock') or
                     ($functionname eq 'eachWeb') or
                     ($functionname eq 'eachTopic') or
@@ -901,26 +905,38 @@ sub template_function {
         #print STDERR "..cUID isa ".ref($args{cuid})." ($args{cuid})\n";
 
         throw Foswiki::AccessControlException( $access_type, $args{cuid}, $result->web(), $result->topic(), $singleton->{access}->getReason() )
-          if (  defined( $args{cuid} )  and 
+          if (  defined( $args{cuid} )  and
                 not ($singleton->{access}
               ->haveAccess( $access_type, $args{cuid}, $result ) ));
     }
 
-          
-    $singleton->{count}{$functionname}{$args{address}->getPath()}--;          
+
+    $singleton->{count}{$functionname}{$args{address}->getPath()}--;
 
     return $result;
+}
+
+#called onsave etc to flush the cache
+sub unCacheResource {
+    my $self = shift;
+    my %args = @_;
+
+    #ASSERT(defined($obj->{_text})) if DEBUG; #if itsa topic.
+    #print STDERR "cacheResource(".$args{functionname}.", ".$args{return}->getPath().") \n";
+
+    my $name = $args{address}->getPath();
+    undef $self->{cache}{$name};
 }
 
 sub cacheResource {
     my $self = shift;
     my %args = @_;
-    
+
     #ASSERT(defined($obj->{_text})) if DEBUG; #if itsa topic.
     #print STDERR "cacheResource(".$args{functionname}.", ".$args{return}->getPath().") \n";
-    
+
     return unless ($args{functionname} eq 'load');
-    
+
     my $name = $args{return}->getPath();
     $self->{cache}{$name} = $args{return};
 }
@@ -936,7 +952,7 @@ sub getResourceAddressOrCachedResource {
       if (ref($address) eq 'ARRAY');
     $address = Foswiki::Address->new( %$address )
       if (ref($address) eq 'HASH');
-    
+
     my $name = $address->getPath();
 #print STDERR "getResourceAddressOrCachedResource($name)\n";
     return $self->{cache}{$name} if (defined($self->{cache}{$name}));
