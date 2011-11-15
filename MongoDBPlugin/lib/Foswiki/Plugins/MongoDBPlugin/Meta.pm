@@ -40,7 +40,7 @@ sub new {
     my $topic   = shift;
     my $data    = shift;
 
-    #my $meta = new Foswiki::Meta($session, $web, $topic );
+    #my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     my $meta = $class->SUPER::new( $session, $web, $topic );
 
     #print STDERR ": make me a new MongoDB::Meta with $web.$topic \n";

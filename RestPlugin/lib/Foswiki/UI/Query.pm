@@ -284,7 +284,7 @@ sub query {
         $res->print($err);
         throw Foswiki::EngineException( 404, $err, $res );
     }
-    my $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     writeDebug( "---- new($web, "
           . ( $topic || '>UNDEF<' )
           . ") ==  actual Meta ("
@@ -426,7 +426,7 @@ sub query {
                 unshift( @webs, $web ) if ( $web ne '' );
                 my @results = map {
                     my $m =
-                      Foswiki::Meta->load( $Foswiki::Plugins::SESSION, $_ );
+                      Foswiki::Store::load(address=>{web=>$_ });
                     writeDebug( "::::: load($_) == " . $m->web . "\n" )
                       if MONITOR_ALL;
                     $m
@@ -521,7 +521,7 @@ sub query {
 
                 #TODO: actually, consider using the UI::Manage::_create
                 #new topic...
-                $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+                $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
                 writeDebug( "\n\nPOST: create new topic Meta ("
                       . $topicObject->web . ", "
                       . ( $topicObject->topic || '>UNDEF<' )
@@ -574,7 +574,7 @@ sub query {
                 my @results = ();
                 ASSERT( Foswiki::Func::webExists($newWeb) ) if DEBUG;
                 my $webObject =
-                  Foswiki::Meta->load( $Foswiki::Plugins::SESSION, $newWeb );
+                  Foswiki::Store::load(address=>{web=>$newWeb });
                 ASSERT( $webObject->existsInStore() ) if DEBUG;
                 push( @results, $webObject );
                 $result                           = \@results;

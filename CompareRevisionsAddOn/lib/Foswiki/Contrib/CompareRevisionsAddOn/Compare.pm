@@ -42,7 +42,7 @@ sub compare {
     Foswiki::UI::checkWebExists( $session, $webName, 'compare' );
     Foswiki::UI::checkTopicExists( $session, $webName, $topic, 'compare' );
 
-    my $topicObject = Foswiki::Meta->load( $session, $webName, $topic );
+    my $topicObject = Foswiki::Store::load(address=>{web=>$webName, topic=>$topic });
     Foswiki::UI::checkAccess( $session, 'VIEW', $topicObject );
 
     $scripturl = Foswiki::Func::getScriptUrl( $webName, $topic, 'compare' );

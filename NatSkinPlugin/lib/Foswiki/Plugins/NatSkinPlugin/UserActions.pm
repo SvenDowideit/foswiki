@@ -314,7 +314,7 @@ sub renderEditForm {
   return '' if (defined($context) && !Foswiki::Func::getContext()->{$context});
 
   my $session = $Foswiki::Plugins::SESSION;
-  my $topicObj = Foswiki::Meta->load($session, $params->{baseWeb}, $params->{baseTopic});
+  my $topicObj = Foswiki::Store::load(address=>{web=>$params->{baseWeb}, topic=>$params->{baseTopic}});
   if ($topicObj && $topicObj->getFormName) {
     if ($params->{isRestrictedAction}{'editform'}) {
       return '' if $params->{hiderestricted};

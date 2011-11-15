@@ -1774,7 +1774,7 @@ sub _set_up_topic {
     my $text  = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic, $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>$text });
 
     $topicObject->save();
 }

@@ -31,8 +31,7 @@ sub set_up {
     $webObjectH->populateNewWeb();
 
     my $webPrefsObj =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}Hidden",
-        $Foswiki::cfg{WebPrefsTopicName}, <<THIS);
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}Hidden", topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<THIS});
 If ALLOW is set to a list of wikiname
    * people not in the list are DENIED access
    * Set ALLOWWEBVIEW = $this->{users_web}.AdminUser
@@ -108,9 +107,7 @@ sub test_otherWeb {
 sub test_otherWeb_NOSEARCHALL {
     my $this = shift;
 
-    my $to = load Foswiki::Meta($this->{session},
-                               "$this->{test_web}/SubWeb",
-                               $Foswiki::cfg{WebPrefsTopicName});
+    my $to = Foswiki::Store::load(address=>{web=>"$this->{test_web}/SubWeb", topic=>$Foswiki::cfg{WebPrefsTopicName}});
     $to->text($to->text()."\n   * Set NOSEARCHALL = on\n");
     $to->save();
 

@@ -29,7 +29,7 @@ sub set_up {
 
     my $t2 = "$this->{test_web}2";
     $this->{test_web_2} = $t2;
-    my $webObject = Foswiki::Meta->new( $this->{session}, $t2 );
+    my $webObject = Foswiki::Store::load(address=>{web=>$t2 });
     $webObject->populateNewWeb();
 
     Foswiki::Func::saveTopic( $this->{test_web}, "Topic1", undef, <<HERE);

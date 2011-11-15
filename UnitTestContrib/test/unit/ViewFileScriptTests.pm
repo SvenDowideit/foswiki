@@ -31,16 +31,14 @@ sub set_up {
     $fatwilly = $this->{session};
     my $topic = 'TestTopic1';
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic,
-        'topci1 text' );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>'topci1 text' });
     $topicObject->save();
     $this->sneakAttachmentsToTopic( $this->{test_web}, $topic,
         ( 'one.txt', 'two.txt', 'inc/file.txt' ) );
 
     $topic = 'SecureTopic';
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic,
-        "SecureTopic text\n   * Set ALLOWTOPICVIEW=NoOneReal", undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>"SecureTopic text\n   * Set ALLOWTOPICVIEW=NoOneReal"});
     $topicObject->save();
     $this->sneakAttachmentsToTopic( $this->{test_web}, $topic,
         ( 'one.txt', 'two.txt', 'inc/file.txt' ) );
@@ -57,8 +55,7 @@ sub set_up {
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists( $this->{test_subweb} ) );
         my $topicObject =
-          Foswiki::Meta->new( $this->{session}, $this->{test_subweb},
-            $Foswiki::cfg{HomeTopicName}, "SMELL" );
+          Foswiki::Store::create(address=>{web=>$this->{test_subweb}, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"SMELL" });
         $topicObject->save();
         $this->assert(
             $this->{session}->topicExists(
@@ -71,24 +68,21 @@ sub set_up {
         $this->assert( 0, shift->stringify() || '' );
     };
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_subweb}, $topic,
-        'nested topci1 text', undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_subweb}, topic=>$topic}, data=>{_text=>'nested topci1 text'});
     $topicObject->save();
     $this->sneakAttachmentsToTopic( $this->{test_subweb}, $topic,
         ( 'one.txt', 'two.txt', 'inc/file.txt' ) );
 
     $topic = 'SecureTopic';
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_subweb}, $topic,
-        "SecureTopic text\n   * Set ALLOWTOPICVIEW=NoOneReal", undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_subweb}, topic=>$topic}, data=>{_text=>"SecureTopic text\n   * Set ALLOWTOPICVIEW=NoOneReal"});
     $topicObject->save();
     $this->sneakAttachmentsToTopic( $this->{test_subweb}, $topic,
         ( 'one.txt', 'two.txt', 'inc/file.txt' ) );
 
     $topic = 'BinaryTopic';
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic,
-        'BinaryTopic Text', undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>'BinaryTopic Text'});
     $topicObject->save();
     $this->sneakAttachmentsToTopic( $this->{test_web}, $topic,
         ( 'binaryfile.bin' ) );

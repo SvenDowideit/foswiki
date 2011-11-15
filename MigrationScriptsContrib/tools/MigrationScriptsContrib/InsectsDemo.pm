@@ -244,7 +244,7 @@ sub set_up {
         Foswiki::Func::createWeb($formWeb, '_default');
     }
     $formTopicObj =
-      Foswiki::Meta->new( $session, $formWeb, $formTopic, gen_form() );
+      Foswiki::Store::create(address=>{web=>$formWeb, topic=>$formTopic}, data=>{_text=>gen_form() });
     $formTopicObj->save();
     $formTopicObj->finish();
 

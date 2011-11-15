@@ -32,7 +32,7 @@ sub set_up {
     $this->SUPER::set_up();
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "Improvement2" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"Improvement2" });
     $meta->putKeyed(
         'FIELD',
         {
@@ -126,7 +126,7 @@ sub testGET_webs {
     ##WEB
     {
         my $meta =
-          Foswiki::Meta->load( $this->{session}, $Foswiki::cfg{SystemWebName} );
+          Foswiki::Store::load(address=>{web=>$Foswiki::cfg{SystemWebName} });
 
         my ( $replytext, $hdr ) = $this->call_UI_query(
             '/' . $Foswiki::cfg{SystemWebName} . '/webs.json',
@@ -188,7 +188,7 @@ sub testGET_allwebs {
 
         my @webs = Foswiki::Func::getListOfWebs( '', '' );
         my @results = map {
-            my $meta = Foswiki::Meta->load( $this->{session}, $_ );
+            my $meta = Foswiki::Store::load(address=>{web=>$_ });
             print STDERR "::::: load($_) == " . $meta->web . "\n"
               if MONITOR_ALL;
             Foswiki::Serialise::convertMeta($meta)

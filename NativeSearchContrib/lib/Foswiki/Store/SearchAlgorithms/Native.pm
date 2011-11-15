@@ -77,7 +77,7 @@ sub query {
         # can't process what ain't thar
         next unless $session->webExists($web);
 
-        my $webObject = Foswiki::Meta->new( $session, $web );
+        my $webObject = Foswiki::Store::load(address=>{web=>$web });
         my $thisWebNoSearchAll = $webObject->getPreference('NOSEARCHALL')
           || '';
 
@@ -126,7 +126,7 @@ sub _webQuery {
 
         #then we start with the whole web
         #TODO: i'm sure that is a flawed assumption
-        my $webObject = Foswiki::Meta->new( $session, $web );
+        my $webObject = Foswiki::Store::load(address=>{web=>$web });
         $topicSet =
           Foswiki::Search::InfoCache::getTopicListIterator( $webObject,
             $options );

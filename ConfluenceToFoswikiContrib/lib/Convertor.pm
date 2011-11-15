@@ -74,7 +74,7 @@ sub saveTopic {
 	    $logger->info("Creating topic \"$topic\"\n");	
         #$text = Utils::Common::quote($text);
         require Foswiki::Meta;
-        my $meta = new Foswiki::Meta($session, $web, $topic, $text);
+        my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$text});
         if ($parent) {
             $meta->put('TOPICPARENT', { name => $parent });
         }

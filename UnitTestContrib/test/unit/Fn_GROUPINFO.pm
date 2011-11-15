@@ -20,33 +20,26 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up(@_);
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "GropeGroup",
-        "   * Set GROUP = ScumBag,WikiGuest\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GropeGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "PopGroup",
-        "   * Set GROUP = WikiGuest\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"PopGroup"}, data=>{_text=>"   * Set GROUP = WikiGuest\n" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "NestingGroup",
-        "   * Set GROUP = GropeGroup\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"NestingGroup"}, data=>{_text=>"   * Set GROUP = GropeGroup\n" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "OnlyAdminCanChangeGroup",
-        "   * Set GROUP = WikiGuest\n   * Set TOPICCHANGE = AdminGroup\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"OnlyAdminCanChangeGroup"}, data=>{_text=>"   * Set GROUP = WikiGuest\n   * Set TOPICCHANGE = AdminGroup\n" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "GroupWithHiddenGroup",
-        "   * Set GROUP = HiddenGroup,WikiGuest\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GroupWithHiddenGroup"}, data=>{_text=>"   * Set GROUP = HiddenGroup});
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "HiddenGroup",
-        "   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenGroup"}, data=>{_text=>"   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n" });
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "HiddenUserGroup",
-        "   * Set GROUP = ScumBag,HidemeGood\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenUserGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
     $topicObject->save();
 
     $topicObject =
@@ -133,10 +126,8 @@ sub test_expandHiddenUserAsAdmin {
 
     $this->{session}->finish();
     $this->{session} = new Foswiki( $Foswiki::cfg{AdminUserLogin} );
-    $this->{test_topicObject} = Foswiki::Meta->new(
-        $this->{session},    $this->{test_web},
-        $this->{test_topic}, "BLEEGLE\n"
-    );
+    $this->{test_topicObject} = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"BLEEGLE\n"
+    });
     $this->{test_topicObject}->save();
 
     my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"HiddenUserGroup" expand="on"}%');

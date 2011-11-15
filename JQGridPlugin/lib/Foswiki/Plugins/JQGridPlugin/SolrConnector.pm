@@ -159,7 +159,7 @@ HERE
   for my $doc ($solrResponse->docs) {
     my $web = $doc->value_for("web");
     my $topic = $doc->value_for("topic");
-    my $topicObj = new Foswiki::Meta($this->{session}, $web, $topic );
+    my $topicObj = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     $topicObj->load();
     my $form = $topicObj->getFormName();
     my $fieldDef;

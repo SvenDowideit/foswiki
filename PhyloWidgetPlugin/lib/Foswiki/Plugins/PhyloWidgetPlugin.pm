@@ -466,7 +466,7 @@ sub getPNG {
     ( $web, $topic ) = Foswiki::Func::normalizeWebTopicName( $web, $topic );
 
     #return $web.' '.$topic;
-    #my $topicObject = Foswiki::Meta->new($session,$web,$topic);
+    #my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic});
     my $treeData =
       Foswiki::Func::readAttachment( $web, $topic, $filename, $rev );
     my $io    = IO::String->new($treeData);

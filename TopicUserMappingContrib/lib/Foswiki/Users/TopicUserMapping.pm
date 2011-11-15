@@ -892,7 +892,7 @@ sub addUserToGroup {
           );
 
         $groupTopicObject =
-          Foswiki::Meta->new( $this->{session}, $groupWeb, 'GroupTemplate' );
+          Foswiki::Store::create(address=>{web=>$groupWeb, topic=>'GroupTemplate' });
 
         # expand the GroupTemplate as best we can.
         $this->{session}->{request}
@@ -1044,8 +1044,7 @@ sub removeUserFromGroup {
             return 0;
         }
         my $groupTopicObject =
-          Foswiki::Meta->new( $this->{session}, $Foswiki::cfg{UsersWebName},
-            $groupName );
+          Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$groupName });
         if ( !$groupTopicObject->haveAccess( 'CHANGE', $user ) ) {
 
             #throw Error::Simple(
@@ -1273,11 +1272,8 @@ from Wiki topics.
 sub mapper_getEmails {
     my ( $session, $user ) = @_;
 
-    my $topicObject = Foswiki::Meta->new(
-        $session,
-        $Foswiki::cfg{UsersWebName},
-        $session->{users}->getWikiName($user)
-    );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$session->{users}->getWikiName($user)
+    });
 
     my @addresses;
 
@@ -1581,11 +1577,8 @@ sub _loadMapping {
             )
           )
         {
-            my $usersTopicObject = Foswiki::Meta->new(
-                $session,
-                $Foswiki::cfg{UsersWebName},
-                $Foswiki::cfg{UsersTopicName}
-            );
+            my $usersTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName}
+            });
             my $text = $usersTopicObject->text() || '';
 
             # Get the WikiNames and userids, and build hashes in both directions

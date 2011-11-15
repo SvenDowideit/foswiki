@@ -197,34 +197,20 @@ sub set_up_for_verify {
 #            $this->registerUser($loginname{EmailLogin}, 'Email', 'Login', 'email@example.com');
 
         my $topicObject =
-          Foswiki::Meta->new( $this->{session}, $this->{users_web},
-            'AandBGroup',
-            "   * Set GROUP = UserA, UserB, $Foswiki::cfg{AdminUserWikiName}" );
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandBGroup'}, data=>{_text=>"   * Set GROUP = UserA});
         $topicObject->save();
         $topicObject =
-          Foswiki::Meta->new( $this->{session}, $this->{users_web},
-            'AandCGroup', "   * Set GROUP = UserA, UserC" );
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandCGroup'}, data=>{_text=>"   * Set GROUP = UserA});
         $topicObject->save();
         $topicObject =
-          Foswiki::Meta->new( $this->{session}, $this->{users_web},
-            'BandCGroup', "   * Set GROUP = UserC, UserB" );
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'BandCGroup'}, data=>{_text=>"   * Set GROUP = UserC});
         $topicObject->save();
         $topicObject =
-          Foswiki::Meta->new( $this->{session}, $this->{users_web},
-            'NestingGroup', "   * Set GROUP = UserE, AandCGroup, BandCGroup" );
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'NestingGroup'}, data=>{_text=>"   * Set GROUP = UserE});
         $topicObject->save();
-        $topicObject = Foswiki::Meta->new(
-            $this->{session},
-            $this->{users_web},
-            'ScumGroup',
-"   * Set GROUP = UserA, $Foswiki::cfg{DefaultUserWikiName}, $loginname{UserZ}"
-        );
+        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'ScumGroup'}, data=>{_text=>"   * Set GROUP = UserA});
         $topicObject->save();
-        $topicObject = Foswiki::Meta->new(
-            $this->{session}, $this->{users_web},
-            $Foswiki::cfg{SuperAdminGroup},
-            "   * Set GROUP = UserA, $Foswiki::cfg{AdminUserWikiName}"
-        );
+        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=>"   * Set GROUP = UserA});
         $topicObject->save();
     }
     catch Foswiki::AccessControlException with {
@@ -1788,8 +1774,7 @@ sub verify_denyNonAdminReadOfAdminGroupTopic {
     $this->assert( Foswiki::Func::addUserToGroup( 'UserB',    'AdminGroup', 1 ) );
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        'AdminGroup' );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AdminGroup' });
     $topicObject->load();
     $topicObject->text($topicObject."\n\n   * Set ALLOWTOPICVIEW = AdminGroup\n\n");
     $topicObject->save();

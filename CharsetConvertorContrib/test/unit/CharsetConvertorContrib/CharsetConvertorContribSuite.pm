@@ -115,18 +115,18 @@ sub set_up_verify {
     }
     $this->{session} = new Foswiki();
 
-    my $root = new Foswiki::Meta($this->{session}, $this->{test_web});
+    my $root = Foswiki::Store::load(address=>{web=>$this->{test_web}});
     $root->populateNewWeb();
 
     # Create a subweb.
     # CHECK: that it's renamed
-    my $subweb = new Foswiki::Meta($this->{session}, $this->{test_web}.'/'.$c{web});
+    my $subweb = Foswiki::Store::load(address=>{web=>$this->{test_web}.'/'.$c{web}});
     $subweb->populateNewWeb();
 
     $this->assert($this->{session}->webExists($this->{test_web}.'/'.$c{web}));
     # Create a topic
     # CHECK: that it's renamed
-    my $topic = new Foswiki::Meta($this->{session}, $this->{test_web}.'/'.$c{web}, $c{topic}, $c{content});
+    my $topic = Foswiki::Store::create(address=>{web=>$this->{test_web}.'/'.$c{web}, topic=>$c{topic}}, data=>{_text=>$c{content}});
     $this->assert(!utf8::is_utf8($c{content}));
     $topic->save();
 
@@ -142,18 +142,18 @@ sub set_up_verify {
 		    comment => $c{content},
 		    file => "$Foswiki::cfg{DataDir}/$this->{test_web}/$c{attachment}" );
 
-    $topic = new Foswiki::Meta($this->{session}, $this->{test_web}.'/'.$c{web}, $c{topic});
+    $topic = Foswiki::Store::create(address=>{web=>$this->{test_web}.'/'.$c{web}, topic=>$c{topic}});
     $topic->text("$c{content} Cabbage water $c{content}");
     $topic->save(forcenewrevision => 1);
 
-    $topic = new Foswiki::Meta($this->{session}, $this->{test_web}.'/'.$c{web}, $c{topic});
+    $topic = Foswiki::Store::create(address=>{web=>$this->{test_web}.'/'.$c{web}, topic=>$c{topic}});
     $topic->text($c{content});
     $topic->save(forcenewrevision => 1);
 
     $this->assert(-e "$Foswiki::cfg{DataDir}/$this->{test_web}/$c{web}/$c{topic}.txt");
     $this->assert($this->{session}->topicExists($this->{test_web}.'/'.$c{web}, $c{topic}));
 
-    $topic = Foswiki::Meta->load($this->{session}, "$this->{test_web}/$c{web}", $c{topic});
+    $topic = Foswiki::Store::load(address=>{web=>"$this->{test_web}/$c{web}", topic=>$c{topic}});
     $this->assert($topic->hasAttachment($c{attachment}));
 }
 
@@ -177,8 +177,7 @@ sub verify_conversion {
     $this->assert($this->{session}->topicExists("$this->{test_web}/$utf8->{web}", $utf8->{topic}));
 
     # Load the latest (should be rev 4)
-    my $meta = Foswiki::Meta->load(
-	$this->{session}, "$this->{test_web}/$utf8->{web}", $utf8->{topic});
+    my $meta = Foswiki::Store::load(address=>{web=>"$this->{test_web}/$utf8->{web}", topic=>$utf8->{topic}});
     $this->assert($meta->hasAttachment($utf8->{attachment}));
     my $t = $meta->text();
     utf8::decode($t);
@@ -186,14 +185,12 @@ sub verify_conversion {
 
     # There should be 3 revs, 1, 2 and 3. Revs 1 and 3 contain the same content,
     # while rev 2 has the content twice.
-    $meta = Foswiki::Meta->load(
-	$this->{session}, "$this->{test_web}/$utf8->{web}", $utf8->{topic}, 2);
+    $meta = Foswiki::Store::load(address=>{web=>"$this->{test_web}/$utf8->{web}", topic=>$utf8->{topic}, rev=>2});
     $t = $meta->text();
     utf8::decode($t);
     $this->assert_str_equals("$utf8->{content} Cabbage water $utf8->{content}", $t);
 
-    $meta = Foswiki::Meta->load(
-	$this->{session}, "$this->{test_web}/$utf8->{web}", $utf8->{topic}, 1);
+    $meta = Foswiki::Store::load(address=>{web=>"$this->{test_web}/$utf8->{web}", topic=>$utf8->{topic}, rev=>1});
     $t = $meta->text();
     utf8::decode($t);
     $this->assert_str_equals($utf8->{content}, $t);

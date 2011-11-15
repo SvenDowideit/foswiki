@@ -256,11 +256,8 @@ sub test_parent {
         $topicObject->put( "TOPICPARENT", { name => $parent } );
         $topicObject->save();
     }
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session}, $web,
-        $testTopic . '6',
-        'Final ancestor'
-    );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$testTopic . '6'}, data=>{_text=>'Final ancestor'
+    });
     $topicObject->save();
 
     for my $depth ( 1 .. 5 ) {
@@ -328,11 +325,8 @@ sub test_parent {
     }
 
     # Test nowebhome
-    $topicObject = Foswiki::Meta->new(
-        $this->{session}, $web,
-        $testTopic . '6',
-        'Final ancestor with WebHome as parent'
-    );
+    $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$testTopic . '6'}, data=>{_text=>'Final ancestor with WebHome as parent'
+    });
     $topicObject->put( "TOPICPARENT",
         { name => $web . '.' . $Foswiki::cfg{HomeTopicName} } );
     $topicObject->save();
@@ -531,8 +525,7 @@ GUNK
 $gunk
 EVIL
     my $topicObject =
-      Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, "BadMeta", $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"BadMeta"}, data=>{_text=>$text });
     $topicObject->save();
     # All meta should have found its way into text
     $this->assert_equals($text, $topicObject->text()."\n");
@@ -554,8 +547,7 @@ EVIL
 %META:TOPICPARENT{}%
 EVIL
     $topicObject =
-      Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, "BadMeta", $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"BadMeta"}, data=>{_text=>$text });
     $topicObject->save();
     $text = $topicObject->text();
     $this->assert_does_not_match(qr/%META:TOPICPARENT{}%/, $text);
@@ -570,8 +562,7 @@ EVIL
 $gunk
 GOOD
     $topicObject =
-      Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, "GoodMeta", $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"GoodMeta"}, data=>{_text=>$text });
     $topicObject->save();
     $this->assert_equals($gunk, $topicObject->text());
     $topicObject->expandMacros($topicObject->text());
@@ -678,8 +669,7 @@ HERE
         require => [qw(name value)],
     );
     my $topicObject =
-      Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, "registerArrayMetaTest", $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"registerArrayMetaTest"}, data=>{_text=>$text });
     $topicObject->save();
     # All meta should have found its way into text
     $this->assert_equals(<<'EXPECTED', $topicObject->expandMacros($test));
@@ -720,8 +710,7 @@ HERE
         require => [qw(name value)],
     );
     my $topicObject =
-      Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, "registerArrayMetaTest", $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"registerArrayMetaTest"}, data=>{_text=>$text });
     $topicObject->save();
     # All meta should have found its way into text
     $this->assert_equals(<<'EXPECTED', $topicObject->expandMacros($test));
@@ -756,11 +745,10 @@ sub test_BadRevisionInfo {
 
 sub test_getRevisionHistory {
     my $this = shift;
-    my $topicObject = Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, 'RevIt', "Rev 1" );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'RevIt'}, data=>{_text=>"Rev 1" });
     $this->assert_equals(1, $topicObject->save());
     $topicObject =
-      Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt' });
     my $revIt  = $topicObject->getRevisionHistory();
     $this->assert($revIt->hasNext());
     $this->assert_equals(1, $revIt->next());
@@ -770,7 +758,7 @@ sub test_getRevisionHistory {
     $this->assert_equals(
         2, $topicObject->save(forcenewrevision => 1));
     $topicObject =
-      Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt' });
     $revIt  = $topicObject->getRevisionHistory();
     $this->assert($revIt->hasNext());
     $this->assert_equals(2, $revIt->next());
@@ -782,7 +770,7 @@ sub test_getRevisionHistory {
     $this->assert_equals(
         3, $topicObject->save(forcenewrevision => 1));
     $topicObject =
-      Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt' });
     $revIt  = $topicObject->getRevisionHistory();
     $this->assert($revIt->hasNext());
     $this->assert_equals(3, $revIt->next());
@@ -795,11 +783,10 @@ sub test_getRevisionHistory {
 
 sub test_summariseChanges {
     my $this = shift;
-    my $topicObject = Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, 'RevIt', "Line 1\n\nLine 2\n\nLine 3" );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'RevIt'}, data=>{_text=>"Line 1\n\nLine 2\n\nLine 3" });
     $this->assert_equals(1, $topicObject->save());
     $topicObject =
-      Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt' });
     my $revIt  = $topicObject->getRevisionHistory();
     $this->assert($revIt->hasNext());
     $this->assert_equals(1, $revIt->next());
@@ -810,7 +797,7 @@ sub test_summariseChanges {
     $this->assert_equals(
         2, $topicObject->save(forcenewrevision => 1));
     $topicObject =
-      Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt' });
     $revIt  = $topicObject->getRevisionHistory();
     $this->assert($revIt->hasNext());
     $this->assert_equals(2, $revIt->next());
@@ -823,7 +810,7 @@ sub test_summariseChanges {
     $this->assert_equals(
         3, $topicObject->save(forcenewrevision => 1));
     $topicObject =
-      Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt' });
     $revIt  = $topicObject->getRevisionHistory();
     $this->assert($revIt->hasNext());
     $this->assert_equals(3, $revIt->next());
@@ -870,27 +857,25 @@ RESULT
       );
 
     #$topicObject =
-    #  Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt', '1' );
+    #  Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt', rev=>'1' });
     #print "REV1 \n====\n".$topicObject->text()."\n====\n";
     #$topicObject =
-    #  Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt', '2' );
+    #  Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt', rev=>'2' });
     #print "REV2 \n====\n".$topicObject->text()."\n====\n";
     #$topicObject =
-    #  Foswiki::Meta->load($this->{session}, $this->{test_web}, 'RevIt', '3' );
+    #  Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'RevIt', rev=>'3' });
     #print "REV3 \n====\n".$topicObject->text()."\n====\n";
 }
 
 sub test_haveAccess {
     my $this = shift;
 
-    my $topicObject = Foswiki::Meta->new(
-          $this->{session}, $this->{test_web}, 'WebHome' );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'WebHome' });
     $this->assert($topicObject->haveAccess('VIEW'));
     $this->assert($topicObject->haveAccess('CHANGE'));
 
 
-    my $webObject = Foswiki::Meta->new(
-          $this->{session}, $this->{test_web} );
+    my $webObject = Foswiki::Store::load(address=>{web=>$this->{test_web} });
     $this->assert($webObject->haveAccess('VIEW'));
     $this->assert($webObject->haveAccess('CHANGE'));
 
@@ -906,8 +891,7 @@ sub test_setEmbededStoreForm_DOUBLE {
     my $this = shift;
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'TestTopic' );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestTopic' });
     $meta->setEmbeddedStoreForm(<<'HERE');
 %META:TOPICINFO{author="TemiVarghese" comment="reprev" date="1306913758" format="1.1" reprev="10" version="10"}%
 %META:TOPICPARENT{name="PhyloWidgetPlugin"}%
@@ -937,8 +921,7 @@ sub test_setEmbededStoreForm_NotFirstLine {
     my $this = shift;
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'TestTopic' );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestTopic' });
     $meta->setEmbeddedStoreForm(<<'HERE');
 SOMETHING ELSE
 %META:TOPICINFO{author="TemiVarghese" comment="reprev" date="1306913758" format="1.1" reprev="10" version="10"}%
@@ -999,8 +982,7 @@ HERE
 # </topic>
 # XML
 #     my $topicObject =
-#       Foswiki::Meta->new(
-#           $this->{session}, $this->{test_web}, "GoodMeta", $text );
+#       Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"GoodMeta"}, data=>{_text=>$text });
 #     my $xml = $topicObject->xml();
 #     $this->assert_html_equals($expected, $xml);
 # }

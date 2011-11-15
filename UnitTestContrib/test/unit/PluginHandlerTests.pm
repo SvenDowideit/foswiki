@@ -135,8 +135,7 @@ HERE
     close(F);
     try {
         my $topicObject =
-          Foswiki::Meta->new( $this->{session}, $Foswiki::cfg{SystemWebName},
-            $this->{plugin_name}, <<'EOF');
+          Foswiki::Store::create(address=>{web=>$Foswiki::cfg{SystemWebName}, topic=>$this->{plugin_name}}, data=>{_text=><<'EOF'});
    * Set PLUGINVAR = Blah
 EOF
         $topicObject->save();

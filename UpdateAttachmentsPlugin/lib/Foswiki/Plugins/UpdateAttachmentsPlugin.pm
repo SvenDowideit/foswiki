@@ -44,7 +44,7 @@ sub restUpdate {
     my $attachmentsUpdated = 0;
     my $detailedReport     = '';
 
-    my $webObject = Foswiki::Meta->new( $session, $web );
+    my $webObject = Foswiki::Store::load(address=>{web=>$web });
     unless ( $webObject->haveAccess('VIEW')
         && $webObject->haveAccess('CHANGE') )
     {
@@ -72,7 +72,7 @@ sub restUpdate {
           if $debug;
         my $changed = 0;
 
-        my $topicObject = Foswiki::Meta->new( $session, $web, $topic );
+        my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
 
 # Change topic context so topic can override attributes of attachments in their settings
         Foswiki::Func::pushTopicContext( $web, $topic );

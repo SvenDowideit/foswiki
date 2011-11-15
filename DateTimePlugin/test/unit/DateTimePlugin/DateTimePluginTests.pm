@@ -993,7 +993,7 @@ sub _set {
 
     my $user = $fatwilly->{user};
     $this->assert_not_null($user);
-    my $topicObject = Foswiki::Meta->load( $fatwilly, $web, $topic );
+    my $topicObject = Foswiki::Store::load(address=>{web=>$web, topic=>$topic });
     my $text = $topicObject->text();
     $text =~ s/^\s*\* $type $pref =.*$//gm;
     $text .= "\n\t* $type $pref = $val\n";

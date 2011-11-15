@@ -232,11 +232,8 @@ sub _renameTopicOrAttachment {
         Foswiki::UI::checkAccess( $session, 'CHANGE', $old );
     }
 
-    my $new = Foswiki::Meta->new(
-        $session,
-        $newWeb   || $old->web,
-        $newTopic || $old->topic
-    );
+    my $new = Foswiki::Store::create(address=>{web=>$newWeb   || $old->web, topic=>$newTopic || $old->topic
+    });
 
     # Has user selected new name yet?
     if ( !$newTopic || ( $attachment && !$newAttachment ) || $confirm ) {
@@ -401,7 +398,7 @@ sub _renameWeb {
     # This also ensures we check root webs for ALLOWROOTRENAME and
     # DENYROOTRENAME
     my $oldParentWebObject =
-      new Foswiki::Meta( $session, $oldParentWeb || undef );
+      Foswiki::Store::load(address=>{web=>$oldParentWeb || undef });
     Foswiki::UI::checkAccess( $session, 'RENAME', $oldParentWebObject );
 
     # If old web is a root web then also stop if ALLOW/DENYROOTCHANGE
@@ -434,7 +431,7 @@ sub _renameWeb {
         }
 
         # Check if we have change permission in the new parent
-        my $newParentWebObject = new Foswiki::Meta( $session, $newParentWeb );
+        my $newParentWebObject = Foswiki::Store::load(address=>{web=>$newParentWeb });
         Foswiki::UI::checkAccess( $session, 'CHANGE', $newParentWebObject );
     }
 
@@ -1299,7 +1296,7 @@ sub _newWebScreen {
     $tmpl =~ s/%SEARCH_COUNT%/$resultCount/go;
 
     my $fromWebHome =
-      new Foswiki::Meta( $session, $from->web, $Foswiki::cfg{HomeTopicName} );
+      Foswiki::Store::create(address=>{web=>$from->web, topic=>$Foswiki::cfg{HomeTopicName} });
     $tmpl = $fromWebHome->expandMacros($tmpl);
     $tmpl = $fromWebHome->renderTML($tmpl);
 

@@ -184,7 +184,7 @@ sub renderParent {
         # rapid access to parent meta (as in TWiki) accept the hit
         # of reading the whole topic.
         my $topicObject =
-          Foswiki::Meta->load( $this->{session}, $pWeb, $pTopic );
+          Foswiki::Store::load(address=>{web=>$pWeb, topic=>$pTopic });
         my $parentMeta = $topicObject->get('TOPICPARENT');
         $parent = $parentMeta->{name} if $parentMeta;
     }
@@ -477,7 +477,7 @@ sub _linkToolTipInfo {
     # info and summary
     my $users = $this->{session}->{users};
 
-    my $topicObject = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     my $info        = $topicObject->getRevisionInfo();
     my $tooltip     = $this->{LINKTOOLTIPINFO};
     $tooltip =~ s/\$web/<nop>$web/g;
@@ -693,11 +693,8 @@ sub _renderNonExistingWikiWord {
     $ans =~ s/\$web/$web/g;
     $ans =~ s/\$topic/$topic/g;
     $ans =~ s/\$text/$text/g;
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session},
-        $this->{session}->{webName},
-        $this->{session}->{topicName}
-    );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{session}->{webName}, topic=>$this->{session}->{topicName}
+    });
     return $topicObject->expandMacros($ans);
 }
 
@@ -1619,7 +1616,7 @@ sub protectPlainText {
 # DEPRECATED: retained for compatibility with various hack-job extensions
 sub makeTopicSummary {
     my ( $this, $text, $topic, $web, $flags ) = @_;
-    my $topicObject = Foswiki::Meta->new( $this->{session}, $web, $topic );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     return $topicObject->summariseText( '', $text );
 }
 

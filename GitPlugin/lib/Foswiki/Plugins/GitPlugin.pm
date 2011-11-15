@@ -351,7 +351,7 @@ sub _GITMERGE {
 sub _readTopicFromTopicRaw {
     my($session, $web, $topic, $rawText) = @_;
     
-    my $meta = new Foswiki::Meta( $session, $web, $topic, $rawText );
+    my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$rawText });
 
     return( $meta, $meta->text() );
 }

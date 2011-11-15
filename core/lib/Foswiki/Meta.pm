@@ -1522,7 +1522,7 @@ sub getRev1Info {
     unless ( defined $info->{$attr} ) {
         my $ri = $info->{rev1info};
         unless ($ri) {
-            my $tmp = Foswiki::Meta->load( $Foswiki::Plugins::SESSION, $web, $topic, 1 );
+            my $tmp = Foswiki::Store::load(address=>{web=>$web, topic=>$topic, rev=>1 });
             $info->{rev1info} = $ri = $tmp->getRevisionInfo();
         }
 

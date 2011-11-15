@@ -137,8 +137,7 @@ sub test_CAS {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "DeadHerring",
-        <<'SMELL');
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadHerring"}, data=>{_text=><<'SMELL'});
 %QUERY{ "BleaghForm.Wibble" }%
 %QUERY{ "Wibble" }%
 %QUERY{ "attachments.name" }%
@@ -163,8 +162,7 @@ sub test_perl {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "DeadHerring",
-        <<'SMELL');
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadHerring"}, data=>{_text=><<'SMELL'});
 %QUERY{ "Wibble" style="perl" }%
 %QUERY{ "attachments.name" style="perl" }%
 %QUERY{ "attachments" style="perl" }%
@@ -189,8 +187,7 @@ sub test_json {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "DeadHerring",
-                          <<'SMELL');
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadHerring"}, data=>{_text=><<'SMELL'});
 [
 %QUERY{ "Wibble" style="json"}%,
 %QUERY{ "attachments.name" style="json" }%,
@@ -232,8 +229,7 @@ sub test_InvalidStyle {
     }
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "DeadHerring",
-        <<'SMELL');
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadHerring"}, data=>{_text=><<'SMELL'});
 %QUERY{ "BleaghForm.Wibble"  style="NoSuchStyle" }%
 %QUERY{ "Wibble"  style="NoSuchStyle" }%
 %QUERY{ "attachments.name"  style="NoSuchStyle" }%
@@ -258,8 +254,7 @@ sub test_ref {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "DeadHerring",
-        <<'SMELL');
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadHerring"}, data=>{_text=><<'SMELL'});
 %META:FORM{name="BleaghForm"}%
 %META:FIELD{name="Wibble" title="Wobble" value="Woo"}%
 %META:FILEATTACHMENT{name="whatsnot.gif" date="1266942905" size="4586" version="1"}%

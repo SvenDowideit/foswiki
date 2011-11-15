@@ -17,7 +17,7 @@ sub TOPICLIST {
     my $web = $params->{web} || $this->{webName};
     $web =~ s#\.#/#go;
 
-    my $webObject = Foswiki::Meta->new( $this, $web );
+    my $webObject = Foswiki::Store::load(address=>{web=>$web });
     my $thisWebNoSearchAll = Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
     return ''
       if !defined($params->{web}) && $web ne $this->{webName}

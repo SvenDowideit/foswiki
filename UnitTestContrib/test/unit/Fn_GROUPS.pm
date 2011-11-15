@@ -19,26 +19,21 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up(@_);
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "GropeGroup",
-        "   * Set GROUP = ScumBag,WikiGuest\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GropeGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "NestingGroup",
-        "   * Set GROUP = GropeGroup\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"NestingGroup"}, data=>{_text=>"   * Set GROUP = GropeGroup\n" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "GroupWithHiddenGroup",
-        "   * Set GROUP = HiddenGroup,WikiGuest\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GroupWithHiddenGroup"}, data=>{_text=>"   * Set GROUP = HiddenGroup});
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "HiddenGroup",
-        "   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenGroup"}, data=>{_text=>"   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n" });
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "HiddenUserGroup",
-        "   * Set GROUP = ScumBag,HidemeGood\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenUserGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
     $topicObject->save();
 
     $topicObject =

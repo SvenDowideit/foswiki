@@ -822,7 +822,7 @@ sub test_timing_reparse {
 
 #    $this->expect_failure();
 #    $this->assert( $addrObj->stringify());
-#    $addrObj       = Foswiki::Address->new(Foswiki::Meta->new($this->{session}, 'Main', 'WebHome'));
+#    $addrObj       = Foswiki::Address->new(Foswiki::Store::create(address=>{web=>'Main', topic=>'WebHome')});
 #    $this->assert( $addrObj->stringify());
 
 #    return;

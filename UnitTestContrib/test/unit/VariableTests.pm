@@ -21,8 +21,7 @@ sub set_up {
     $this->{session}->finish();
     $this->{session} = new Foswiki( 'scum', $query );
     $this->{test_topicObject} =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
 }
 
 sub new {
@@ -154,8 +153,7 @@ sub test_macroParams {
 | p"r"r | %WOOF{MIAOW="p$quot()r$quot()r"}% |
 INPUT
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic}, $input );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>$input });
     my $result = $topicObject->expandMacros($input);
     my $expected = <<'EXPECTED';
 | gloop | gloop |

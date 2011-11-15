@@ -23,12 +23,10 @@ sub set_up {
     $this->{guest_wikiname} = Foswiki::Func::getWikiName();
     $this->{session}->{user} = $this->{test_user_cuid};    # OUCH
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "GropeGroup",
-        "   * Set GROUP = ScumBag,WikiGuest\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GropeGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "GlumDrop",
-        "Burble\n" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"GlumDrop"}, data=>{_text=>"Burble\n" });
     $topicObject->save();
 }
 
@@ -121,8 +119,7 @@ sub test_otherWeb {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $ui = $topicObject->expandMacros(
         '%REVINFO{topic="GropeGroup" web="' . $this->{users_web} . '"}%',
     );
@@ -138,8 +135,7 @@ sub test_otherWeb2 {
     my $this = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $ui = $topicObject->expandMacros(
         '%REVINFO{topic="' . $this->{users_web} . '.GropeGroup"}%' );
     unless ( $ui =~
@@ -174,8 +170,7 @@ sub test_compatibility1 {
         return;
     }
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'CrikeyMoses',
-        <<'HERE');
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'CrikeyMoses'}, data=>{_text=><<'HERE'});
 %META:TOPICINFO{author="ScumBag" date="1120846368" format="1.1" version="$Rev$"}%
 HERE
     $topicObject->save();
@@ -198,8 +193,7 @@ sub test_compatibility2 {
         return;
     }
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'CrikeyMoses',
-        <<'HERE');
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'CrikeyMoses'}, data=>{_text=><<'HERE'});
 %META:TOPICINFO{author="scum" date="1120846368" format="1.1" version="$Rev$"}%
 HERE
     $topicObject->save();
@@ -232,8 +226,7 @@ HERE
     close(F);
     $Foswiki::cfg{RenderLoggedInButUnknownUsers} = 0;
     my $topicObject =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web},
-        'GeeWillikins' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'GeeWillikins' });
     my $ui = $topicObject->expandMacros(
         '%REVINFO{format="$username $wikiname $wikiusername"}%');
     $this->assert_str_equals( "eltonjohn eltonjohn eltonjohn", $ui );
@@ -246,8 +239,7 @@ HERE
 sub test_42 {
     my $this = shift;
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "HappyPill",
-        "   * Set ALLOWTOPICVIEW = CarlosCastenada\n" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"HappyPill"}, data=>{_text=>"   * Set ALLOWTOPICVIEW = CarlosCastenada\n" });
     $topicObject->save();
     $this->{session}->finish();
     $this->{session} = new Foswiki();

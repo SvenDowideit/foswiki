@@ -25,7 +25,7 @@ sub set_up {
     $this->SUPER::set_up();
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "FormTest" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"FormTest" });
 
     $meta->putKeyed(
         'FIELD',

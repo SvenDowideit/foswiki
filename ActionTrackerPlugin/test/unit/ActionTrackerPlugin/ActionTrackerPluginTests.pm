@@ -35,7 +35,7 @@ sub set_up {
     Foswiki::Plugins::ActionTrackerPlugin::Action::forceTime("3 Jun 2002");
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "Topic1" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"Topic1" });
     $meta->putKeyed( 'FIELD',
         { name => 'Who', title => 'Leela', value => 'Turanaga' } );
     Foswiki::Func::saveTopic(
@@ -218,7 +218,7 @@ sub test_BeforeEditHandler {
     my $text =
 '%ACTION{uid="666" who=Fred,due="2 Jan 02",open}% Test1: Fred_open_ontime';
     Foswiki::Plugins::ActionTrackerPlugin::beforeEditHandler( $text, "Topic2",
-        $this->{users_web}, Foswiki::Meta->new($this->{session}, $this->{users_web}, "Topic2") );
+        $this->{users_web}, Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"Topic2") });
     $text = $this->assert_html_matches(
 "<input type=\"text\" name=\"who\" value=\"$this->{users_web}\.Fred\" size=\"35\"/>",
         $text

@@ -22,7 +22,7 @@ sub set_up {
     $this->{target_topic} = 'SpreadSheetTestTopic'
       || "$this->{test_topic}Target";
 
-    my $webObject = Foswiki::Meta->new( $this->{session}, $this->{target_web} );
+    my $webObject = Foswiki::Store::load(address=>{web=>$this->{target_web} });
     $webObject->populateNewWeb();
 
 #$this->{session}->{store}->createWeb( $this->{session}->{user}, $this->{target_web} );
@@ -44,7 +44,7 @@ sub tear_down {
     my $this = shift;
 
 #$this->{session}->{store}->removeWeb( $this->{session}->{user}, $this->{target_web} );
-    my $webObject = Foswiki::Meta->new( $this->{session}, $this->{target_web} );
+    my $webObject = Foswiki::Store::load(address=>{web=>$this->{target_web} });
     $webObject->removeFromStore();
 
     $this->SUPER::tear_down();
@@ -52,7 +52,7 @@ sub tear_down {
 
 sub writeTopic {
     my ( $this, $web, $topic, $text ) = @_;
-    my $meta = new Foswiki::Meta( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$text });
     $meta->save();
 
 #$this->{session}->{store}->saveTopic( $this->{session}->{user}, $web, $topic, $text, $meta );

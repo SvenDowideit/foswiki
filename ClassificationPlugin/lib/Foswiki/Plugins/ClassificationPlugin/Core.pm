@@ -679,7 +679,7 @@ sub beforeSaveHandler {
 
   my $session = $Foswiki::Plugins::SESSION;
   unless ($meta) {
-    $meta = new Foswiki::Meta($session, $web, $topic, $text);
+    $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$text});
     #writeDebug("creating a new meta object");
   }
 

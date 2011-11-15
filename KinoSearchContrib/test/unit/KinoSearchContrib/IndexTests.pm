@@ -137,8 +137,7 @@ THIS
     );
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        "TopicWithForm" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"TopicWithForm" });
     $meta->put( 'FORM', { name => 'TestForm', } );
     $meta->putKeyed(
         'FIELD',

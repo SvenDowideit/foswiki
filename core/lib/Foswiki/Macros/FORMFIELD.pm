@@ -11,7 +11,7 @@ sub FORMFIELD {
         my $topic = $args->{topic};
         ( $web, $topic ) =
           $this->normalizeWebTopicName( $web, $topic );
-        $topicObject = new Foswiki::Meta( $this, $web, $topic );
+        $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     }
     else {
 

@@ -31,10 +31,8 @@ sub set_up {
         my $webObject = Foswiki::Store->load(address=>{web=>$testWeb});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists($testWeb) );
-        my $topicObject = Foswiki::Meta->new(
-            $this->{session},             $testWeb,
-            $Foswiki::cfg{HomeTopicName}, "SMELL"
-        );
+        my $topicObject = Foswiki::Store::create(address=>{web=>$testWeb, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"SMELL"
+        });
         $topicObject->save();
         $this->assert( $this->{session}
               ->topicExists( $testWeb, $Foswiki::cfg{HomeTopicName} ) );
@@ -43,8 +41,7 @@ sub set_up {
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists($testWebSubWebPath) );
         $topicObject =
-          Foswiki::Meta->new( $this->{session}, $testWebSubWebPath,
-            $Foswiki::cfg{HomeTopicName}, "SMELL" );
+          Foswiki::Store::create(address=>{web=>$testWebSubWebPath, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"SMELL" });
         $topicObject->save();
         $this->assert( $this->{session}
               ->topicExists( $testWebSubWebPath, $Foswiki::cfg{HomeTopicName} )
@@ -98,8 +95,7 @@ sub test_createSubWebTopic {
     $this->{session}->finish();
     $this->{session} = new Foswiki();
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWebSubWebPath, $testTopic,
-        "page stuff\n" );
+      Foswiki::Store::create(address=>{web=>$testWebSubWebPath, topic=>$testTopic}, data=>{_text=>"page stuff\n" });
     $topicObject->save();
     $this->assert(
         $this->{session}->topicExists( $testWebSubWebPath, $testTopic ) );
@@ -117,8 +113,7 @@ sub test_include_subweb_non_wikiword_topic {
 
     # create the (including) page
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWebSubWebPath, $baseTopic,
-        <<__TOPIC__ );
+      Foswiki::Store::create(address=>{web=>$testWebSubWebPath, topic=>$baseTopic}, data=>{_text=><<__TOPIC__ });
 %INCLUDE{ "$testWebSubWebPath/$includeTopic" }%
 __TOPIC__
     $topicObject->save();
@@ -127,16 +122,14 @@ __TOPIC__
 
     # create the (included) page
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWebSubWebPath, $includeTopic,
-        $testText );
+      Foswiki::Store::create(address=>{web=>$testWebSubWebPath, topic=>$includeTopic}, data=>{_text=>$testText });
     $topicObject->save();
     $this->assert(
         $this->{session}->topicExists( $testWebSubWebPath, $includeTopic ) );
 
     # verify included page's text
     $topicObject =
-      Foswiki::Meta->load( $this->{session}, $testWebSubWebPath,
-        $includeTopic );
+      Foswiki::Store::load(address=>{web=>$testWebSubWebPath, topic=>$includeTopic });
     $this->assert_matches( qr/$testText\s*$/, $topicObject->text );
 
     # base page should evaluate (more or less) to the included page's text
@@ -158,8 +151,7 @@ sub test_create_subweb_with_same_name_as_a_topic {
 
     # create the page
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $testWebSubWebPath, $testTopic,
-        $testText );
+      Foswiki::Store::create(address=>{web=>$testWebSubWebPath, topic=>$testTopic}, data=>{_text=>$testText });
     $topicObject->save();
     $this->assert(
         $this->{session}->topicExists( $testWebSubWebPath, $testTopic ) );

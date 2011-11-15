@@ -2023,15 +2023,13 @@ sub test_eachChangeSince {
     $this->{session}->finish();
     $this->{session} = Foswiki->new($user1);
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "ClutterBuck",
-        "One" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"ClutterBuck"}, data=>{_text=>"One" });
     $meta->save();
 
     $this->{session}->finish();
     $this->{session} = Foswiki->new($user2);
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "PiggleNut",
-        "One" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"PiggleNut"}, data=>{_text=>"One" });
     $meta->save();
 
     # Wait a second
@@ -2041,15 +2039,13 @@ sub test_eachChangeSince {
     $this->{session}->finish();
     $this->{session} = Foswiki->new($user2);
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "ClutterBuck",
-        "One" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"ClutterBuck"}, data=>{_text=>"One" });
     $meta->save();
 
     $this->{session}->finish();
     $this->{session} = Foswiki->new($user1);
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "PiggleNut",
-        "Two" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"PiggleNut"}, data=>{_text=>"Two" });
     $meta->save();
 
     my $change;
@@ -2243,8 +2239,7 @@ sub test_getAttachmentList {
     my $filename  = "$Foswiki::cfg{TempfileDir}/$shortname";
     $this->write_file( $filename, "Naff\n" );
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic}, "One" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"One" });
     $meta->attach(
         name    => $shortname,
         file    => $filename,

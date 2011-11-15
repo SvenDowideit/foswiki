@@ -643,11 +643,8 @@ sub renderDirtyAreas {
 
     # remember the current page length to recompute the content length below
     my $found    = 0;
-    my $topicObj = new Foswiki::Meta(
-        $this->{session},
-        $this->{session}{webName},
-        $this->{session}{topicName}
-    );
+    my $topicObj = Foswiki::Store::create(address=>{web=>$this->{session}{webName}, topic=>$this->{session}{topicName}
+    });
 
     # expand dirt
     while ( $$text =~

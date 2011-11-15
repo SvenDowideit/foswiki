@@ -38,8 +38,7 @@ sub test_webExpansion {
     # Create topic to include
     my $includedTopic = "TopicToInclude";
     my $inkyDink =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web}, $includedTopic,
-        <<THIS);
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=><<THIS});
 <literal>
 1 [[$includedTopic][one]] $includedTopic
 </literal>
@@ -66,8 +65,7 @@ THIS
 
     # Expand an include in the context of the test web
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $text = $topicObject->expandMacros(
         "%INCLUDE{$this->{other_web}.$includedTopic}%");
     my @get    = split( /\n/, $text );
@@ -106,8 +104,7 @@ sub test_3158 {
     my $this          = shift;
     my $includedTopic = "TopicToInclude";
     my $inkyDink =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web}, $includedTopic,
-        <<THIS);
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=><<THIS});
 Snurfle
 %STARTSECTION{"suction"}%
 Such a section!
@@ -168,8 +165,7 @@ THIS
     $handledTopicText =~ s/%(START|END)SECTION{"suction"}%//g;
 
     my $inkyDink =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web}, $includedTopic,
-        $topicText );
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -210,8 +206,7 @@ But only in acrylic
 THIS
 
     my $inkyDink =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web}, $includedTopic,
-        $topicText );
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -231,8 +226,7 @@ But only in acrylic
 THIS
 
     my $inkyDink =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web}, $includedTopic,
-        $topicText );
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -253,8 +247,7 @@ But only in acrylic
 THIS
 
     my $inkyDink =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web}, $includedTopic,
-        $topicText );
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -274,8 +267,7 @@ But only in acrylic
 THIS
 
     my $inkyDink =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web}, $includedTopic,
-        $topicText );
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(

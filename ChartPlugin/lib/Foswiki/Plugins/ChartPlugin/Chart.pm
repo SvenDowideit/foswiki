@@ -1477,7 +1477,7 @@ sub makeChart {
     }
     close IMAGE;
     # And save it as an attachment. Note that there are no access control checks!
-    my $topicObject = new Foswiki::Meta($Foswiki::Plugins::SESSION, $this->{WEB}, $this->{TOPIC});
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{WEB}, topic=>$this->{TOPIC}});
     $topicObject->attach( name => $this->{FILE_NAME},
 			  dontlog => 1,
 			  hide => 1,

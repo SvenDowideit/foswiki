@@ -24,7 +24,7 @@ sub set_up {
 
     $this->{target_web}   = "$this->{test_web}Target";
     $this->{target_topic} = "$this->{test_topic}Target";
-    my $webObject = Foswiki::Meta->new( $this->{session}, $this->{target_web} );
+    my $webObject = Foswiki::Store::load(address=>{web=>$this->{target_web} });
     $webObject->populateNewWeb();
 
     Foswiki::Func::getContext()->{view} = 1;
@@ -44,7 +44,7 @@ sub tear_down {
 
 sub writeTopic {
     my ( $this, $web, $topic, $text ) = @_;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$text });
     $meta->save();
 
     return;

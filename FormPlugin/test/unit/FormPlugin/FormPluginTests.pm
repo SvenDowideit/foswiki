@@ -2240,7 +2240,7 @@ sub _set {
 
     my $user = $this->{session}->{user};
     $this->assert_not_null($user);
-    my $topicObject = Foswiki::Meta->load( $this->{session}, $web, $topic );
+    my $topicObject = Foswiki::Store::load(address=>{web=>$web, topic=>$topic });
     my $text = $topicObject->text();
     $text =~ s/^\s*\* $type $pref =.*$//gm;
     $text .= "\n\t* $type $pref = $val\n";

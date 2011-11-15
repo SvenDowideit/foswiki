@@ -17,7 +17,7 @@ sub EXPAND {
           $this->normalizeWebTopicName( $this->{webName}, $scope );
         return $this->inlineAlert( 'alerts', 'EXPAND_noscope', $scope )
           unless $this->topicExists( $web, $topic );
-        $meta = new Foswiki::Meta( $this, $web, $topic );
+        $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
         return $this->inlineAlert( 'alerts', 'EXPAND_noaccess', $scope )
           unless $meta->haveAccess('VIEW');
         $this->{prefs}->popTopicContext();
@@ -25,7 +25,7 @@ sub EXPAND {
     }
     else {
         $meta =
-          new Foswiki::Meta( $this, $this->{webName}, $this->{topicName} );
+          Foswiki::Store::create(address=>{web=>$this->{webName}, topic=>$this->{topicName} });
     }
     my $expansion = $meta->expandMacros($macro);
     if ($scope) {

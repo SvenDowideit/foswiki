@@ -587,7 +587,7 @@ sub renderForEdit {
 	my $formDef = $this->{oDef};
 	
 	if ($formDef->{fields}) { # only if the object has an object definition topic
-		my $meta = new Foswiki::Meta($Foswiki::Plugins::SESSION, $web, $topic);
+		my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic});
 		my $newObject = $this->{uid} ? 0 : 1;
 		my $types = $formDef->{types};
 		

@@ -700,7 +700,7 @@ sub formatResults {
     my $headerDone = $noHeader;
 
     my $web              = $baseWeb;
-    my $webObject        = new Foswiki::Meta( $session, $web );
+    my $webObject        = Foswiki::Store::load(address=>{web=>$web });
     my $lastWebProcessed = '';
 
     #total number of topics and hits - not reset when we swap webs
@@ -737,7 +737,7 @@ sub formatResults {
 
 #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
 #lets change that
-                $topicMeta = new Foswiki::Meta( $session, $web, $topic );
+                $topicMeta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
             }
             $info = $this->metacache->get( $web, $topic, $topicMeta );
             ASSERT( defined( $info->{tom} ) ) if DEBUG;
@@ -854,7 +854,7 @@ sub formatResults {
             }
 
             if ( $lastWebProcessed ne $web ) {
-                $webObject = new Foswiki::Meta( $session, $web );
+                $webObject = Foswiki::Store::load(address=>{web=>$web });
                 $lastWebProcessed = $web;
 
                 #reset our web partitioned legacy counts
@@ -1029,7 +1029,7 @@ sub formatResults {
         else {
             $footer = '';
         }
-        ##MOVEDUP $webObject = new Foswiki::Meta( $session, $baseWeb );
+        ##MOVEDUP $webObject = Foswiki::Store::load(address=>{web=>$baseWeb });
     }
     else {
         if ( ( not $noTotal ) and ( defined( $params->{footercounter} ) ) ) {

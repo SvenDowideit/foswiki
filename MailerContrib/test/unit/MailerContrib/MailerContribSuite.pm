@@ -63,7 +63,7 @@ sub set_up {
     $testWeb2 = "$this->{test_web}/SubWeb";
 
     # Will get torn down when the parent web dies
-    my $webObject = Foswiki::Meta->new( $this->{session}, $testWeb2 );
+    my $webObject = Foswiki::Store::load(address=>{web=>$testWeb2 });
     $webObject->populateNewWeb();
 
     $this->registerUser( "tu1", "Test", "User1", "test1\@example.com" );
@@ -229,8 +229,7 @@ sub set_up {
     }
     foreach my $web ( $this->{test_web}, $testWeb2 ) {
         my $meta =
-          Foswiki::Meta->new( $this->{session}, $web,
-            $Foswiki::cfg{NotifyTopicName} );
+          Foswiki::Store::create(address=>{web=>$web, topic=>$Foswiki::cfg{NotifyTopicName} });
         $meta->put( "TOPICPARENT", { name => "$web.WebHome" } );
         Foswiki::Func::saveTopic(
             $web,  $Foswiki::cfg{NotifyTopicName},
@@ -241,13 +240,13 @@ sub set_up {
             if ( $testTopic =~ /^TestTopic(\d+)\d$/ ) {
                 $parent = 'TestTopic' . $1;
             }
-            $meta = Foswiki::Meta->new( $this->{session}, $web, $testTopic );
+            $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$testTopic });
             $meta->put( "TOPICPARENT", { name => $parent } );
             Foswiki::Func::saveTopic( $web, $testTopic, $meta,
                 "This is $testTopic so there" );
         }
 
-        $meta = Foswiki::Meta->new( $this->{session}, $web, "TestTopicDenied" );
+        $meta = Foswiki::Store::create(address=>{web=>$web, topic=>"TestTopicDenied" });
         Foswiki::Func::saveTopic( $web, "TestTopicDenied", $meta,
             "   * Set ALLOWTOPICVIEW = TestUser1" );
 
@@ -542,8 +541,7 @@ sub testExcluded {
 HERE
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{NotifyTopicName} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{NotifyTopicName} });
     $meta->put( "TOPICPARENT", { name => "$this->{test_web}.WebHome" } );
     Foswiki::Func::saveTopic( $this->{test_web}, $Foswiki::cfg{NotifyTopicName},
         $meta, "Before\n${s}After", $meta );
@@ -571,8 +569,7 @@ gribble.com
 HERE
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{NotifyTopicName} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{NotifyTopicName} });
     $meta->put( "TOPICPARENT", { name => "$this->{test_web}.WebHome" } );
     Foswiki::Func::saveTopic( $this->{test_web}, $Foswiki::cfg{NotifyTopicName},
         $meta, "Before\n${s}After", $meta );
@@ -613,15 +610,14 @@ sub testExpansion_1847 {
 
     # Create a WebNotify matching our topic
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{NotifyTopicName} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{NotifyTopicName} });
     $meta->put( "TOPICPARENT", { name => "$this->{test_web}.WebHome" } );
     Foswiki::Func::saveTopic( $this->{test_web}, $Foswiki::cfg{NotifyTopicName},
         $meta, "   * $testEmail: $testTopic!", $meta );
 
     # Fill our topic with our test data
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $testTopic );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$testTopic });
     $meta->put( "TOPICPARENT", { name => "$this->{test_web}.WebHome" } );
     Foswiki::Func::saveTopic( $this->{test_web}, $testTopic, $meta,
         "This is $testTopic so there", $meta );
@@ -666,8 +662,7 @@ sub test_5949 {
    * TestUser1: SpringCabbage
 HERE
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{NotifyTopicName} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{NotifyTopicName} });
     $meta->put( "TOPICPARENT", { name => "$this->{test_web}.WebHome" } );
     Foswiki::Func::saveTopic( $this->{test_web}, $Foswiki::cfg{NotifyTopicName},
         $meta, "Before\n${s}After", $meta );
@@ -693,8 +688,7 @@ sub test_changeSubscription_and_isSubScribedTo_API {
 
     #start by removing all subscriptions
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{NotifyTopicName} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{NotifyTopicName} });
     $meta->put( "TOPICPARENT", { name => "$this->{test_web}.WebHome" } );
     Foswiki::Func::saveTopic( $this->{test_web}, $Foswiki::cfg{NotifyTopicName},
         $meta, "Before\nAfter\n", $meta );

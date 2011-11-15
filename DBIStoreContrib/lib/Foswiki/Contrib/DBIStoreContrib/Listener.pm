@@ -178,11 +178,11 @@ sub _preload {
 sub _preloadWeb {
     my ( $this, $w, $session ) = @_;
     print STDERR "PRELOAD $w\n" if MONITOR;
-    my $web = Foswiki::Meta->new( $session, $w );
+    my $web = Foswiki::Store::load(address=>{web=>$w });
     my $tit = $web->eachTopic();
     while ( $tit->hasNext() ) {
         my $t = $tit->next();
-        my $topic = Foswiki::Meta->load( $session, $w, $t );
+        my $topic = Foswiki::Store::load(address=>{web=>$w, topic=>$t });
         $this->insert($topic);
     }
     my $wit = $web->eachWeb();

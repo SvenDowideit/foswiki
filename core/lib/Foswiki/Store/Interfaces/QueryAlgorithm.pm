@@ -180,7 +180,7 @@ sub addACLFilter {
 #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
 #lets change that
                 $topicMeta =
-                  new Foswiki::Meta( $Foswiki::Plugins::SESSION, $web, $topic );
+                  Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
             }
             my $info =
               $Foswiki::Plugins::SESSION->search->metacache->get( $web, $topic,
@@ -399,7 +399,7 @@ sub getRefTopic {
 
     # Get a referenced topic
     my ( $this, $relativeTo, $w, $t, $rev ) = @_;
-    my $meta = Foswiki::Meta->load( $relativeTo->session, $w, $t, $rev );
+	my $meta = Foswiki::Store::load(address=>{web=>$w, topic=>$t, rev=>$rev });
     print STDERR "----- getRefTopic($w, $t) -> "
       . ( $meta->getLoadedRev() ) . "\n"
       if MONITOR;

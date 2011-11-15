@@ -93,8 +93,7 @@ THIS
         'Tmp1' )
     {
         my $meta =
-          Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic,
-            $originaltext );
+          Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>$originaltext });
         $meta->putKeyed(
             'FIELD',
             {
@@ -139,8 +138,7 @@ THIS
 
     # Topic in the new web
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web}, 'OtherTopic',
-        $originaltext );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>'OtherTopic'}, data=>{_text=>$originaltext });
     $meta->putKeyed(
         'FIELD',
         {
@@ -180,8 +178,7 @@ THIS
     $meta->save();
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web},
-        $Foswiki::cfg{HomeTopicName}, 'junk' );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>'junk' });
     $topicObject->save();
 
     # Topic text for template rename tests that contains all references.
@@ -205,10 +202,8 @@ THIS
    * Set SOME_TEMPLATE = $this->{new_web}.OldViewTemplate
 THIS
 
-    $meta = Foswiki::Meta->new(
-        $this->{session}, $this->{test_web},
-        'TmplRefTopic',   $origTemplateRefs
-    );
+    $meta = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TmplRefTopic'}, data=>{_text=>$origTemplateRefs
+    });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -231,10 +226,8 @@ THIS
     $this->assert(
         $this->{session}->topicExists( $this->{test_web}, 'TmplRefTopic' ) );
 
-    $meta = Foswiki::Meta->new(
-        $this->{session}, $this->{test_web},
-        'TmplRefTopic2',  $origTemplateRefs
-    );
+    $meta = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TmplRefTopic2'}, data=>{_text=>$origTemplateRefs
+    });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -256,8 +249,7 @@ THIS
     $meta->save();
 
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'TmplRefMeta1',
-        "Meta Only" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TmplRefMeta1'}, data=>{_text=>"Meta Only" });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -270,8 +262,7 @@ THIS
     $meta->save();
 
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'TmplRefMeta2',
-        "Meta Only" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TmplRefMeta2'}, data=>{_text=>"Meta Only" });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -284,8 +275,7 @@ THIS
     $meta->save();
 
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'TmplRefMeta3',
-        "Meta Only" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TmplRefMeta3'}, data=>{_text=>"Meta Only" });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -298,8 +288,7 @@ THIS
     $meta->save();
 
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'OldViewTemplate', "Template" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'OldViewTemplate'}, data=>{_text=>"Template" });
     $meta->save();
 }
 
@@ -469,8 +458,7 @@ sub test_renameTemplateThisWeb {
         [ "$this->{test_web}.NewViewTemplate" ] );
 
     my $m =
-      Foswiki::Meta->load( $this->{session}, "$this->{test_web}",
-        'TmplRefTopic' );
+      Foswiki::Store::load(address=>{web=>"$this->{test_web}", topic=>'TmplRefTopic' });
     my @lines = split( /\n/, $m->text() );
     $this->assert_str_equals( " $this->{test_web}.OldView",         $lines[0] );
     $this->assert_str_equals( " $this->{test_web}.NewViewTemplate", $lines[1] );
@@ -511,38 +499,32 @@ sub test_referringTopicsThisWeb {
     my $ott  = 'Old Topic';
     my $lott = lc($ott);
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeOne',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeOne'}, data=>{_text=><<THIS });
 [[$ott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeTwo',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeTwo'}, data=>{_text=><<THIS });
 [[$lott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web}, 'MatchMeThree',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>'MatchMeThree'}, data=>{_text=><<THIS });
 [[$this->{test_web}.$ott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web}, 'MatchMeFour',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>'MatchMeFour'}, data=>{_text=><<THIS });
 [[$this->{test_web}.$lott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'NoMatch',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoMatch'}, data=>{_text=><<THIS });
 Refer to $ott and $lott
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web}, 'NoMatch',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>'NoMatch'}, data=>{_text=><<THIS });
 Refer to $ott and $lott
 THIS
     $topicObject->save();
@@ -577,38 +559,32 @@ sub test_renameTopic_find_referring_topics_in_all_webs {
     my $ott  = 'Old Topic';
     my $lott = lc($ott);
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeOne',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeOne'}, data=>{_text=><<THIS });
 [[$ott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeTwo',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeTwo'}, data=>{_text=><<THIS });
 [[$lott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web}, 'MatchMeThree',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>'MatchMeThree'}, data=>{_text=><<THIS });
 [[$this->{test_web}.$ott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web}, 'MatchMeFour',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>'MatchMeFour'}, data=>{_text=><<THIS });
 [[$this->{test_web}.$lott]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'NoMatch',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoMatch'}, data=>{_text=><<THIS });
 Refer to $ott and $lott
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{new_web}, 'NoMatch',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{new_web}, topic=>'NoMatch'}, data=>{_text=><<THIS });
 Refer to $ott and $lott
 THIS
     $topicObject->save();
@@ -633,50 +609,42 @@ sub test_renameTopic_find_referring_topics_when_renamed_topic_is_not_a_WikiWord
     my $ott  = 'ranDom';
     my $lott = lc($ott);
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeOne',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeOne'}, data=>{_text=><<THIS });
 random random random
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeTwo',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeTwo'}, data=>{_text=><<THIS });
 ranDom ranDom ranDom
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeThree',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeThree'}, data=>{_text=><<THIS });
 Random Random Random
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeFour',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeFour'}, data=>{_text=><<THIS });
 RanDom RanDom RanDom
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeFive',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeFive'}, data=>{_text=><<THIS });
 [[random]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeSix',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeSix'}, data=>{_text=><<THIS });
 [[ranDom]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeSeven',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeSeven'}, data=>{_text=><<THIS });
 [[Random]]
 THIS
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'MatchMeEight',
-        <<THIS );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'MatchMeEight'}, data=>{_text=><<THIS });
 [[RanDom]]
 THIS
     $topicObject->save();
@@ -736,15 +704,13 @@ sub test_rename_topic_reference_in_denied_web {
 
     # Create a topic in the subweb that refers to the topic we're renaming
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Swamp",
-        'TopSecret' );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}/Swamp", topic=>'TopSecret' });
     $m->text("[[$this->{test_web}.$fnord]]");
     $m->save();
 
     # Make sure the subweb is unprotected (readable)
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Swamp",
-        'WebPreferences' );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}/Swamp", topic=>'WebPreferences' });
     $m->text("   * Set ALLOWWEBCHANGE = \n   * Set ALLOWWEBVIEW = \n");
     $m->save();
 
@@ -758,8 +724,7 @@ sub test_rename_topic_reference_in_denied_web {
 
     # Protect the web we made (deny view access)
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Swamp",
-        'WebPreferences' );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}/Swamp", topic=>'WebPreferences' });
     $m->text("   * Set ALLOWWEBVIEW = PickMeOhPickMe");
     $m->save();
 
@@ -780,8 +745,7 @@ sub test_rename_topic_reference_in_denied_web {
     # Protect the web we made (deny change access)
     # We need to be able to see these references.
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Swamp",
-        'WebPreferences' );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}/Swamp", topic=>'WebPreferences' });
     $m->text("   * Set ALLOWWEBCHANGE = PickMeOhPickMe");
     $m->save();
 
@@ -1145,8 +1109,7 @@ sub test_renameTopic_new_web_same_topic_name_no_access {
     $this->assert( Foswiki::Func::webExists("$this->{test_web}/Targetweb") );
 
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Targetweb",
-        'WebPreferences' );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}/Targetweb", topic=>'WebPreferences' });
     $m->text("   * Set ALLOWWEBCHANGE = NotMe\n   * Set ALLOWWEBVIEW = \n");
     $m->save();
 
@@ -1252,8 +1215,7 @@ Twolowercase
 [[lowercase]]
 THIS
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'lowercase',
-        $topictext );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'lowercase'}, data=>{_text=>$topictext });
     $topicObject->save();
     my $query = new Unit::Request(
         {
@@ -1289,8 +1251,7 @@ sub test_renameTopic_TOPICRENAME_access_denied {
     my $this      = shift;
     my $topictext = "   * Set ALLOWTOPICRENAME = GungaDin\n";
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'OldTopic',
-        $topictext );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'OldTopic'}, data=>{_text=>$topictext });
     $topicObject->save();
     my $query = new Unit::Request(
         {
@@ -1325,8 +1286,7 @@ sub test_renameTopic_WEBRENAME_access_denied {
     my $this      = shift;
     my $topictext = "   * Set ALLOWWEBRENAME = GungaDin\n";
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{WebPrefsTopicName}, $topictext );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=>$topictext });
     $topicObject->save();
     my $query = new Unit::Request(
         {
@@ -1365,10 +1325,8 @@ sub test_renameTopic_preserves_history {
     my @history   = qw( First Second Third );
 
     for my $depth ( 0 .. $#history ) {
-        my $topicObject = Foswiki::Meta->new(
-            $this->{session}, $this->{test_web},
-            $topicName,       $history[$depth]
-        );
+        my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topicName}, data=>{_text=>$history[$depth]
+        });
         $topicObject->save( forcenewrevision => 1 );
         $topicObject->finish();
     }
@@ -1387,8 +1345,7 @@ sub test_renameTopic_preserves_history {
     $Foswiki::Plugins::SESSION = $this->{session};
     $this->captureWithKey( rename => $UI_FN, $this->{session} );
     my $m =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web},
-        $topicName . 'Renamed' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$topicName . 'Renamed' });
     $this->assert_equals( $history[$#history], $m->text );
     my $info = $m->getRevisionInfo();
     $this->assert_equals( $#history + 1, $info->{version} )
@@ -1457,8 +1414,7 @@ sub test_renameWeb_1307a {
       Foswiki::Store->load(address=>{web=>"$this->{test_web}/Renamedweb"});
     $m->populateNewWeb();
     $m =
-      Foswiki::Meta->new( $this->{session},
-        "$this->{test_web}/Renamedweb/Subweb" );
+      Foswiki::Store::load(address=>{web=>"$this->{test_web}/Renamedweb/Subweb" });
     $m->populateNewWeb();
     $m =
       Foswiki::Store->load(address=>{web=> "$this->{test_web}/Notrenamedweb"});
@@ -1466,8 +1422,7 @@ sub test_renameWeb_1307a {
     my $vue =
 "$Foswiki::cfg{DefaultUrlHost}/$Foswiki::cfg{ScriptUrlPath}/view$Foswiki::cfg{ScriptSuffix}";
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}/Notrenamedweb",
-        'ReferringTopic', <<CONTENT );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}/Notrenamedweb", topic=>'ReferringTopic'}, data=>{_text=><<CONTENT });
 $this->{test_web}.Renamedweb.Subweb
 $this->{test_web}/Renamedweb/Subweb
 $this->{test_web}.Notrenamedweb.Subweb
@@ -1500,8 +1455,7 @@ CONTENT
     );
     $this->assert( !Foswiki::Func::webExists("$this->{test_web}/Renamedweb") );
     $m =
-      Foswiki::Meta->load( $this->{session}, "$this->{test_web}/Notrenamedweb",
-        'ReferringTopic' );
+      Foswiki::Store::load(address=>{web=>"$this->{test_web}/Notrenamedweb", topic=>'ReferringTopic' });
     my @lines = split( /\n/, $m->text() );
     $this->assert_str_equals(
         "$this->{test_web}/Notrenamedweb/Renamedweb.Subweb",
@@ -1539,8 +1493,7 @@ sub test_renameWeb_1307b {
     my $vue =
 "$Foswiki::cfg{DefaultUrlHost}/$Foswiki::cfg{ScriptUrlPath}/view$Foswiki::cfg{ScriptSuffix}";
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}",
-        'ReferringTopic', <<CONTENT );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}", topic=>'ReferringTopic'}, data=>{_text=><<CONTENT });
 Renamed$this->{test_web}.Subweb
 Renamed$this->{test_web}/Subweb
 $this->{test_web}.Subweb
@@ -1558,8 +1511,7 @@ CONTENT
     # faff to set up, so we'll cheat a bit and add the user to the admin
     # group. Fortunately we have a private users web.
     my $grope =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        $Foswiki::cfg{SuperAdminGroup}, <<EOF);
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=><<EOF});
    * Set GROUP = $this->{test_user_wikiname}
 EOF
     $grope->save();
@@ -1583,8 +1535,7 @@ EOF
     );
     $this->assert( !Foswiki::Func::webExists("Renamed$this->{test_web}") );
     $m =
-      Foswiki::Meta->load( $this->{session}, "$this->{test_web}",
-        'ReferringTopic' );
+      Foswiki::Store::load(address=>{web=>"$this->{test_web}", topic=>'ReferringTopic' });
     my @lines = split( /\n/, $m->text() );
     $this->assert_str_equals(
         "$this->{test_web}/Renamed$this->{test_web}.Subweb",
@@ -1616,8 +1567,7 @@ sub test_renameWeb_10259 {
 "$Foswiki::cfg{DefaultUrlHost}/$Foswiki::cfg{ScriptUrlPath}/view$Foswiki::cfg{ScriptSuffix}";
 
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}EdNet",
-        'ReferringTopic', <<CONTENT );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}EdNet", topic=>'ReferringTopic'}, data=>{_text=><<CONTENT });
 Otherweb.$this->{test_web}EdNetSomeTopic
 $this->{test_web}EdNet.SomeTopic
 $this->{test_web}EdNetTwo.SomeTopic
@@ -1633,8 +1583,7 @@ CONTENT
     # faff to set up, so we'll cheat a bit and add the user to the admin
     # group. Fortunately we have a private users web.
     my $grope =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        $Foswiki::cfg{SuperAdminGroup}, <<EOF);
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=><<EOF});
    * Set GROUP = $this->{test_user_wikiname}
 EOF
     $grope->save();
@@ -1656,8 +1605,7 @@ EOF
     $this->assert( !Foswiki::Func::webExists("$this->{test_web}EdNet") );
     $this->assert( Foswiki::Func::webExists("$this->{test_web}RenamedEdNet") );
 
-    $m = Foswiki::Meta->load( $this->{session}, "$this->{test_web}RenamedEdNet",
-        'ReferringTopic' );
+    $m = Foswiki::Store::load(address=>{web=>"$this->{test_web}RenamedEdNet", topic=>'ReferringTopic' });
     my @lines = split( /\n/, $m->text() );
 
     #foreach my $ln ( @lines ) {
@@ -1715,8 +1663,7 @@ sub test_renameSubWeb_10259 {
 "$Foswiki::cfg{DefaultUrlHost}/$Foswiki::cfg{ScriptUrlPath}/view$Foswiki::cfg{ScriptSuffix}";
 
     $m =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}Root/EdNet",
-        'ReferringTopic', <<CONTENT );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}Root/EdNet", topic=>'ReferringTopic'}, data=>{_text=><<CONTENT });
 Otherweb.$this->{test_web}EdNetSomeTopic
 $this->{test_web}Root/EdNet.SomeTopic
 $this->{test_web}Root/EdNetTwo.SomeTopic
@@ -1732,8 +1679,7 @@ CONTENT
     # faff to set up, so we'll cheat a bit and add the user to the admin
     # group. Fortunately we have a private users web.
     my $grope =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        $Foswiki::cfg{SuperAdminGroup}, <<EOF);
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=><<EOF});
    * Set GROUP = $this->{test_user_wikiname}
 EOF
     $grope->save();
@@ -1756,8 +1702,7 @@ EOF
     $this->assert( Foswiki::Func::webExists("$this->{test_web}Root/NewEdNet") );
 
     $m =
-      Foswiki::Meta->load( $this->{session}, "$this->{test_web}Root/NewEdNet",
-        'ReferringTopic' );
+      Foswiki::Store::load(address=>{web=>"$this->{test_web}Root/NewEdNet", topic=>'ReferringTopic' });
     my @lines = split( /\n/, $m->text() );
 
     #foreach my $ln ( @lines ) {
@@ -1806,7 +1751,7 @@ sub test_rename_attachment {
     my $this = shift;
 
     my $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web}, 'NewTopic' );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NewTopic' });
     $to->text('Wibble');
     $to->save();
 
@@ -1817,8 +1762,7 @@ sub test_rename_attachment {
     $stream->unlink_on_destroy(1);
 
     $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     $to->attach( name => 'dis.dat', file => $stream->filename );
 
     $this->{session}->finish();
@@ -1855,7 +1799,7 @@ sub test_rename_attachment_Rename_Denied_Change_Allowed {
     my $this = shift;
 
     my $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web}, 'NewTopic' );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NewTopic' });
     $to->text("Wibble\n   * Set ALLOWTOPICRENAME = NotMe\n");
     $to->save();
 
@@ -1866,8 +1810,7 @@ sub test_rename_attachment_Rename_Denied_Change_Allowed {
     $stream->unlink_on_destroy(1);
 
     $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     $to->attach( name => 'dis.dat', file => $stream->filename );
 
     $this->{session}->finish();
@@ -1904,7 +1847,7 @@ sub test_rename_attachment_Rename_Allowed_Change_Denied {
     my $this = shift;
 
     my $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web}, 'NewTopic' );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NewTopic' });
     $to->text("Wibble\n   * Set ALLOWTOPICCHANGE = NotMe\n");
     $to->save();
 
@@ -1915,8 +1858,7 @@ sub test_rename_attachment_Rename_Allowed_Change_Denied {
     $stream->unlink_on_destroy(1);
 
     $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     $to->attach( name => 'dis.dat', file => $stream->filename );
 
     $this->{session}->finish();
@@ -1959,13 +1901,12 @@ sub test_rename_attachment_not_in_meta {
     my $this = shift;
 
     my $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web}, 'NewTopic' );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NewTopic' });
     $to->text('Wibble');
     $to->save();
 
     $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $fh = $to->openAttachment( 'dis.dat', '>' );
     print $fh "Oh no not again";
     close($fh);
@@ -2003,8 +1944,7 @@ sub test_rename_attachment_no_dest_topic {
     my $this = shift;
 
     my $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $fh = $to->openAttachment( 'dis.dat', '>' );
     print $fh "Oh no not again";
     close($fh);
@@ -2049,8 +1989,7 @@ sub do_not_test_rename_attachment_not_on_disc {
     $stream->unlink_on_destroy(1);
 
     my $to =
-      new Foswiki::Meta( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     $to->attach( name => 'dis.dat', file => $stream->filename );
 
     unless (
@@ -2065,7 +2004,7 @@ sub do_not_test_rename_attachment_not_on_disc {
     unlink(
         "$Foswiki::cfg{PubDir}/$this->{test_web}/$this->{test_topic}/dis.dat");
 
-    $to = new Foswiki::Meta( $this->{session}, $this->{test_web}, 'NewTopic' );
+    $to = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NewTopic' });
     $to->text('Wibble');
     $to->save();
 
@@ -2108,8 +2047,7 @@ sub test_renameWeb_10990 {
     # faff to set up, so we'll cheat a bit and add the user to the admin
     # group. Fortunately we have a private users web.
     my $grope =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        $Foswiki::cfg{SuperAdminGroup}, <<EOF);
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=><<EOF});
    * Set GROUP = $this->{test_user_wikiname}
 EOF
     $grope->save();

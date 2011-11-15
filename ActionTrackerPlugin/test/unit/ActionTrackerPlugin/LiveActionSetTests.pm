@@ -25,7 +25,7 @@ sub set_up {
     Foswiki::Plugins::ActionTrackerPlugin::Action::forceTime("3 Jan 2002");
 
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "WhoCares" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"WhoCares" });
 
     Foswiki::Func::saveTopic(
         $this->{test_web}, "Topic1", $meta, "

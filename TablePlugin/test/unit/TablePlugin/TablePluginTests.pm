@@ -1253,8 +1253,7 @@ sub test_pluginAttributes {
 	my $this = shift;
 	
     my $meta =
-      Foswiki::Meta->new( $this->{session}, "$this->{test_web}",
-        'WebPreferences' );
+      Foswiki::Store::create(address=>{web=>"$this->{test_web}", topic=>'WebPreferences' });
     $meta->text('   * Set TABLEPLUGIN_TABLEATTRIBUTES = sort="off"');
     $meta->save();
 

@@ -457,7 +457,7 @@ sub indexTopic {
     # SMELL: using undocumented function...
     my $renderer = $Foswiki::Plugins::SESSION->renderer;
     my $topicObject =
-      Foswiki::Meta->new( $Foswiki::Plugins::SESSION, $web, $topic );
+      Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     $text = $renderer->TML2PlainText( $text, $topicObject, "" );
 
     $text =~ s/\n/ /g;

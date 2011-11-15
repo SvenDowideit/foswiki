@@ -209,18 +209,14 @@ sub expandDiff {
     my ($this, $template) = @_;
 
     unless ($this->{TEXT_DIFF}) {
-        my $b = Foswiki::Meta->load(
-            $Foswiki::Plugins::SESSION,
-            $this->{WEB}, $this->{TOPIC}, $this->{CURR_REV});
+        my $b = Foswiki::Store::load(address=>{web=>$this->{WEB}, topic=>$this->{TOPIC}, rev=>$this->{CURR_REV}});
         return '' unless ( $b->haveAccess('VIEW') );
         my $btext = $b->getEmbeddedStoreForm();
         $btext =~ s/^%META:TOPICINFO{.*}%$//;
 
         return $btext if ($this->{BASE_REV} < 1);
 
-        my $a = Foswiki::Meta->load(
-            $Foswiki::Plugins::SESSION,
-            $this->{WEB}, $this->{TOPIC}, $this->{BASE_REV});
+        my $a = Foswiki::Store::load(address=>{web=>$this->{WEB}, topic=>$this->{TOPIC}, rev=>$this->{BASE_REV}});
         return '' unless ( $a->haveAccess('VIEW') );
         my $atext = $a->getEmbeddedStoreForm();
         $atext =~ s/^%META:TOPICINFO{.*}%$//;

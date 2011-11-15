@@ -21,15 +21,13 @@ sub test_VAR {
     my $result;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{WebPrefsTopicName}, <<SPLOT);
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<SPLOT});
    * Set BLEEGLE = gibbut
 SPLOT
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        $Foswiki::cfg{WebPrefsTopicName}, <<SPLOT);
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<SPLOT});
    * Set BLEEGLE = frabbeque
 SPLOT
     $topicObject->save();
@@ -37,8 +35,7 @@ SPLOT
     $this->{session}->finish();
     $this->{session} = new Foswiki();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     $result = $topicObject->expandMacros("%VAR{\"VAR\"}%");
     $this->assert_equals( "", $result );
     $result = $topicObject->expandMacros(

@@ -18,7 +18,7 @@ sub ADDTOHEAD {
         # prevent deep recursion
         $web =~ s/\//\./g;    # SMELL: unnecessary?
         unless ( $this->{_addedToHEAD}{"$web.$topic"} ) {
-            my $atom = Foswiki::Meta->load( $this, $web, $topic );
+            my $atom = Foswiki::Store::load(address=>{web=>$web, topic=>$topic });
             $text = $atom->text();
             $this->{_addedToHEAD}{"$web.$topic"} = 1;
         }

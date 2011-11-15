@@ -1021,8 +1021,7 @@ sub test_saveSettings_allowed {
 
     # Create a test topic
     my $testTopic =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "SaveSettings",
-        <<TEXT);
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"SaveSettings"}, data=>{_text=><<TEXT});
 Philosophers, philosophers, everywhere,
    * Set TEXTSET = text set
    * Local TEXTLOCAL = text local

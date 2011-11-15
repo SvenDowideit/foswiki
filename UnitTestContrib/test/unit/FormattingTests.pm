@@ -21,20 +21,16 @@ sub set_up {
     $this->SUPER::set_up();
     $this->{sup} = $this->{session}->getScriptUrl( 0, 'view' );
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'H_',
-        "BLEEGLE" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'H_'}, data=>{_text=>"BLEEGLE" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'Underscore_topic', "BLEEGLE" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Underscore_topic'}, data=>{_text=>"BLEEGLE" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $Foswiki::cfg{HomeTopicName}, "BLEEGLE" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"BLEEGLE" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'Numeric1Wikiword', "BLEEGLE" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Numeric1Wikiword'}, data=>{_text=>"BLEEGLE" });
     $topicObject->save();
     $Foswiki::cfg{AntiSpam}{RobotsAreWelcome} = 1;
     $Foswiki::cfg{AntiSpam}{EmailPadding}     = 'STUFFED';

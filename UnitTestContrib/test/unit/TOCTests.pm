@@ -62,8 +62,7 @@ sub setup_TOCtests {
     }
 
     # Now generate the TOC
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session}, $this->{test_web}, $this->{test_topic} );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $res = $this->{session}->TOC( $text, $topicObject, $tocparams );
 
     eval 'use HTML::TreeBuilder; use HTML::Element;';
@@ -133,8 +132,7 @@ sub test_Item8592 {
 ---++ Followed by a level 2! headline
 ---++!! Another level 2 headline
 HERE
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session}, $this->{test_web}, $this->{test_topic}, $text );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>$text });
     $topicObject->save();
     my $res = $topicObject->expandMacros($text );
     $res = $topicObject->renderTML( $res );
@@ -170,15 +168,13 @@ sub test_Item9009 {
 ---++ Followed by a level 2! headline
 ---++!! Another level 2 headline
 HERE
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session}, $this->{test_web}, $this->{test_topic}, $text );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>$text });
     $topicObject->save();
 
     my $text2 = <<HERE;
 %TOC{"$this->{test_web}.$this->{test_topic}"}%
 HERE
-    my $topicObject2 = Foswiki::Meta->new(
-        $this->{session}, $this->{test_web}, $this->{test_topic}."2", $text2);
+    my $topicObject2 = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}."2"}, data=>{_text=>$text2});
     $topicObject->save();
     my $res2 = $topicObject2->expandMacros($text2 );
     $res2 = $topicObject->renderTML( $res2 );
@@ -203,8 +199,7 @@ sub test_Item2458 {
 %TOC%
 ---+ !WikiWord
 HERE
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session}, $this->{test_web}, $this->{test_topic}, $text );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>$text });
     $topicObject->save();
     my $res = $topicObject->expandMacros($text);
     $res = $topicObject->renderTML( $res );
@@ -252,8 +247,7 @@ sub test_TOC_SpecialCharacters {
 %TOC%
 $set->[1]
 HERE
-        my $topicObject = Foswiki::Meta->new(
-            $this->{session}, $this->{test_web}, $this->{test_topic}, $wikitext );
+        my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>$wikitext });
         $topicObject->save();
         my $res = $topicObject->expandMacros($wikitext );
         $res = $topicObject->renderTML( $res );

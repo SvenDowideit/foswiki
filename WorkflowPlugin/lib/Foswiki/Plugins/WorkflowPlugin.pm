@@ -501,7 +501,7 @@ sub _restFork {
 "<span class='foswikiAlert'>WORKFLOWFORK: '$w.$t' already exists</span>";
         }
         my $text = $tttext;
-        my $meta = new Foswiki::Meta( $session, $w, $t );
+        my $meta = Foswiki::Store::create(address=>{web=>$w, topic=>$t });
 
         # Clone the template
         foreach my $k ( keys %$ttmeta ) {

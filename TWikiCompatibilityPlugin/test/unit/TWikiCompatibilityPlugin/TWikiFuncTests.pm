@@ -26,7 +26,7 @@ sub set_up {
     $this->SUPER::set_up();
     $this->{tmpdatafile} = $TWiki::cfg{TempfileDir} . '/tmpity-tmp.gif';
     $this->{test_web2}   = $this->{test_web} . 'Extra';
-    my $webObject = Foswiki::Meta->new( $this->{session}, $this->{test_web2} );
+    my $webObject = Foswiki::Store::load(address=>{web=>$this->{test_web2} });
     $webObject->populateNewWeb();
 
     return;
@@ -573,7 +573,7 @@ END
 
     # make sure meta overrides text, as documented - Item2953
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -591,7 +591,7 @@ END
         $topic, $this->{test_web}, $meta
     );
     $this->assert($access);
-    $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+    $meta = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -648,7 +648,7 @@ END
 
     # make sure meta overrides text, as documented - Item2953
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic });
     $meta->putKeyed(
         'PREFERENCE',
         {
@@ -666,7 +666,7 @@ END
         $topic, $this->{test_web}, $meta
     );
     $this->assert($access);
-    $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+    $meta = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic });
     $meta->putKeyed(
         'PREFERENCE',
         {

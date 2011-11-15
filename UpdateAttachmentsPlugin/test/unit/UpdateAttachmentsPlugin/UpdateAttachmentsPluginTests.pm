@@ -23,7 +23,7 @@ sub set_up {
     $this->SUPER::set_up();
 
     $this->{attach_web}   = "$this->{test_web}Attach";
-    my $webObject = Foswiki::Meta->new( $this->{session}, $this->{attach_web} );
+    my $webObject = Foswiki::Store::load(address=>{web=>$this->{attach_web} });
     $webObject->populateNewWeb();
 
     $Foswiki::cfg{Plugins}{UpdateAttachmentsPlugin}{Enabled} = 1;
@@ -59,7 +59,7 @@ sub tear_down {
 # Save a topic into the web.
 sub _writeTopic {
     my ( $this, $web, $topic, $text ) = @_;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$text });
     $meta->save();
 
     return;

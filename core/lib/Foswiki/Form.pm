@@ -166,7 +166,7 @@ sub getAvailableForms {
     my $metaObject = shift;
     if ( defined $metaObject->topic ) {
         $metaObject =
-          Foswiki::Meta->new( $metaObject->session, $metaObject->web );
+          Foswiki::Store::load(address=>{web=>$metaObject->web });
     }
     my $legalForms = $metaObject->getPreference('WEBFORMS') || '';
     $legalForms =~ s/^\s+//;
@@ -346,8 +346,7 @@ sub _link {
     }
     else {
         my $that =
-          Foswiki::Meta->new( $this->session, $web,
-            $topic || $Foswiki::cfg{HomeTopicName} );
+          Foswiki::Store::create(address=>{web=>$web, topic=>$topic || $Foswiki::cfg{HomeTopicName} });
         my $expanded = $that->expandMacros($string);
         if ( $tooltip ne $defaultToolTip ) {
             $link = CGI::span( { title => $tooltip }, $expanded );

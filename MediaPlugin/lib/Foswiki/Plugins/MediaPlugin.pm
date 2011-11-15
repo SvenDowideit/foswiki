@@ -369,7 +369,7 @@ Creates mimetype tabe $MIMETYPES from reading and parsing attachment 'mimetypes.
 sub _createMimeTypeTable {
     my ($this) = @_;
 
-    my $topicObject = Foswiki::Meta->new( $this, $installWeb, $pluginName );
+    my $topicObject = Foswiki::Store::create(address=>{web=>$installWeb, topic=>$pluginName });
 
     my $typesStream;
     if ( $Foswiki::Plugins::VERSION < 2.1 ) {

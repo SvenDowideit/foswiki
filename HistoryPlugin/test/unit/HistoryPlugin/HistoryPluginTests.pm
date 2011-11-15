@@ -27,12 +27,10 @@ sub set_up {
     $this->{guest_wikiname} = Foswiki::Func::getWikiName();
     $this->{session}->{user} = $this->{test_user_cuid};    # OUCH
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web}, "GropeGroup",
-        "   * Set GROUP = ScumBag,WikiGuest\n" );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GropeGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
     $topicObject->save();
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, "GlumDrop",
-        "Burble\n" );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"GlumDrop"}, data=>{_text=>"Burble\n" });
     $topicObject->save();
 }
 
@@ -65,7 +63,7 @@ sub _createHistory {
     $num   ||= 4;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic });
     $topicObject->save();    # rev 1
 
     my @texts = [

@@ -55,8 +55,8 @@ sub afterSaveHandler {
 # Required for a web or topic move
 sub afterRenameHandler {
     # $oldWeb, $oldTopic, $oldAttachment, $newWeb, $newTopic, $newAttachment
-    my $old = new Foswiki::Meta($Foswiki::Plugins::SESSION, $oldWeb, $oldTopic);
-    my $new = new Foswiki::Meta($Foswiki::Plugins::SESSION, $newWeb, $newTopic);
+    my $old = Foswiki::Store::create(address=>{web=>$oldWeb, topic=>$oldTopic});
+    my $new = Foswiki::Store::create(address=>{web=>$newWeb, topic=>$newTopic});
     $listener->update($old, $new);
 }
 

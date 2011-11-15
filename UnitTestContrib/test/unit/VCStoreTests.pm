@@ -413,7 +413,7 @@ sub verify_Inconsistent_saveAttachment {
     ### Note: we use Meta->new rather than Meta->load to simulate the scenario described in
     ### Item10961, where attachment would blow away content if the meta object was not loaded with
     ### the latest content.
-    ### my $meta = Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+    ### my $meta = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     $meta->attach(name => "testfile.txt",
 		  file => "$Foswiki::cfg{TempfileDir}/testfile.txt",
 		  comment => "a comment" );

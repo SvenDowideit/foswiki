@@ -114,7 +114,7 @@ sub tear_down {
 
 sub writeTopic {
     my ( $this, $web, $topic, $text ) = @_;
-    my $meta = Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+    my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$text });
     $meta->save();
 }
 

@@ -126,8 +126,7 @@ sub set_up {
     $meta->save();
 
     $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'AnotherTopic',
-        1 );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'AnotherTopic', rev=>1 });
     $meta->text("Singularity");
     $meta->putKeyed( 'FIELD',
         { name => 'SillyFuel', title => 'Silly fuel', value => 'Petroleum' } );

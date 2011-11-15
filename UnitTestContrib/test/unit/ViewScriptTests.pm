@@ -89,35 +89,28 @@ sub set_up {
     $this->{test_subweb} = $this->{test_web} . '/Nest';
     my $topic = 'TestTopic1';
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'TestTopic1',
-        $topic1, undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestTopic1'}, data=>{_text=>$topic1});
     $meta->save();
 
     $topic = 'TestTopic2';
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'TestTopic2',
-        $topic2, undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestTopic2'}, data=>{_text=>$topic2});
     $meta->save();
 
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'ViewoneTemplate', $templateTopicContent1, undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'ViewoneTemplate'}, data=>{_text=>$templateTopicContent1});
     $meta->save( user => $this->{test_user_wikiname} );
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'ViewtwoTemplate', $templateTopicContent2, undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'ViewtwoTemplate'}, data=>{_text=>$templateTopicContent2});
     $meta->save( user => $this->{test_user_wikiname} );
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'ViewthreeTemplate', $templateTopicContent3, undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'ViewthreeTemplate'}, data=>{_text=>$templateTopicContent3});
     $meta->save( user => $this->{test_user_wikiname} );
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'ViewfourTemplate', $templateTopicContent4, undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'ViewfourTemplate'}, data=>{_text=>$templateTopicContent4});
     $meta->save( user => $this->{test_user_wikiname} );
     $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'ViewfiveTemplate', $templateTopicContent5, undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'ViewfiveTemplate'}, data=>{_text=>$templateTopicContent5});
     $meta->save( user => $this->{test_user_wikiname} );
 
     try {
@@ -128,8 +121,7 @@ sub set_up {
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists( $this->{test_subweb} ) );
         my $topicObject =
-          Foswiki::Meta->new( $this->{session}, $this->{test_subweb},
-            $Foswiki::cfg{HomeTopicName}, "SMELL" );
+          Foswiki::Store::create(address=>{web=>$this->{test_subweb}, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"SMELL" });
         $topicObject->save();
         $this->assert(
             $this->{session}->topicExists(
@@ -142,14 +134,12 @@ sub set_up {
         $this->assert( 0, shift->stringify() || '' );
     };
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_subweb}, $topic,
-        'nested topci1 text', undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_subweb}, topic=>$topic}, data=>{_text=>'nested topci1 text'});
     $topicObject->save();
 
     #set up nested web _and_ topic called $this->{test_web}/ThisTopic
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, 'ThisTopic',
-        'nested ThisTopic text', undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'ThisTopic'}, data=>{_text=>'nested ThisTopic text'});
     $topicObject->save();
     $this->{test_clashingsubweb} = $this->{test_web} . '/ThisTopic';
     $topic = 'TestTopic1';
@@ -162,11 +152,8 @@ sub set_up {
         $webObject->populateNewWeb();
         $this->assert(
             $this->{session}->webExists( $this->{test_clashingsubweb} ) );
-        my $topicObject = Foswiki::Meta->new(
-            $this->{session},
-            $this->{test_clashingsubweb},
-            $Foswiki::cfg{HomeTopicName}, "SMELL"
-        );
+        my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_clashingsubweb}, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"SMELL"
+        });
         $topicObject->save();
         $this->assert(
             $this->{session}->topicExists(
@@ -180,8 +167,7 @@ sub set_up {
         $this->assert( 0, shift->stringify() || '' );
     };
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_clashingsubweb},
-        $topic, 'nested topci1 text', undef );
+      Foswiki::Store::create(address=>{web=>$this->{test_clashingsubweb}, topic=>$topic}, data=>{_text=>'nested topci1 text'});
     $topicObject->save();
 }
 

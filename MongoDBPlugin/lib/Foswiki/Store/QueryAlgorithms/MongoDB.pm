@@ -222,7 +222,7 @@ sub _webQuery {
 
         #then we start with the whole web?
         #TODO: i'm sure that is a flawed assumption
-        my $webObject = Foswiki::Meta->new( $session, $web );
+        my $webObject = Foswiki::Store::load(address=>{web=>$web });
         $topicSet =
           Foswiki::Search::InfoCache::getTopicListIterator( $webObject,
             $options );
@@ -278,7 +278,7 @@ sub _webQuery {
         my ( $Iweb, $topic ) =
           Foswiki::Func::normalizeWebTopicName( $web, $webtopic );
 
-#my $meta = Foswiki::Meta->new( $session, $web, $topic );
+#my $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
 #GRIN: curiously quick hack to use the MongoDB topics rather than from disk - should have no positive effect on performance :)
 #TODO: will make a Store backend later.
         my $meta =

@@ -545,7 +545,7 @@ sub _retrieveImageSize {
     my $imgHeight = undef;
 
     my $topicObject =
-      Foswiki::Meta->new( $session, $inFileData->{web}, $inFileData->{topic} );
+      Foswiki::Store::create(address=>{web=>$inFileData->{web}, topic=>$inFileData->{topic} });
 
     if (
         !Foswiki::Func::attachmentExists(

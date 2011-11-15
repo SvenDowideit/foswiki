@@ -191,8 +191,7 @@ sub _testExpand {
 sub _expand {
     my ($this, $tml) = @_;
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     return $topicObject->expandMacros($tml);
 }
 

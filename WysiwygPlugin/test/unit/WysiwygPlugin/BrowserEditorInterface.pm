@@ -53,15 +53,11 @@ sub init {
     print STDERR "BrowserEditorInterface::init()\n" if _DEBUG;
 
     if ( not $this->{_initWebPreferences} ) {
-        my $topicObject = Foswiki::Meta->new(
-            $this->{_test}->{session},
-            $this->{_test}->{test_web},
-            $Foswiki::cfg{WebPrefsTopicName},
-            <<"HERE"
+        my $topicObject = Foswiki::Store::create(address=>{web=>$this->{_test}->{test_web}, topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<"HERE"
    * Set SKIN=pattern
    * Set ALLOWTOPICCHANGE=$this->{_test}->{test_user_wikiname}
 HERE
-        );
+        });
         $topicObject->save();
 
         $this->{_initWebPreferences} = 1;

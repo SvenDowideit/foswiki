@@ -14,7 +14,7 @@ sub VAR {
     # handle %USERSWEB%-type cases
     ( $web, $topic ) = $this->normalizeWebTopicName( $web, $topic );
 
-    my $webObject = Foswiki::Meta->new( $this, $web );
+    my $webObject = Foswiki::Store::load(address=>{web=>$web });
 
     # always return a value, even when the key isn't defined
     return $webObject->getPreference($key) || '';

@@ -70,7 +70,7 @@ HERE
     $this->{session} = new Foswiki( $this->{test_user_login}, $query );
     $this->captureWithKey( save => $UI_FN, $this->{session} );
     my $meta =
-      Foswiki::Meta->load( $this->{session}, $this->{test_web}, 'MyTopic' );
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'MyTopic' });
 
     my @attachments = $meta->find('FILEATTACHMENT');
 

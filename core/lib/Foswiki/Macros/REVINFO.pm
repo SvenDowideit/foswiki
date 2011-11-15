@@ -21,7 +21,7 @@ sub REVINFO {
     my $loadedRev = $topicObject->getLoadedRev();
     if ( $web ne $topicObject->web || $topic ne $topicObject->topic
            || !defined($loadedRev) || $loadedRev ne $rev) {
-        $topicObject = Foswiki::Meta->new( $this, $web, $topic );
+        $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
         # haveAccess will try to load the object on the fly, so make sure
         # it is loaded if rev is defined
         $topicObject = $topicObject->load($rev) if ($rev);

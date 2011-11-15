@@ -197,8 +197,7 @@ This text is fill in text which is there to ensure that the unique word below do
 HERE
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web},
-        'FormattedSearchTopic1', $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FormattedSearchTopic1'}, data=>{_text=>$text });
     $topicObject->save();
 }
 
@@ -318,13 +317,11 @@ sub test_validatepattern {
 sub test_formatOfLinks {
     my $this = shift;
 
-    my $topicObject = Foswiki::Meta->new(
-        $this->{session},
-        $this->{test_web}, 'Item977', "---+ Apache
+    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Item977'}, data=>{_text=>"---+ Apache
 
 Apache is the [[http://www.apache.org/httpd/][well known web server]].
 "
-    );
+    });
     $topicObject->save();
 
     my $result =

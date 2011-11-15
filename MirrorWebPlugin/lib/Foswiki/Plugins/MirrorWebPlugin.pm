@@ -110,8 +110,7 @@ sub _synch {
     }
     else {
         $mirrorObject =
-          new Foswiki::Meta( $Foswiki::Plugins::SESSION, $mirrorWeb,
-            $topicObject->topic() );
+          Foswiki::Store::create(address=>{web=>$mirrorWeb, topic=>$topicObject->topic() });
     }
     my $ruleset = Foswiki::Func::getPreferencesValue('MIRRORWEBPLUGIN_RULES');
     return 0 unless $ruleset;

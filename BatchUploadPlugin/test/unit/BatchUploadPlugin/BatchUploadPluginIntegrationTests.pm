@@ -65,7 +65,7 @@ sub test_attach_zip_by_file {
     };
     
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $rev;
     
     $rev = $meta->getLatestRev('a.txt');
@@ -93,7 +93,7 @@ sub test_attach_zip_by_stream {
     };
     
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $rev;
     
     $rev = $meta->getLatestRev('simple-archive.zip');
@@ -123,7 +123,7 @@ sub test_nested_zip {
     };
     
     my $meta =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     my $rev;
     
     $rev = $meta->getLatestRev('nested-archive.zip');

@@ -143,11 +143,8 @@ sub test_FORMFIELD_topic {
     $result = $topicObject->expandMacros(
         '%FORMFIELD{"Marjorie" topic="' . $this->{test_topic} . '"}%' );
     $this->assert_str_equals( '99', $result );
-    $topicObject = Foswiki::Meta->new(
-        $this->{session},
-        $Foswiki::cfg{SystemWebName},
-        $Foswiki::cfg{HomeTopicName}
-    );
+    $topicObject = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{HomeTopicName}
+    });
     $result = $topicObject->expandMacros(
         '%FORMFIELD{"Marjorie" topic="' . $this->{test_topic} . '"}%' );
     $this->assert_str_equals( '', $result );
@@ -168,8 +165,7 @@ sub test_FORMFIELD_web {
     my $webObject = Foswiki::Store->load(address=>{web=>$this->{other_web}});
     $webObject->populateNewWeb();
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{other_web},
-        $this->{test_topic} );
+      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$this->{test_topic} });
     $this->_createTopic( $this->{other_web}, $topicObject );
 
     $topicObject =
@@ -185,11 +181,8 @@ sub test_FORMFIELD_web {
           . $this->{test_topic}
           . '"}%' );
     $this->assert_str_equals( '99', $result );
-    $topicObject = Foswiki::Meta->new(
-        $this->{session},
-        $Foswiki::cfg{SystemWebName},
-        $Foswiki::cfg{HomeTopicName}
-    );
+    $topicObject = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{HomeTopicName}
+    });
     $result =
       $topicObject->expandMacros( '%FORMFIELD{"Marjorie" web="'
           . $this->{other_web}

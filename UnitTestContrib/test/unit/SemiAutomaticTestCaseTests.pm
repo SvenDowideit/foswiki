@@ -24,17 +24,13 @@ sub set_up {
     if (!$this->{session}->topicExists(
             $Foswiki::cfg{UsersWebName},
             'WikiGuest')){
-        my $to = Foswiki::Meta->new(
-            $this->{session}, $Foswiki::cfg{UsersWebName},
-            'WikiGuest', 'This user is used in some testcases');
+        my $to = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>'WikiGuest'}, data=>{_text=>'This user is used in some testcases'});
         $to->save();
     }
     if (!$this->{session}->topicExists(
             $Foswiki::cfg{UsersWebName},
             'UnknownUser')){
-        my $to = Foswiki::Meta->new(
-            $this->{session}, $Foswiki::cfg{UsersWebName},
-            'UnknownUser', 'This user is used in some testcases');
+        my $to = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>'UnknownUser'}, data=>{_text=>'This user is used in some testcases'});
         $to->save();
     }
 }
@@ -84,8 +80,7 @@ sub run_testcase {
       'Foswiki::Plugins::TestFixturePlugin';
     my $wiki = new Foswiki( $this->{test_user_login}, $query );
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{users_web},
-        'ProjectContributor', 'none' );
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'ProjectContributor'}, data=>{_text=>'none' });
     $topicObject->save();
     my ($text) = $this->capture( $VIEW_UI_FN, $wiki );
 

@@ -148,8 +148,7 @@ sub _handleFormFieldList {
 sub _populateOrderingFromFormDefinition {
   my ( $web, $topic, $existing ) = @_;
 
-  my $topicObject = Foswiki::Meta->load(
-      $Foswiki::Plugins::SESSION, $web, $topic);
+  my $topicObject = Foswiki::Store::load(address=>{web=>$web, topic=>$topic});
   my $startPosition = 1;
   my %orderedFields = %$existing;
 

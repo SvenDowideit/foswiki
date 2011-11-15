@@ -1541,7 +1541,7 @@ Webs are returned as absolute web pathnames.
 sub deepWebList {
     my ( $this, $filter, $rootWeb ) = @_;
     my @list;
-    my $webObject = new Foswiki::Meta( $this, $rootWeb );
+    my $webObject = Foswiki::Store::load(address=>{web=>$rootWeb });
     my $it = $webObject->eachWeb( $Foswiki::cfg{EnableHierarchicalWebs} );
     return $it->all() unless $filter;
     while ( $it->hasNext() ) {

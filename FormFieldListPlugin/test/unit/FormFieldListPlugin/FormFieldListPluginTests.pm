@@ -1656,7 +1656,7 @@ sub _set_up_topic {
     my $user  = shift;
 
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic, $text );
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>$text });
 
     $topicObject->save();
 }
@@ -1677,7 +1677,7 @@ sub _addForm {
 
     my $web = $this->{test_web};
     my $topicObject =
-      Foswiki::Meta->new( $this->{session}, $web, $topic, $text );
+      Foswiki::Store::create(address=>{web=>$web, topic=>$topic}, data=>{_text=>$text });
 
     my $user = $formData{user} || $this->{session}->{user};
 

@@ -66,7 +66,7 @@ sub do_SimplifiedAssert {
     print STDERR "HoistS ", Dumper($query) if MONITOR;
 
     print STDERR "StringHoistS ",$query->stringify()."\n" if MONITOR;
-    my $context = Foswiki::Meta->new( $this->{session}, $this->{session}->{webName} );
+    my $context = Foswiki::Store::load(address=>{web=>$this->{session}->{webName} });
     $query->simplify( tom => $context, data => $context );
     print STDERR "PosterHoistS ",$query->stringify()."\n" if MONITOR;
     
@@ -95,7 +95,7 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
 
-    my $meta = Foswiki::Meta->new( $this->{session}, 'Web', 'Topic' );
+    my $meta = Foswiki::Store::create(address=>{web=>'Web', topic=>'Topic' });
     $meta->putKeyed(
         'FILEATTACHMENT',
         {

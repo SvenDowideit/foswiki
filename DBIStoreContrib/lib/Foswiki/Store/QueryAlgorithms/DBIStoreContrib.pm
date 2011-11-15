@@ -97,7 +97,7 @@ sub query {
 
     print STDERR "Initial query: ".$query->stringify()."\n" if MONITOR;
     # Fold constants
-    my $context = Foswiki::Meta->new( $session, $session->{webName} );
+    my $context = Foswiki::Store::load(address=>{web=>$session->{webName} });
     $query->simplify( tom => $context, data => $context );
     print STDERR "Simplified to: ". $query->stringify() . "\n" if MONITOR;
 
@@ -115,7 +115,7 @@ sub query {
         # can't process what ain't thar
         next unless $session->webExists($web);
 
-        my $webObject = Foswiki::Meta->new( $session, $web );
+        my $webObject = Foswiki::Store::load(address=>{web=>$web });
         my $thisWebNoSearchAll =
           Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
 
@@ -230,7 +230,7 @@ sub query {
 # See Foswiki::Store::Interfaces::QueryAlgorithms.pm for details
 sub getRefTopic {
     my ( $this, $relativeTo, $w, $t ) = @_;
-    return Foswiki::Meta->load( $relativeTo->session, $w, $t );
+    return Foswiki::Store::load(address=>{web=>$w, topic=>$t });
 }
 
 1;

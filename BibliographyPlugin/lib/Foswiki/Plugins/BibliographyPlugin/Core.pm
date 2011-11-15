@@ -327,7 +327,7 @@ sub _getTopicObject {
     my $topicObject;
 
     if ( $Foswiki::Plugins::VERSION >= 2.1 ) {
-        $topicObject = Foswiki::Meta->load( $session, $web, $topic );
+        $topicObject = Foswiki::Store::load(address=>{web=>$web, topic=>$topic });
         if ( not $topicObject->haveAccess('VIEW') ) {
             $topicObject->finish();
             $topicObject = undef;

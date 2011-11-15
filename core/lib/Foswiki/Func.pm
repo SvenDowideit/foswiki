@@ -1896,7 +1896,7 @@ if (Foswiki::Func::topicExists($web, $topic)) {
 } else {
     #if the topic doesn't exist, we can either leave $meta undefined
     #or if we need to set more than just the topic text, we create a new Meta object and use it.
-    $meta = new Foswiki::Meta($Foswiki::Plugins::SESSION, $web, $topic );
+    $meta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
     $text = '';
 }
 $text =~ s/APPLE/ORANGE/g;

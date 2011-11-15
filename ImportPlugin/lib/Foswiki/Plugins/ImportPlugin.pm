@@ -497,7 +497,7 @@ sub importCsvFile {
 #       return 'boomy '.$e;
 #    };
     my $topicObject =
-      Foswiki::Meta->new( $Foswiki::Plugins::SESSION, $fromweb, $fromtopic );
+      Foswiki::Store::create(address=>{web=>$fromweb, topic=>$fromtopic });
     unless ( $topicObject->haveAccess('VIEW') ) {
         throw Foswiki::AccessControlException( 'VIEW',
             $Foswiki::Plugins::SESSION->{user},
@@ -647,7 +647,7 @@ sub writeWeb {
                 } else {
                     #if the topic doesn't exist, we can either leave $meta undefined
                     #or if we need to set more than just the topic text, we create a new Meta object and use it.
-                    $meta = new Foswiki::Meta($Foswiki::Plugins::SESSION, $outputweb, $t );
+                    $meta = Foswiki::Store::create(address=>{web=>$outputweb, topic=>$t });
                     $text = '';
                 }
                 foreach my $k (keys(%$hash)) {
