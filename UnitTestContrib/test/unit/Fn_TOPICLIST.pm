@@ -23,15 +23,16 @@ sub set_up {
     $this->SUPER::set_up();
     $Foswiki::cfg{EnableHierarchicalWebs} = 1;
     my $webObject =
-      Foswiki::Store->load(address=>{web=>"$this->{test_web}/SubWeb"});
+      Foswiki::Store->create(address=>{web=>"$this->{test_web}/SubWeb"});
     $webObject->populateNewWeb();
 
     my $webObjectH =
-      Foswiki::Store->load(address=>{web=> "$this->{test_web}Hidden"});
+      Foswiki::Store->create(address=>{web=> "$this->{test_web}Hidden"});
     $webObjectH->populateNewWeb();
 
     my $webPrefsObj =
-      Foswiki::Store::create(address=>{web=>"$this->{test_web}Hidden", topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<THIS});
+      Foswiki::Store::load(address=>{web=>"$this->{test_web}Hidden", topic=>$Foswiki::cfg{WebPrefsTopicName}});
+    $webPrefsObj->text(<<THIS);
 If ALLOW is set to a list of wikiname
    * people not in the list are DENIED access
    * Set ALLOWWEBVIEW = $this->{users_web}.AdminUser

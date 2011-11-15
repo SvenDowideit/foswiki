@@ -399,7 +399,13 @@ sub getRefTopic {
 
     # Get a referenced topic
     my ( $this, $relativeTo, $w, $t, $rev ) = @_;
-	my $meta = Foswiki::Store::load(address=>{web=>$w, topic=>$t, rev=>$rev });
+    
+    #TODO: another shite place where we create a nonexistant topic, rather than just failering.
+    #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
+    #lets change that
+
+    
+	my $meta = Foswiki::Store::load(create=>1, address=>{web=>$w, topic=>$t, rev=>$rev });
     print STDERR "----- getRefTopic($w, $t) -> "
       . ( $meta->getLoadedRev() ) . "\n"
       if MONITOR;

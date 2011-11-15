@@ -19,7 +19,7 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
     $this->{other_web} = "$this->{test_web}other";
-    my $webObject = Foswiki::Store->load(address=>{web=>$this->{other_web}});
+    my $webObject = Foswiki::Store->create(address=>{web=>$this->{other_web}});
     $webObject->populateNewWeb();
 }
 

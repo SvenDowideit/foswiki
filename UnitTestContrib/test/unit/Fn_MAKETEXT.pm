@@ -36,7 +36,7 @@ sub set_up {
     $this->SUPER::set_up();
 
     $topicObject =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'WebHome' });
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'WebPreferences' });
 }
 
 sub loadExtraConfig {

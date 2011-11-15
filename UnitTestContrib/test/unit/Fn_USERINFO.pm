@@ -21,17 +21,17 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up(@_);
     my ($topicObject) =
-      Foswiki::Func::readTopic( $this->{users_web}, "GropeGroup");
+      Foswiki::Store->create( address=>{web=>$this->{users_web}, topic=>"GropeGroup"});
     $topicObject->text("   * Set GROUP = ScumBag,WikiGuest\n" );
     $topicObject->save();
     $topicObject->finish();
     ($topicObject) =
-      Foswiki::Func::readTopic( $this->{users_web}, "FriendsOfGropeGroup");
+      Foswiki::Store->create( address=>{web=>$this->{users_web}, topic=>"FriendsOfGropeGroup"});
     $topicObject->text("   * Set GROUP = AdminUser, GropeGroup\n" );
     $topicObject->save();
     $topicObject->finish();
     ($topicObject) =
-      Foswiki::Func::readTopic( $this->{users_web}, "FriendsOfFriendsOfGropeGroup");
+      Foswiki::Store->create( address=>{web=>$this->{users_web}, topic=>"FriendsOfFriendsOfGropeGroup"});
     $topicObject->text("   * Set GROUP = AdminUser, FriendsOfGropeGroup\n" );
     $topicObject->save();
     $topicObject->finish();
