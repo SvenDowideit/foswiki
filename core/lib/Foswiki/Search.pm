@@ -737,7 +737,7 @@ sub formatResults {
 
 #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
 #lets change that
-                $topicMeta = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
+                $topicMeta = Foswiki::Store::load(create=>1, address=>{web=>$web, topic=>$topic });
             }
             $info = $this->metacache->get( $web, $topic, $topicMeta );
             ASSERT( defined( $info->{tom} ) ) if DEBUG;

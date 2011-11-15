@@ -23,7 +23,7 @@ sub _createTopic {
     my ( $this, $web, $topicObject ) = @_;
 
     my $formTopicObject =
-      Foswiki::Store->load(address=>{web=> $web, 'TestForm', topic=> <<FORM});
+      Foswiki::Store->create(address=>{web=> $web, topic=>'TestForm'}, data=>{_text=> <<FORM});
 | *Name*    | *Type* | *Size* |
 | Marjorie  | text   | 30     |
 | Priscilla | text   | 30     |
