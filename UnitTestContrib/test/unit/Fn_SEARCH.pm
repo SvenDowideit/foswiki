@@ -1764,13 +1764,13 @@ sub verify_likeQuery {
     $this->assert_str_equals( 'QueryTopicTwo', $result );
 
     my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
     $result =
       $topicObject->expandMacros( '%SEARCH{"text ~ \'*SMONG*\'" ' . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
 
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
     $result = $topicObject->expandMacros(
         '%SEARCH{"text ~ \'*QueryTopicTwo*\'" ' . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
