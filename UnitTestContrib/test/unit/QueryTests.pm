@@ -39,7 +39,7 @@ sub set_up {
       'Foswiki::Store::SearchAlgorithms::PurePerl';
 
     my $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'HitTopic' });
+      Foswiki::Store->create(address=>{web=> $this->{test_web}, topic=> 'HitTopic' });
     $meta->putKeyed(
         'FILEATTACHMENT',
         {
@@ -137,7 +137,7 @@ sub set_up {
     $meta->save( forcenewrevision => 1 );
 
     $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, 'HitTopic', topic=> 1 });
+      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=>'HitTopic', rev=> 1 });
     $meta->text("Green ideas sleep furiously");
     $meta->save( forcenewrevision => 1 );
     $this->{meta} = $meta;

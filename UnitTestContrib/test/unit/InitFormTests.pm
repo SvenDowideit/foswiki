@@ -6,14 +6,14 @@ package InitFormTests;
 
 =pod
 
-For the cairo release, we had agreed on the following algorithm: 
+For the cairo release, we had agreed on the following algorithm:
 
-The order of priority of field initialization should be as follows: For a given form field 
-   * If a value was passed in by a corresponding query parameter, that value should be taken, else 
+The order of priority of field initialization should be as follows: For a given form field
+   * If a value was passed in by a corresponding query parameter, that value should be taken, else
    * If the existing topic has a corresponding field value, that value should be taken, else
-   * If there is no existing topic and there is a templatetopic and there is a corresponding field value, that value should be taken, else 
-   * If there is an initialization value defined in the formtemplate, that value should be taken, else 
-   * The field value should be empty. 
+   * If there is no existing topic and there is a templatetopic and there is a corresponding field value, that value should be taken, else
+   * If there is an initialization value defined in the formtemplate, that value should be taken, else
+   * The field value should be empty.
 
 There is some question as to what should happen to [[%SYSTEMWEB%.Macros][Macros]].
    * Of course the text is taken literally (i.e., variables are not expanded) when it is in the existing form of the topic being edited
@@ -75,10 +75,10 @@ HERE
 my $testform1 = <<'HERE';
 %META:TOPICINFO{author="guest" date="1025373031" format="1.0" version="1.3"}%
 %META:TOPICPARENT{name="WebHome"}%
-| *Name* | *Type* | *Size* | *Values* | *Tooltip messages* | *Mandatory* | 
-| Issue Name | text | 73 | My first defect | Illustrative name of issue | M | 
-| Issue Description | textarea | 55x5 | Simple description of problem | Short description of issue |  | 
-| Issue Type | select | 1 | Defect, Enhancement, Other |  |  | 
+| *Name* | *Type* | *Size* | *Values* | *Tooltip messages* | *Mandatory* |
+| Issue Name | text | 73 | My first defect | Illustrative name of issue | M |
+| Issue Description | textarea | 55x5 | Simple description of problem | Short description of issue |  |
+| Issue Type | select | 1 | Defect, Enhancement, Other |  |  |
 | History1 | label | 1 | %ATTACHURL%	         	 |  | |
 | History2 | text | 20 | %ATTACHURL%		         |  | |
 | History3 | label | 1 | $percntATTACHURL%		 |  | |
@@ -144,7 +144,7 @@ sub set_up {
     $aurl = $this->{session}->getPubUrl( 1, $testweb, $testform );
     $surl = $this->{session}->getScriptUrl(1);
 
-    my $webObject = Foswiki::Store->load(address=>{web=>$testweb});
+    my $webObject = Foswiki::Store->create(address=>{web=>$testweb});
     $webObject->populateNewWeb();
 
     $Foswiki::Plugins::SESSION = $this->{session};
@@ -220,7 +220,7 @@ Simple description of problem</textarea>', get_formfield( 2, $text )
         '<input type="hidden" name="History1" value="' . $aurl . '"  />',
         get_formfield( 4, $text ) );
     $this->assert_html_matches(
-        '<input type="text" name="History2" value="' 
+        '<input type="text" name="History2" value="'
           . $aurl
           . '" size="20" class="foswikiInputField" />',
         get_formfield( 5, $text )
@@ -259,7 +259,7 @@ Simple description of problem</textarea>', get_formfield( 2, $text )
         '<input type="hidden" name="History1" value="' . $aurl . '" />',
         get_formfield( 4, $text ) );
     $this->assert_html_matches(
-        '<input type="text" name="History2" value="' 
+        '<input type="text" name="History2" value="'
           . $aurl
           . '" size="20" class="foswikiInputField" />',
         get_formfield( 5, $text )

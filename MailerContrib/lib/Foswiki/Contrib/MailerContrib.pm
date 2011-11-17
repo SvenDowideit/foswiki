@@ -408,9 +408,10 @@ sub _generateChangeDetail {
     # for them by expanding preferences in the context of their home
     # topic.
     if ( scalar(@wns) == 1 && Foswiki::Func::topicExists(
-        $Foswiki::cfg{UsersWebName}, $wns[0])
-           && defined &Foswiki::Store::load(address=>{web=>$wt) = Foswiki::Func::normalizeWebTopicName(undef, topic=>$wns[0]});
-        my $userTopic = Foswiki::Store::load(address=>{web=>$ww, topic=>$wt});
+        $Foswiki::cfg{UsersWebName}, $wns[0])) {
+        my ($ww, $wt) = Foswiki::Func::normalizeWebTopicName(undef, $wns[0]);
+        my ($userTopic, $text) = Foswiki::Func::readTopic( $ww, $wt );
+
         my $uStyle = $userTopic->getPreference('PREFERRED_MAIL_CHANGE_FORMAT');
         $style = $uStyle if $uStyle && $uStyle =~ /^(HTML|PLAIN|DIFF)$/;
     }

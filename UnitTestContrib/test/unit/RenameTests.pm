@@ -31,7 +31,7 @@ sub set_up {
         new Unit::Request( { topic => "/$this->{test_web}/OldTopic" } ) );
 
     $this->{new_web} = $this->{test_web} . 'New';
-    my $webObject = Foswiki::Store->load(address=>{web=> $this->{new_web} });
+    my $webObject = Foswiki::Store->create(address=>{web=> $this->{new_web} });
     $webObject->populateNewWeb();
     $Foswiki::Plugins::SESSION = $this->{session};
 
@@ -2069,7 +2069,7 @@ EOF
         Foswiki::Func::webExists("RENAMED$this->{test_web}")
     );
     $this->assert( !Foswiki::Func::webExists("Renamed$this->{test_web}") );
-    
+
     #now remove it!
     $this->removeWebFixture( $this->{session}, "RENAMED$this->{test_web}" )
 

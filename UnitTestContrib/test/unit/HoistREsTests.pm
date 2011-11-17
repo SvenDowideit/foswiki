@@ -14,7 +14,7 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
 
-    my $meta = Foswiki::Store->load(address=>{web=> 'Web', topic=> 'Topic' });
+    my $meta = Foswiki::Store->create(address=>{web=> 'Web', topic=> 'Topic' });
     $meta->putKeyed(
         'FILEATTACHMENT',
         {
@@ -344,7 +344,7 @@ sub test_hoist_OPMatch_Item10352 {
     my $s           = "string=~'^St.(i|n).*'";
     my $queryParser = new Foswiki::Query::Parser();
     my $query       = $queryParser->parse($s);
-    
+
     my $filter = Foswiki::Query::HoistREs::hoist($query);
     $this->assert_str_equals( '^%META:FIELD{name=\"string\".*\bvalue=\"St.(i|n).*\"', join( ';', @{$filter->{text}} ) );
     my $meta = $this->{meta};
@@ -356,7 +356,7 @@ sub test_hoist_OPMatch_Item10352_long {
     my $s           = "fields[name='string' AND value=~'^St.(i|n).*']";
     my $queryParser = new Foswiki::Query::Parser();
     my $query       = $queryParser->parse($s);
-    
+
     my $filter = Foswiki::Query::HoistREs::hoist($query);
     #$this->assert_str_equals( '^%META:FIELD{name=\"string\".*\bvalue=\"St.(i|n).*\"', join( ';', @{$filter->{text}} ) );
     #we fail to regex hoist it
@@ -371,7 +371,7 @@ sub test_hoist_OPMatch_Item10352_1 {
     my $s           = "string=~'String'";
     my $queryParser = new Foswiki::Query::Parser();
     my $query       = $queryParser->parse($s);
-    
+
     my $filter = Foswiki::Query::HoistREs::hoist($query);
     $this->assert_str_equals( '^%META:FIELD{name=\"string\".*\bvalue=\".*String.*\"', join( ';', @{$filter->{text}} ) );
     my $meta = $this->{meta};
@@ -384,7 +384,7 @@ sub test_hoist_mixed_or {
     my $s           = "name='Topic' or string=~'String'";
     my $queryParser = new Foswiki::Query::Parser();
     my $query       = $queryParser->parse($s);
-    
+
     my $filter = Foswiki::Query::HoistREs::hoist($query);
     $this->assert_num_equals(0, scalar(keys %$filter));
 }

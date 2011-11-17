@@ -373,7 +373,7 @@ sub init_edit {
     # reloads it. This can happen if certain macros are present, and
     # will damage the object.
     my $tmplObject =
-      Foswiki::Store->create( address=>{web=>$topicObject->web, topic=>$topicObject->topic} );
+      Foswiki::Store->load( address=>{web=>$topicObject->web, topic=>$topicObject->topic} );
     $tmplObject->copyFrom($topicObject);
 
     $tmpl = $tmplObject->expandMacros($tmpl);

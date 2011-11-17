@@ -197,20 +197,20 @@ sub set_up_for_verify {
 #            $this->registerUser($loginname{EmailLogin}, 'Email', 'Login', 'email@example.com');
 
         my $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandBGroup'}, data=>{_text=>"   * Set GROUP = UserA});
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandBGroup'}, data=>{_text=>"   * Set GROUP = UserA"});
         $topicObject->save();
         $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandCGroup'}, data=>{_text=>"   * Set GROUP = UserA});
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandCGroup'}, data=>{_text=>"   * Set GROUP = UserA"});
         $topicObject->save();
         $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'BandCGroup'}, data=>{_text=>"   * Set GROUP = UserC});
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'BandCGroup'}, data=>{_text=>"   * Set GROUP = UserC"});
         $topicObject->save();
         $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'NestingGroup'}, data=>{_text=>"   * Set GROUP = UserE});
+          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'NestingGroup'}, data=>{_text=>"   * Set GROUP = UserE"});
         $topicObject->save();
-        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'ScumGroup'}, data=>{_text=>"   * Set GROUP = UserA});
+        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'ScumGroup'}, data=>{_text=>"   * Set GROUP = UserA"});
         $topicObject->save();
-        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=>"   * Set GROUP = UserA});
+        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=>"   * Set GROUP = UserA"});
         $topicObject->save();
     }
     catch Foswiki::AccessControlException with {
@@ -1409,7 +1409,8 @@ sub verify_topic_meta_usermapping {
 
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
     my $topicObject =
-      Foswiki::Store->load(address=>{web=> $web, $topic, topic=> $text });
+      Foswiki::Store->load(address=>{web=> $web, topic=>$topic });
+    $topicObject->text($text);
     $topicObject->save();
 
     $this->assert( $this->{session}->topicExists( $web, $topic ) );

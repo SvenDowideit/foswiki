@@ -28,7 +28,7 @@ sub set_up {
     try {
         $this->{session} = new Foswiki('AdminUser');
 
-        my $webObject = Foswiki::Store->load(address=>{web=>$testWeb});
+        my $webObject = Foswiki::Store->create(address=>{web=>$testWeb});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists($testWeb) );
         my $topicObject = Foswiki::Store::create(address=>{web=>$testWeb, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"SMELL"
@@ -37,7 +37,7 @@ sub set_up {
         $this->assert( $this->{session}
               ->topicExists( $testWeb, $Foswiki::cfg{HomeTopicName} ) );
 
-        $webObject = Foswiki::Store->load(address=>{web=>$testWebSubWebPath});
+        $webObject = Foswiki::Store->create(address=>{web=>$testWebSubWebPath});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists($testWebSubWebPath) );
         $topicObject =
@@ -57,11 +57,8 @@ sub tear_down {
     my $this = shift;
 
     unlink $Foswiki::cfg{Htpasswd}{FileName};
-    my $webObject = Foswiki::Store->load(address=>{web=>$testWebSubWebPath});
-    $webObject->removeFromStore();
-    $webObject = Foswiki::Store->load(address=>{web=>$testWeb});
-    $webObject->removeFromStore();
-    $this->{session}->finish();
+    $this->removeWebFixture( $this->{session}, $testWebSubWebPath );
+    $this->removeWebFixture( $this->{session}, $testWeb );
 
     $this->SUPER::tear_down();
 }

@@ -181,8 +181,8 @@ sub load {
 
         unless ( defined($result) ) {
             #HOW TO FIND OUT WHY?
+            die 'cant load '.$args{address}->getPath() if DEBUG;
             throw Error::Simple('Cannot load: '.$args{address}->getPath())
-            #die 'cant load '.$args{address}->getPath()
         }
       }
 

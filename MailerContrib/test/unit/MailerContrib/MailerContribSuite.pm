@@ -63,7 +63,7 @@ sub set_up {
     $testWeb2 = "$this->{test_web}/SubWeb";
 
     # Will get torn down when the parent web dies
-    my $webObject = Foswiki::Store::load(address=>{web=>$testWeb2 });
+    my $webObject = Foswiki::Store::create(address=>{web=>$testWeb2 });
     $webObject->populateNewWeb();
 
     $this->registerUser( "tu1", "Test", "User1", "test1\@example.com" );
@@ -678,7 +678,7 @@ HERE
     $wn->unsubscribe( "TestUser1", "SpringCabbage" );
     $this->assert_str_equals( <<HERE, $wn->stringify() );
 Before
-   * %USERSWEB%.TestUser1: 
+   * %USERSWEB%.TestUser1:
 After
 HERE
 }
@@ -920,7 +920,7 @@ sub test_changeSubscription_and_isSubScribedTo_API {
 sub test_parseRealTopic {
     my $this = shift;
     Foswiki::Func::saveTopic( $this->{test_web}, "TestWebNotify", undef, <<'SEE');
-   * FruitBat: 
+   * FruitBat:
    * ProstectnicVogonJeltz - jeltz@vogsphere.com
 SEE
     my $expect = <<'EXPECT';
