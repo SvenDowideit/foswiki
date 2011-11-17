@@ -444,7 +444,7 @@ sub _makeAnchorHeading {
     $text =~ s/$Foswiki::regex{headerPatternNoTOC}//o;
 
     my $html =
-        '<nop><h' 
+        '<nop><h'
       . $level . '>'
       . $anchors->makeHTMLTarget($text) . ' '
       . $text . ' </h'
@@ -1471,8 +1471,8 @@ sub _filterScript {
 ---++ ObjectMethod TML2PlainText( $text, $topicObject, $opts ) -> $plainText
 
 Strip TML markup from text for display as plain text without
-pushing it through the full rendering pipeline. Intended for 
-generation of topic and change summaries. Adds nop tags to 
+pushing it through the full rendering pipeline. Intended for
+generation of topic and change summaries. Adds nop tags to
 prevent subsequent rendering; nops get removed at the very end.
 
 $opts:

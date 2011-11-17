@@ -118,7 +118,6 @@ sub call_UI_FN {
         my $e = shift;
         $responseText = $e->stringify();
     };
-    #$fatwilly->finish();
     $this->createNewFoswikiSession();
 
     $this->assert($responseText);
