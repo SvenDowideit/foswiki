@@ -255,7 +255,7 @@ sub TML2HTML_test {
 
     $this->assert( $expectedOutput eq $out,
         "'" . anal($out) . "' !=\n'" . anal($expectedOutput) . "'" );
-    $foswiki->finish();
+    $this->createNewFoswikiSession();
 }
 
 sub HTML2TML_testCharsetCodesRange {
@@ -325,7 +325,7 @@ sub HTML2TML_test {
 
     $this->assert_str_equals( $expectedOutput, $out,
         "'" . anal($out) . "' !=\n'" . anal($expectedOutput) . "'" );
-    $foswiki->finish();
+    $this->createNewFoswikiSession();
 }
 
 # tests for various charsets
