@@ -315,7 +315,7 @@ sub verify_scope_all_type_word {
       Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life});
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
     $topicObject->save();
 
     my $result =
@@ -346,7 +346,7 @@ sub verify_scope_all_type_keyword {
       Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life});
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
     $topicObject->save();
 
     my $result =
@@ -378,7 +378,7 @@ sub verify_scope_all_type_literal {
       Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life});
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
     $topicObject->save();
 
     my $result =
@@ -401,11 +401,11 @@ sub verify_default_alpha_order_query {
     my $this   = shift;
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-                "1" 
+                "1"
                 type="query"
                 web="System,Main,Sandbox"
                 topic="WebSearch,WebHome,WebPreferences"
-                nonoise="on" 
+                nonoise="on"
                 format="$web.$topic"
         }%'
     );
@@ -430,11 +430,11 @@ sub verify_default_alpha_order_search {
     my $this   = shift;
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-                "." 
+                "."
                 type="regex"
                 web="System,Main,Sandbox"
                 topic="WebSearch,WebHome,WebPreferences"
-                nonoise="on" 
+                nonoise="on"
                 format="$web.$topic"
         }%'
     );
@@ -1425,7 +1425,7 @@ HERE
     $Foswiki::Plugins::SESSION = $this->{session};
 
     $this->{test_topicObject} =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
 
     return;
 }
@@ -2378,13 +2378,13 @@ sub _multiWebSeptic {
     $format = '$topic' unless ( defined($format) );
 
     my $result = $this->{test_topicObject}->expandMacros(
-        "%SEARCH{\"name~'$str'\" 
-            web=\"System,Main\" 
-            type=\"query\" 
-            nosearch=\"on\" 
-            nosummary=\"on\" 
-            nototal=\"on\" 
-            format=\"$format\" 
+        "%SEARCH{\"name~'$str'\"
+            web=\"System,Main\"
+            type=\"query\"
+            nosearch=\"on\"
+            nosummary=\"on\"
+            nototal=\"on\"
+            format=\"$format\"
             $head $foot $sep }%"
     );
     $expected =~ s/\n$//s;
@@ -2632,12 +2632,12 @@ sub test_web_and_topic_expansion {
     my $this   = shift;
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-                "web" 
+                "web"
                 type="text"
                 web="System,Main,Sandbox"
                 topic="WebHome,WebPreferences"
-                scope="text" 
-                nonoise="on" 
+                scope="text"
+                nonoise="on"
                 format="$web.$topic"
                 footer="FOOT($ntopics,$nhits)"
         }%'
@@ -2663,12 +2663,12 @@ sub test_paging_three_webs_first_page {
     my $this   = shift;
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="1"
     pagesize="5"
@@ -2695,12 +2695,12 @@ sub test_paging_three_webs_second_page {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="2"
     pagesize="5"
@@ -2727,12 +2727,12 @@ sub test_paging_three_webs_third_page {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="3"
     pagesize="5"
@@ -2756,12 +2756,12 @@ sub test_paging_three_webs_fourth_page {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="4"
     pagesize="5"
@@ -2782,12 +2782,12 @@ sub test_paging_three_webs_way_too_far {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="99"
     pagesize="5"
@@ -2844,12 +2844,12 @@ sub test_paging_with_limit_first_page {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="1"
     pagesize="3"
@@ -2875,12 +2875,12 @@ sub test_paging_with_limit_second_page {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="2"
     pagesize="3"
@@ -2906,12 +2906,12 @@ sub test_paging_with_limit_third_page {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="3"
     pagesize="3"
@@ -2937,12 +2937,12 @@ sub test_paging_with_limit_fourth_page {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="4"
     pagesize="3"
@@ -2964,12 +2964,12 @@ sub test_paging_with_limit_way_too_far {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="5"
     pagesize="3"
@@ -3808,7 +3808,7 @@ sub test_summary_searchcontext_short_word_search {
       );
 
     $this->assert_html_equals( <<'CRUD', $result );
-<b>&hellip;</b>  topple over too; might lose <em>his</em> balance. As Alan thought  <b>&hellip;</b> 
+<b>&hellip;</b>  topple over too; might lose <em>his</em> balance. As Alan thought  <b>&hellip;</b>
 CRUD
 
     return;
@@ -3831,7 +3831,7 @@ sub test_summary_searchcontext_long_word_search {
       );
 
     $this->assert_html_equals( <<'CRUD', $result );
-<b>&hellip;</b>  topple over too; might lose <em>his</em> balance. As Alan thought  <b>&hellip;</b> about different parts of <em>his</em> dream he let his mind follow  <b>&hellip;</b> came to him. He thought about <em>his</em> weight loss programme. He  <b>&hellip;</b>  later. Perhaps it's because <em>his</em> next goal is 18 stone, he  <b>&hellip;</b> 
+<b>&hellip;</b>  topple over too; might lose <em>his</em> balance. As Alan thought  <b>&hellip;</b> about different parts of <em>his</em> dream he let his mind follow  <b>&hellip;</b> came to him. He thought about <em>his</em> weight loss programme. He  <b>&hellip;</b>  later. Perhaps it's because <em>his</em> next goal is 18 stone, he  <b>&hellip;</b>
 CRUD
 
     return;
@@ -3955,7 +3955,7 @@ sub verify_date_param {
     my $text = <<'HERE';
 %META:TOPICINFO{author="TopicUserMapping_guest" date="1" format="1.1" version="1.2"}%
 ---+ Progressive Sexuality
-A Symbol Interpreted In American Architecture. Meta-Physics Of Marxism & Poverty In The American Landscape. Exploration Of Crime In Mexican Sculptures: A Study Seen In American Literature. Brief Survey Of Suicide In Italian Art: The Big Picture. Special Studies In Bisexual Female Architecture. Brief Survey Of Suicide In Polytheistic Literature: Analysis, Analysis, and Critical Thinking. Radical Paganism: Modern Theories. Liberal Mexican Religion In The Modern Age. 
+A Symbol Interpreted In American Architecture. Meta-Physics Of Marxism & Poverty In The American Landscape. Exploration Of Crime In Mexican Sculptures: A Study Seen In American Literature. Brief Survey Of Suicide In Italian Art: The Big Picture. Special Studies In Bisexual Female Architecture. Brief Survey Of Suicide In Polytheistic Literature: Analysis, Analysis, and Critical Thinking. Radical Paganism: Modern Theories. Liberal Mexican Religion In The Modern Age.
 
 HERE
     my $topicObject =
@@ -4057,12 +4057,12 @@ sub test_pager_on {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="1"
     pagesize="5"
@@ -4086,12 +4086,12 @@ EXPECT
 
     $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="2"
     pagesize="5"
@@ -4125,12 +4125,12 @@ sub test_pager_on_pagerformat {
 
     my $result = $this->{test_topicObject}->expandMacros(<<'EXPECT');
 %SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="1"
     pagesize="5"
@@ -4153,12 +4153,12 @@ EXPECT
 
     $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="2"
     pagesize="5"
@@ -4192,12 +4192,12 @@ sub test_pager_off_pagerformat {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="1"
     pagesize="5"
@@ -4220,12 +4220,12 @@ EXPECT
 
     $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="2"
     pagesize="5"
@@ -4258,12 +4258,12 @@ sub test_pager_off_pagerformat_pagerinheaderfooter {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="1"
     pagesize="5"
@@ -4289,12 +4289,12 @@ EXPECT
 
     $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic"
     showpage="2"
     pagesize="5"
@@ -4326,12 +4326,12 @@ sub verify_pager_off_pagerformat_pagerinall {
 
     my $result = $this->{test_topicObject}->expandMacros(
         '%SEARCH{
-    "web" 
+    "web"
     type="text"
     web="System,Main,Sandbox"
     topic="WebHome,WebChanges,WebIndex,WebPreferences"
-    scope="text" 
-    nonoise="on" 
+    scope="text"
+    nonoise="on"
     format="$web.$topic ($pager)ntopics=$ntopics"
     showpage="2"
     pagesize="5"
@@ -4588,7 +4588,7 @@ HERE
     $Foswiki::Plugins::SESSION = $this->{session};
 
     $this->{test_topicObject} =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
 
     return;
 }
@@ -4844,23 +4844,23 @@ sub test_Item9269 {
     my $this = shift;
 
     my $result = $this->{test_topicObject}->expandMacros(
-        '%SEARCH{"does not matc[h]" 
-  type="regex" 
-  zeroresults="$dollarweb=$web" 
-  format="dummy" 
+        '%SEARCH{"does not matc[h]"
+  type="regex"
+  zeroresults="$dollarweb=$web"
+  format="dummy"
 }%'
     );
 
     $this->assert_str_equals( "\$web=$this->{test_web}", $result );
 
     $result = $this->{test_topicObject}->expandMacros(
-        '%SEARCH{".*" 
-  limit="1" 
-  type="regex" 
+        '%SEARCH{".*"
+  limit="1"
+  type="regex"
   nonoise="on"
-  header="header: $dollarweb=$web%BR%" 
-  format="format: $dollarweb=$web%BR%" 
-  footer="footer: $dollarweb=$web" 
+  header="header: $dollarweb=$web%BR%"
+  format="format: $dollarweb=$web%BR%"
+  footer="footer: $dollarweb=$web"
 }%'
     );
 
@@ -5077,16 +5077,16 @@ sub test_minus_scope_all {
       Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life});
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoLife'}, data=>{_text=>"In a all life});
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoLife'}, data=>{_text=>"In a all life"});
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoBeer'}, data=>{_text=>"In a all life});
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoBeer'}, data=>{_text=>"In a all life"});
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SomeBeer'}, data=>{_text=>"In a all life});
+      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SomeBeer'}, data=>{_text=>"In a all life"});
     $topicObject->save();
 
     my $result =
@@ -5427,7 +5427,7 @@ HERE
     $this->assert_str_equals( $this->{test_web}, $this->{session}->{webName} );
     $Foswiki::Plugins::SESSION = $this->{session};
     $this->{test_topicObject} =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
     require Foswiki::Address;
     while ( my ( $fwaddress, $metatext ) = each %topics ) {
         my $addrObj = Foswiki::Address->new( string => $fwaddress );

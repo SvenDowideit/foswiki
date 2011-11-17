@@ -42,7 +42,7 @@ sub set_up {
 
     my $topicObject = Foswiki::Store->create(
         address=>{web=>$Foswiki::cfg{UsersWebName},
-            topic=>$Foswiki::cfg{DefaultUserWikiName}}, 
+            topic=>$Foswiki::cfg{DefaultUserWikiName}},
             data=>{_text=>''}
     );
     $topicObject->save();
@@ -194,7 +194,7 @@ sub test_whitespace_denytopic {
         topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If DENYTOPIC is set to empty ( i.e. Set DENYTOPIC = )
     * access is PERMITTED _i.e _ no-one is denied access to this topic
-   * Set DENYTOPICVIEW =   
+   * Set DENYTOPICVIEW =
 THIS
     $topicObject->save();
 
@@ -216,7 +216,7 @@ sub test_denytopic_whitespace {
         topic=>$this->{test_topic}}, data=>{_text=><<"THIS"});
 If DENYTOPIC is set to empty ( i.e. Set DENYTOPIC = )
     * access is PERMITTED _i.e _ no-one is denied access to this topic
-   * Set DENYTOPICVIEW = MrBlue  
+   * Set DENYTOPICVIEW = MrBlue
 THIS
     $topicObject->save();
 
@@ -636,7 +636,7 @@ sub test_login_redirect_preserves_anchor {
     my $test_topic = 'TestAnchor';
 
     # Create a topic with an anchor, viewable only by MrYellow
-    my $topicObject = Foswiki::Store->load(
+    my $topicObject = Foswiki::Store->create(
         address=>{web=>$this->{test_web}, topic=>$test_topic},
         data=>{_text=><<"THIS"}
 If there is an anchor, and some access restrictions,
