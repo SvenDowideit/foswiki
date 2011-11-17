@@ -109,7 +109,7 @@ sub set_up {
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<CONTENT});
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{WebPrefsTopicName}}, data=>{_text=><<CONTENT});
    * Set WEBFORMS = TestForm1,TestForm2,TestForm3,TestForm4
    * Set DENYWEBCHANGE = DuckDodgers
 CONTENT
@@ -679,7 +679,7 @@ sub test_simpleFormSave3 {
 
 # Testing zero value form field values - Item9970
 # The purpose of this test is to confirm that we can save the value 0
-# We have made this bug several times in history 
+# We have made this bug several times in history
 sub test_simpleFormSaveZeroValue {
     my $this  = shift;
     my $query = new Unit::Request(

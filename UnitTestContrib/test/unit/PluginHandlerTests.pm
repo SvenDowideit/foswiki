@@ -90,7 +90,7 @@ sub set_up {
     }
     die "Can't find code" unless $found;
     $this->{code_root} = "$found/Foswiki/Plugins/";
-    my $webObject = Foswiki::Store->load(address=>{web=>$systemWeb});
+    my $webObject = Foswiki::Store->create(address=>{web=>$systemWeb});
     $webObject->populateNewWeb( $Foswiki::cfg{SystemWebName} );
     $Foswiki::cfg{SystemWebName} = $systemWeb;
     $Foswiki::cfg{Plugins}{WebSearchPath} = $systemWeb;

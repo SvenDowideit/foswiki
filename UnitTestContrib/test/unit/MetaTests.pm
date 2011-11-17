@@ -44,7 +44,7 @@ sub set_up {
     $this->SUPER::set_up();
     $this->{session} = new Foswiki();
 
-    $m1 = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
+    $m1 = Foswiki::Store->create(address=>{web=> $web, topic=> $topic });
     $m1->put( "TOPICINFO", $args );
     $m1->putKeyed( "FIELD", $args );
     $m1->putKeyed( "FIELD", $args2 );
@@ -106,7 +106,7 @@ sub test_zero_empty {
         name  => "a",
         value => "0"
     };
-    
+
     my $args_empty = {
         name  => "b",
         value => ""
@@ -114,12 +114,12 @@ sub test_zero_empty {
 
     $meta->putKeyed( "FIELD", $args_zero );
     $meta->putKeyed( "FIELD", $args_empty );
-    
+
     my $vals1 = $meta->get( "FIELD", "a" );
     $this->assert_str_equals( $vals1->{"name"},  "a" );
     $this->assert_str_equals( $vals1->{"value"}, "0" );
 
-    my $vals2 = $meta->get( "FIELD", "b" );      
+    my $vals2 = $meta->get( "FIELD", "b" );
     $this->assert_str_equals( $vals2->{"name"},  "b" );
     $this->assert_str_equals( $vals2->{"value"}, "" );
 }
@@ -724,7 +724,7 @@ EXPECTED
 #http://foswiki.org/Tasks/Item2274
 sub test_BadRevisionInfo {
     my $this = shift;
-    
+
     my $in = '$Rev$';
     my $rev = Foswiki::Store::cleanUpRevID($in);
     $this->assert(defined($rev));
@@ -947,7 +947,7 @@ HERE
     $this->assert_equals(undef, $ti->{author});
     $this->assert_equals(undef, $ti->{version});
     $this->assert_equals(undef, $ti->{date});
-    
+
     $ti = $meta->getRevisionInfo();
     $this->assert_equals('BaseUserMapping_666', $ti->{author});
     $this->assert_equals(0, $ti->{version});
@@ -958,7 +958,7 @@ HERE
 # Disabled as XML functionnality has been removed from the core, see Foswikitask:Item1917
 # sub testXML_topic {
 #     my $this = shift;
-# 
+#
 #     my $text = <<GOOD;
 # %META:TOPICINFO{version="1.2" date="9876543210" author="AlbertCamus" format="1.1"}%
 # %META:TOPICPARENT{name="System.UserForm"}%
@@ -986,7 +986,7 @@ HERE
 #     my $xml = $topicObject->xml();
 #     $this->assert_html_equals($expected, $xml);
 # }
-# 
+#
 # sub testXML_web {
 #     my $this = shift;
 #     my $webObject = Foswiki::Store->load(address=>{web=> "$this->{test_web}/SubWeb"});
@@ -1001,7 +1001,7 @@ HERE
 # XML
 #     my $xml = $webObject->xml();
 #     $this->assert_html_equals($expected, $xml);
-# 
+#
 #     $expected = <<'XML';
 # <web name="TemporaryMetaTestsTestWebMetaTests">
 #  <web name="SubWeb">
@@ -1014,7 +1014,7 @@ HERE
 # XML
 #     $xml = $webObject->xml(1);
 #     $this->assert_html_equals($expected, $xml);
-# 
+#
 #     $expected = <<'XML';
 # <web name="TemporaryMetaTestsTestWebMetaTests">
 #  <topic name="TestTopicMetaTests" format="1.1" version="1.1" date="@REX(\d+)" rev="1" author="BaseUserMapping_666">

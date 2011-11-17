@@ -22,7 +22,7 @@ sub set_up {
     $this->{target_topic} = 'SpreadSheetTestTopic'
       || "$this->{test_topic}Target";
 
-    my $webObject = Foswiki::Store::load(address=>{web=>$this->{target_web} });
+    my $webObject = Foswiki::Store::create(address=>{web=>$this->{target_web} });
     $webObject->populateNewWeb();
 
 #$this->{session}->{store}->createWeb( $this->{session}->{user}, $this->{target_web} );
@@ -43,10 +43,7 @@ HERE
 sub tear_down {
     my $this = shift;
 
-#$this->{session}->{store}->removeWeb( $this->{session}->{user}, $this->{target_web} );
-    my $webObject = Foswiki::Store::load(address=>{web=>$this->{target_web} });
-    $webObject->removeFromStore();
-
+    $this->removeWebFixture( $this->{session}, $this->{target_web} );
     $this->SUPER::tear_down();
 }
 
@@ -340,16 +337,16 @@ sub test_FORMATGMTIME {
     $this->assert( $this->CALC('$FORMATGMTIME(1041379200, $day $mon $year)') eq
           '01 Jan 2003' );
 
-    $this->assert_equals( '2004-W53-6', $this->CALC('$FORMATGMTIME($TIME(2005-01-01), $isoweek($year-W$wk-$day))')); 
-    $this->assert_equals( '2009-W01-1', $this->CALC('$FORMATGMTIME($TIME(2008-12-29), $isoweek($year-W$wk-$day))')); 
+    $this->assert_equals( '2004-W53-6', $this->CALC('$FORMATGMTIME($TIME(2005-01-01), $isoweek($year-W$wk-$day))'));
+    $this->assert_equals( '2009-W01-1', $this->CALC('$FORMATGMTIME($TIME(2008-12-29), $isoweek($year-W$wk-$day))'));
 }
 
 sub test_FORMATTIME {
     my ($this) = @_;
     $this->assert( $this->CALC('$FORMATTIME(0, $year/$month/$day GMT)') eq
           '1970/01/01 GMT' );
-    $this->assert_equals( '2004-W53-6 GMT', $this->CALC('$FORMATTIME($TIME(2005-01-01 gmt), $isoweek($year-W$wk-$day) GMT)')); 
-    $this->assert_equals( '2009-W01-1 GMT', $this->CALC('$FORMATTIME($TIME(2008-12-29 gmt), $isoweek($year-W$wk-$day) GMT)')); 
+    $this->assert_equals( '2004-W53-6 GMT', $this->CALC('$FORMATTIME($TIME(2005-01-01 gmt), $isoweek($year-W$wk-$day) GMT)'));
+    $this->assert_equals( '2009-W01-1 GMT', $this->CALC('$FORMATTIME($TIME(2008-12-29 gmt), $isoweek($year-W$wk-$day) GMT)'));
 
 }
 

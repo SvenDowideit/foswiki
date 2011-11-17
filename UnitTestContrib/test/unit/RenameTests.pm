@@ -28,7 +28,7 @@ sub set_up {
 
     $this->{session}->finish();
     $this->{session} = new Foswiki( $this->{test_user_login},
-        new Unit::Request( { topic => "/$this->{test_web}/OldTopic" } ) );
+        new Unit::Request( { path_info => "/$this->{test_web}/OldTopic" } ) );
 
     $this->{new_web} = $this->{test_web} . 'New';
     my $webObject = Foswiki::Store->create(address=>{web=> $this->{new_web} });

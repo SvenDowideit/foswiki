@@ -53,7 +53,7 @@ sub set_up {
 HERE
 
     my $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic1 });
+      Foswiki::Store->create(address=>{web=> $this->{test_web}, topic=> $testtopic1 });
     $meta->put( 'FORM', { name => 'InitializationForm' } );
     $meta->putKeyed(
         'FIELD',
@@ -140,7 +140,7 @@ HERE
     Foswiki::Func::saveTopic( $this->{test_web}, $testtopic1, $meta, 'TT1' );
 
     $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $testtopic2 });
+      Foswiki::Store->create(address=>{web=> $this->{test_web}, topic=> $testtopic2 });
     $meta->put( 'FORM', { name => 'InitializationForm', } );
     $meta->putKeyed(
         'FIELD',
