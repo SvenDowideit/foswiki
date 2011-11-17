@@ -24,7 +24,7 @@ sub set_up {
 
     $this->{target_web}   = "$this->{test_web}Target";
     $this->{target_topic} = "$this->{test_topic}Target";
-    my $webObject = Foswiki::Store::load(address=>{web=>$this->{target_web} });
+    my $webObject = Foswiki::Store::create(address=>{web=>$this->{target_web} });
     $webObject->populateNewWeb();
 
     Foswiki::Func::getContext()->{view} = 1;
