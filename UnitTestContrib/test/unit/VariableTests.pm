@@ -21,7 +21,7 @@ sub set_up {
     $this->{session}->finish();
     $this->{session} = new Foswiki( 'scum', $query );
     $this->{test_topicObject} =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
 }
 
 sub new {

@@ -35,7 +35,7 @@ sub set_up {
 sub tear_down {
     my $this = shift;
 
-    $fatwilly->finish();
+    $this->createNewFoswikiSession();
     $this->SUPER::tear_down();
 }
 

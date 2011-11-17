@@ -40,7 +40,7 @@ sub new {
 }
 
 # Set up the test fixture
-sub set_up {
+sub NOset_up {
     my $this = shift;
     $this->SUPER::set_up();
     return;
@@ -65,7 +65,7 @@ sub fixture_groups {
                 context  => $array[2],
             };
         }
-        
+
         next unless (ref($dispatcher) eq 'HASH');#bad switchboard entry.
 
         my $package = $dispatcher->{package} || 'Foswiki::UI';
@@ -118,7 +118,8 @@ sub call_UI_FN {
         my $e = shift;
         $responseText = $e->stringify();
     };
-    $fatwilly->finish();
+    #$fatwilly->finish();
+    $this->createNewFoswikiSession();
 
     $this->assert($responseText);
 

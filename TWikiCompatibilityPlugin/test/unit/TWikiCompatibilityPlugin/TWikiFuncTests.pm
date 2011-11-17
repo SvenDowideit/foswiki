@@ -26,7 +26,7 @@ sub set_up {
     $this->SUPER::set_up();
     $this->{tmpdatafile} = $TWiki::cfg{TempfileDir} . '/tmpity-tmp.gif';
     $this->{test_web2}   = $this->{test_web} . 'Extra';
-    my $webObject = Foswiki::Store::load(address=>{web=>$this->{test_web2} });
+    my $webObject = Foswiki::Store::create(address=>{web=>$this->{test_web2} });
     $webObject->populateNewWeb();
 
     return;
@@ -107,7 +107,8 @@ sub test_getViewUrl {
 
     $result = TWiki::Func::getViewUrl( "", "AndMash" );
     $this->assert_matches( qr!/$ss/Sausages/AndMash!, $result );
-    $TWiki::Plugins::SESSION->finish();
+
+    $this->createNewFoswikiSession();
 
     return;
 }
@@ -132,7 +133,8 @@ sub test_getScriptUrl {
 
     $result = TWiki::Func::getScriptUrl( "", "AndMash", 'wibble' );
     $this->assert_matches( qr!/$ss/$this->{users_web}/AndMash!, $result );
-    $TWiki::Plugins::SESSION->finish();
+
+    $this->createNewFoswikiSession();
 
     return;
 }

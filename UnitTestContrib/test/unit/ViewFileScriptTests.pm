@@ -47,11 +47,11 @@ sub set_up {
     $this->{test_subweb} = $this->{test_web} . '/Nest';
     $topic = 'TestTopic1';
 
-    try {
+#    try {
         $this->{session} = new Foswiki('AdminUser');
 
         my $webObject =
-          Foswiki::Store->load(address=>{web=>$this->{test_subweb}});
+          Foswiki::Store->create(address=>{web=>$this->{test_subweb}});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists( $this->{test_subweb} ) );
         my $topicObject =
@@ -63,10 +63,10 @@ sub set_up {
             )
         );
 
-    }
-    catch Error::Simple with {
-        $this->assert( 0, shift->stringify() || '' );
-    };
+#    }
+#    catch Error::Simple with {
+#        $this->assert( 0, shift->stringify() || '' );
+#    };
     $topicObject =
       Foswiki::Store::create(address=>{web=>$this->{test_subweb}, topic=>$topic}, data=>{_text=>'nested topci1 text'});
     $topicObject->save();
@@ -151,7 +151,7 @@ sub viewfile {
         }
     );
 
-    $fatwilly->finish();
+    $this->createNewFoswikiSession();
     $text =~ s/^.*?\x0d\x0a\x0d\x0a//s;
     return $text;
 }
@@ -286,9 +286,9 @@ sub test_simple_web_secured_topic_direct_path {
 
 sub test_simple_web_secured_topic_filename_param {
     my $this = shift;
-    
+
 	my $expectedError = 'AccessControlException: Access to VIEW '.$this->{test_web}.'.SecureTopic for scum is denied. access not allowed on topic';
-    
+
     $this->assert_equals(
     	$expectedError,
         $this->viewfile("/$this->{test_web}/SecureTopic?filename=one.txt")
@@ -327,7 +327,7 @@ sub test_simple_web_secured_topic_filename_param {
 
 sub test_nested_web_secured_topic_direct_path {
     my $this = shift;
-    
+
 	my $expectedError = 'AccessControlException: Access to VIEW '.$this->{test_subweb}.'.SecureTopic for scum is denied. access not allowed on topic';
 
     $this->assert_equals(
@@ -359,9 +359,9 @@ sub test_nested_web_secured_topic_direct_path {
 
 sub test_nested_web_secured_topic_filename_param {
     my $this = shift;
-    
+
 	my $expectedError = 'AccessControlException: Access to VIEW '.$this->{test_subweb}.'.SecureTopic for scum is denied. access not allowed on topic';
-    
+
     $this->assert_equals(
     	$expectedError,
         $this->viewfile("/$this->{test_subweb}/SecureTopic?filename=one.txt")

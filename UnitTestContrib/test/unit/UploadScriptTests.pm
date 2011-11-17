@@ -28,7 +28,7 @@ sub set_up {
     $this->SUPER::set_up();
     $UI_FN ||= $this->getUIFn('upload');
     my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"   * Set ATTACHFILESIZELIMIT = 511\n"});
+      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"   * Set ATTACHFILESIZELIMIT = 511\n"});
     $topicObject->put( 'FORM', $FORM );
     $topicObject->putAll( 'FIELD', @FIELDS );
     $topicObject->save( forcenewrevision => 1 );

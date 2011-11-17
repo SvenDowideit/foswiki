@@ -21,7 +21,7 @@ my $topic2 = <<'HERE';
 ----
 MissingWikiWord %BR%
 !ExclamationEscape <br />
-<nop>NopEscape 
+<nop>NopEscape
 %RED% <pre> adsf </pre> <verbatim> qwerty </verbatim>
 <p>A Paragraph </p>
 #anchor
@@ -33,9 +33,9 @@ NotTOAutoLink
 HERE
 
 #Sven is curious why the comment="" is in the meta - I thought that was dead and buried.
-my $topic2meta = '%META:TOPICINFO{author="BaseUserMapping_666"( comment="")? date="[0-9]{10,10}" format="1.1" version="1"}%\n'; 
-my $topic2metaQ = $topic2meta; 
-$topic2metaQ =~ s/"/&quot;/g; 
+my $topic2meta = '%META:TOPICINFO{author="BaseUserMapping_666"( comment="")? date="[0-9]{10,10}" format="1.1" version="1"}%\n';
+my $topic2metaQ = $topic2meta;
+$topic2metaQ =~ s/"/&quot;/g;
 
 my $topic2txtarea = '<textarea name=""  rows="22" cols="70" readonly="readonly" style="width:99%" id="topic" class="foswikiTextarea foswikiTextareaRawView">';
 
@@ -117,7 +117,7 @@ sub set_up {
         $this->{session} = new Foswiki('AdminUser');
 
         my $webObject =
-          Foswiki::Store->load(address=>{web=>$this->{test_subweb}});
+          Foswiki::Store->create(address=>{web=>$this->{test_subweb}});
         $webObject->populateNewWeb();
         $this->assert( $this->{session}->webExists( $this->{test_subweb} ) );
         my $topicObject =
@@ -148,7 +148,7 @@ sub set_up {
         $this->{session} = new Foswiki('AdminUser');
 
         my $webObject =
-          Foswiki::Store->load(address=>{web=>$this->{test_clashingsubweb}});
+          Foswiki::Store->create(address=>{web=>$this->{test_clashingsubweb}});
         $webObject->populateNewWeb();
         $this->assert(
             $this->{session}->webExists( $this->{test_clashingsubweb} ) );
@@ -198,13 +198,13 @@ sub setup_view {
 
     my $editUrl = $fatwilly->getScriptUrl('0', 'edit', $this->{test_web}, '' );
 
-    $fatwilly->finish();
+    $this->createNewFoswikiSession();
     $text =~ s/\r//g;
     $text =~ s/(^.*?\n\n+)//s;    # remove CGI header
     return ($text, $1, $editUrl);
 }
 
-# This test verifies the rendering of the various raw views      
+# This test verifies the rendering of the various raw views
 sub test_render_raw {
     my $this = shift;
     my $text;
@@ -242,7 +242,7 @@ sub test_render_textplain {
 pretemplate<hr />
 <span class="foswikiNewLink">MissingWikiWord<a href="$editUrl?topicparent=TemporaryViewScriptTestWebViewScript.TestTopic2" rel="nofollow" title="Create this topic">?</a></span> <br />
 ExclamationEscape <br />
-NopEscape 
+NopEscape
 <font color="#ff0000"> <pre> adsf </pre> <pre> qwerty </pre>
 <p>A Paragraph </p>
 #anchor
@@ -294,7 +294,7 @@ sub urltest {
     $this->assert_equals( $web,   $fatwilly->{webName} );
     $this->assert_equals( $topic, $fatwilly->{topicName} );
 
-    $fatwilly->finish();
+    $this->createNewFoswikiSession();
 }
 
 sub test_urlparsing {
