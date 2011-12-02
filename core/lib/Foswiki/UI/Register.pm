@@ -348,7 +348,7 @@ sub _makeFormFieldOrderMatch {
 
 =begin TML
 
----++ StaticMethod registerAndNext($session) 
+---++ StaticMethod registerAndNext($session)
 
 This is called when action = register. It either completes the registration,
 or redirects to verification, depending on the configuration.
@@ -1216,7 +1216,8 @@ sub _buildConfirmationEmail {
     $templateText =~ s/%WIKINAME%/$data->{WikiName}/go;
     $templateText =~ s/%EMAILADDRESS%/$data->{Email}/go;
 
-    my $topicObject = Foswiki::Store->load( address=>{web=>$Foswiki::cfg{UsersWebName},
+    #user topic does not exist atm, so we're creating a fake one that we don't save
+    my $topicObject = Foswiki::Store->load( create=>1, address=>{web=>$Foswiki::cfg{UsersWebName},
         topic=>$data->{WikiName}} );
     $templateText = $topicObject->expandMacros($templateText);
 
@@ -1444,7 +1445,8 @@ sub sendEmail {
     $text =~ s/%INTRODUCTION%/$p->{Introduction}/go;
     $text =~ s/%VERIFICATIONCODE%/$p->{VerificationCode}/go;
     $text =~ s/%PASSWORD%/$p->{PasswordA}/go;
-    my $topicObject = Foswiki::Store->load( address=>{web=>$Foswiki::cfg{UsersWebName},
+    #user topic may not exist atm, so we're creating a fake one that we don't save
+    my $topicObject = Foswiki::Store->load( create=>1, address=>{web=>$Foswiki::cfg{UsersWebName},
         topic=>$p->{WikiName}} );
     $text = $topicObject->expandMacros($text);
 

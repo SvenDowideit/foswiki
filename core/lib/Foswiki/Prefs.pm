@@ -59,7 +59,7 @@ preference is defined. Or we could copy the values from lower leves to higher
 ones and override the preferences defined at that level. This later approach
 wastes memory. This implementation picks the former and we use bitstrings and
 some maths to accomplish that. It's also flexible and it doesn't matter how
-preferences are stored. 
+preferences are stored.
 
 =cut
 
@@ -75,7 +75,7 @@ use Scalar::Util          ();
 
 ---++ ClassMethod new( $session )
 
-Creates a new Prefs object. 
+Creates a new Prefs object.
 
 =cut
 
@@ -249,7 +249,7 @@ sub loadPreferences {
 ---++ ObjectMethod pushTopicContext( $web, $topic )
 
 Reconfigures the preferences so that general preference values appear
-to come from $web.$topic. The topic context can be popped again using 
+to come from $web.$topic. The topic context can be popped again using
 popTopicContext.
 
 =cut
@@ -356,6 +356,7 @@ sub loadDefaultPreferences {
     my $this = shift;
     my $back = $this->_getBackend( $Foswiki::cfg{SystemWebName},
         $Foswiki::cfg{SitePrefsTopicName} );
+    ASSERT($back) if DEBUG;
     $this->{main}->newLevel($back);
 }
 

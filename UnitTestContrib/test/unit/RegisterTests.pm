@@ -93,6 +93,22 @@ EOF
 
         my $webObject = Foswiki::Store->create(address=>{web=>$systemWeb});
         $webObject->populateNewWeb( $Foswiki::cfg{SystemWebName} );
+
+        #populate webs from a non undescore web will only copy Web* topics
+        #without DefaultPrefs the prefs code goes boom
+        foreach my $topic (qw/DefaultPreferences/) {
+            my $to =
+              Foswiki::Store->load( create=>1,
+                                   address=>{
+                                                         web=>$systemWeb,
+                                                         topic=>$topic},
+                                   from=>{
+                                          web=>$Foswiki::cfg{SystemWebName},
+                                          topic=>$topic} );
+            $to->save( forcenewrevision => 1);
+        }
+
+
         $Foswiki::cfg{SystemWebName} = $systemWeb;
         $Foswiki::cfg{EnableEmail}   = 1;
 
@@ -328,7 +344,7 @@ sub verify_userTopicWithoutPMWithForm {
 
     # Change the new user topic to include the form
     my $m =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'NewUserTemplate'}, data=>{_text=><<BODY });
+      Foswiki::Store::load(address=>{web=>$this->{users_web}, topic=>'NewUserTemplate'}, data=>{_text=><<BODY });
 %SPLIT%
 \t* Set %KEY% = %VALUE%
 %SPLIT%
@@ -412,7 +428,7 @@ sub verify_userTopicWithPMWithForm {
 
     # Change the new user topic to include the form
     my $m =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'NewUserTemplate'}, data=>{_text=><<BODY });
+      Foswiki::Store::load(address=>{web=>$this->{users_web}, topic=>'NewUserTemplate'}, data=>{_text=><<BODY });
 %SPLIT%
 \t* Set %KEY% = %VALUE%
 %SPLIT%
@@ -1093,7 +1109,7 @@ sub verify_resetPasswordNoSuchUser {
         }
     );
 
-    $query->path_info( '/.' . $this->{users_web} . '/WebHome' );
+    $query->path_info( '/' . $this->{users_web} . '/WebHome' );
     $this->{session}->finish();
     $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserLogin}, $query );
     $this->{session}->net->setMailHandler( \&FoswikiFnTestCase::sentMail );
@@ -1135,7 +1151,7 @@ sub verify_resetPasswordNeedPrivilegeForMultipleReset {
         }
     );
 
-    $query->path_info( '/.' . $this->{users_web} . '/WebHome' );
+    $query->path_info( '/' . $this->{users_web} . '/WebHome' );
     $this->{session}->finish();
     $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserLogin}, $query );
     $this->{session}->net->setMailHandler( \&FoswikiFnTestCase::sentMail );
@@ -1577,7 +1593,7 @@ sub verify_resetPassword_NoWikiUsersEntry {
     $this->registerAccount();
 
     #Remove the WikiUsers entry - by deleting it :)
-    my $from = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName} });
+    my $from = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName} });
     my $to =
       Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName} . 'DELETED' });
     $from->move($to);

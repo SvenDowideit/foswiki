@@ -1355,13 +1355,14 @@ sub checkAccessPermission {
     my $cUID = getCanonicalUserID($user)
       || getCanonicalUserID( $Foswiki::cfg{DefaultUserLogin} );
     if ( !defined($meta) ) {
+        # testing the permissions in some non-existant text
         if ($text) {
             $meta = Foswiki::Meta->create( address=>
-                {web=>$web, topic=>$topic}, adta=>{_text=>$text} );
+                {web=>$web, topic=>$topic}, data=>{_text=>$text} );
         }
         else {
             $meta =
-              Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+              Foswiki::Store->load( create=>1, address=>{web=>$web, topic=>$topic} );
         }
     }
     elsif ( $text && !defined( $meta->text() ) ) {

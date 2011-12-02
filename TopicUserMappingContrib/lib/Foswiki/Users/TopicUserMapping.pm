@@ -892,7 +892,9 @@ sub addUserToGroup {
           );
 
         $groupTopicObject =
-          Foswiki::Store::create(address=>{web=>$groupWeb, topic=>'GroupTemplate' });
+          Foswiki::Store::create(
+                                address=>{web=>$groupWeb, topic=>$groupName},
+                                from=>{web=>$groupWeb, topic=>'GroupTemplate' });
 
         # expand the GroupTemplate as best we can.
         $this->{session}->{request}
@@ -995,14 +997,8 @@ sub _writeGroupTopic {
         }
     );
 
-    #TODO: should also consider securing the new topic?
     my $user = $this->{session}->{user};
-    $groupTopicObject->saveAs(
-        $groupWeb, $groupName,
-        author           => $user,
-        forcenewrevision => 0
-    );
-
+    Foswiki::Store::save(address=>$groupTopicObject, cuid=>$user, forcenewrevision => 0);
 }
 
 =begin TML
