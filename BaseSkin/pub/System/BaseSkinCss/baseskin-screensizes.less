@@ -1,0 +1,68 @@
+/*
+MEDIA QUERIES FOR DIFFERENT SCREEN SIZES
+*/
+
+@media screen and (max-width: 1024px) {
+	.foswikiContainer {
+		max-width: 1024px;
+		padding: 0 39px;
+	}
+	.foswikiBar .foswikiLogo {
+		display: none;
+	}
+	input,
+	textarea,
+	select,
+	.uneditable-input {
+		width: 0px + @fw_strand1_ratio_up_10;
+	}
+}
+
+@media screen and (max-width: 960px) {
+	.foswikiContainer {
+		max-width: 960px;
+		padding: 0 39px;
+	}
+	.foswikiBar .foswikiLogo {
+		display: none;
+	}
+	input,
+	textarea,
+	select,
+	.uneditable-input {
+		width: 0px + @fw_strand1_ratio_up_8;
+	}
+}
+
+@media screen and (max-width: 480px) {
+	.foswikiContainer {
+		max-width: 480px;
+		padding: 0 10px;
+	}
+	.foswikiBar .foswikiLogo {
+		display: none;
+	}
+	input,
+	textarea,
+	select,
+	.uneditable-input {
+		width: 0px + @fw_strand1_ratio_up_6;
+	}
+	
+	.foswikiTopicActions {
+		
+		div > ul,
+		.nav {
+			float: none;
+		}
+		.foswikiTopicActionButtons {
+			
+			float: none;	
+			ul.secondary-nav {
+				float: none;
+			}
+		}
+	}
+}
+
+

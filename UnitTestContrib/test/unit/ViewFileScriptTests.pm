@@ -85,17 +85,25 @@ sub set_up {
       Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topic}, data=>{_text=>'BinaryTopic Text'});
     $topicObject->save();
     $this->sneakAttachmentsToTopic( $this->{test_web}, $topic,
-        ( 'binaryfile.bin' ) );
+        ('binaryfile.bin') );
+
+    $topic = 'CasePreservingTopic';
+    $topicObject =
+      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic,
+        'CasePreserving Text', undef );
+    $topicObject->save();
+    $this->sneakAttachmentsToTopic( $this->{test_web}, $topic,
+        ('CasePreserved.bin') );
 }
 
 sub touchFile {
     my ( $dir, $file ) = @_;
     my $filename = "$dir/$file";
     if ( open( my $FILE, '>', $filename ) ) {
-	    binmode $FILE;
-        if ($file eq 'binaryfile.bin') {
+        binmode $FILE;
+        if ( $file eq 'binaryfile.bin' || $file eq 'CasePreserved.bin' ) {
             print $FILE "Test\nAttach\rment\r\nEmbed\cZEOF\r\n$file\n";
-            }
+        }
         else {
             print $FILE "Test attachment $file\n";
         }
@@ -109,8 +117,9 @@ sub touchFile {
 sub sneakAttachmentsToTopic {
     my $this = shift;
     my ( $web, $topic, @filenames ) = @_;
-    my $path = $Foswiki::cfg{PubDir}."/$web/$topic";
+    my $path = $Foswiki::cfg{PubDir} . "/$web/$topic";
     mkpath($path);
+
     #print STDERR "DEBUG: dir=$path\n";
 
     foreach my $file (@filenames) {
@@ -128,7 +137,7 @@ sub sneakAttachmentsToTopic {
 }
 
 sub viewfile {
-    my ( $this, $url ) = @_;
+    my ( $this, $url, $wantHdrs ) = @_;
     my $query = new Unit::Request( {} );
     $query->setUrl($url);
     $query->method('GET');
@@ -152,8 +161,11 @@ sub viewfile {
     );
 
     $this->createNewFoswikiSession();
-    $text =~ s/^.*?\x0d\x0a\x0d\x0a//s;
-    return $text;
+    # svn trunk uses ->finish(), store2 seems to createNewFoswikiSession()...
+    #$fatwilly->finish();
+    ( my $headers, $text ) = $text =~ m/^(.*?)\x0d\x0a\x0d\x0a(.*)/s;
+
+    return ($wantHdrs) ? ( $headers, $text ) : $text;
 }
 
 sub test_simpleUrl {
@@ -163,6 +175,7 @@ sub test_simpleUrl {
 # then we can re-activate these tests marked with Note1. See Foswikitask:Item598
 
     #simple topic, direct path
+    #
     $this->assert_str_equals( "Test attachment one.txt\n",
         $this->viewfile("/$this->{test_web}/TestTopic1/one.txt") );
     $this->assert_equals( "Test attachment two.txt\n",
@@ -254,51 +267,40 @@ sub test_nested_web_simple_topic_filename_param {
 sub test_simple_web_secured_topic_direct_path {
     my $this = shift;
 
-	my $expectedError = 'AccessControlException: Access to VIEW '.$this->{test_web}.'.SecureTopic for scum is denied. access not allowed on topic';
+    my $expectedError =
+        'AccessControlException: Access to VIEW '
+      . $this->{test_web}
+      . '.SecureTopic for scum is denied. access not allowed on topic';
 
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic/one.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic/two.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic/inc/file.txt")
-    );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic/one.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic/two.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic/inc/file.txt") );
 
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic//one.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}//SecureTopic/two.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic/inc//file.txt")
-    );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic//one.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}//SecureTopic/two.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic/inc//file.txt") );
 
 }
 
 sub test_simple_web_secured_topic_filename_param {
     my $this = shift;
 
-	my $expectedError = 'AccessControlException: Access to VIEW '.$this->{test_web}.'.SecureTopic for scum is denied. access not allowed on topic';
+    my $expectedError =
+        'AccessControlException: Access to VIEW '
+      . $this->{test_web}
+      . '.SecureTopic for scum is denied. access not allowed on topic';
 
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic?filename=one.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic?filename=two.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic?filename=one.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic?filename=two.txt") );
+    $this->assert_equals( $expectedError,
         $this->viewfile("/$this->{test_web}/SecureTopic?filename=inc/file.txt")
     );
 
@@ -309,16 +311,12 @@ sub test_simple_web_secured_topic_filename_param {
 #Note1 $this->assert_equals('OopsException(accessdenied/topic_access web=>TemporaryViewFileScriptTestWebViewFileScript topic=>SecureTopic params=>[VIEW,access not allowed on topic])',
 #                            $this->viewfile("/$this->{test_web}/SecureTopic/?filename=inc/file.txt"));
 
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic?filename=/one.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_web}/SecureTopic?filename=/two.txt") );
     $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic?filename=/one.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_web}/SecureTopic?filename=/two.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
+        $expectedError,
         $this->viewfile(
             "/$this->{test_web}/SecureTopic?filename=/inc/file.txt")
     );
@@ -328,50 +326,40 @@ sub test_simple_web_secured_topic_filename_param {
 sub test_nested_web_secured_topic_direct_path {
     my $this = shift;
 
-	my $expectedError = 'AccessControlException: Access to VIEW '.$this->{test_subweb}.'.SecureTopic for scum is denied. access not allowed on topic';
+    my $expectedError =
+        'AccessControlException: Access to VIEW '
+      . $this->{test_subweb}
+      . '.SecureTopic for scum is denied. access not allowed on topic';
 
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}/SecureTopic/one.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}/SecureTopic/two.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}/SecureTopic/inc/file.txt")
-    );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}/SecureTopic/one.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}/SecureTopic/two.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}/SecureTopic/inc/file.txt") );
 
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}/SecureTopic//one.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}//SecureTopic/two.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}/SecureTopic/inc//file.txt")
-    );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}/SecureTopic//one.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}//SecureTopic/two.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}/SecureTopic/inc//file.txt") );
 }
 
 sub test_nested_web_secured_topic_filename_param {
     my $this = shift;
 
-	my $expectedError = 'AccessControlException: Access to VIEW '.$this->{test_subweb}.'.SecureTopic for scum is denied. access not allowed on topic';
+    my $expectedError =
+        'AccessControlException: Access to VIEW '
+      . $this->{test_subweb}
+      . '.SecureTopic for scum is denied. access not allowed on topic';
 
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}/SecureTopic?filename=one.txt") );
+    $this->assert_equals( $expectedError,
+        $this->viewfile("/$this->{test_subweb}/SecureTopic?filename=two.txt") );
     $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}/SecureTopic?filename=one.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
-        $this->viewfile("/$this->{test_subweb}/SecureTopic?filename=two.txt")
-    );
-    $this->assert_equals(
-    	$expectedError,
+        $expectedError,
         $this->viewfile(
             "/$this->{test_subweb}/SecureTopic?filename=inc/file.txt")
     );
@@ -383,16 +371,14 @@ sub test_nested_web_secured_topic_filename_param {
 #Note1 $this->assert_equals('OopsException(accessdenied/topic_access web=>'.$this->{test_subweb} topic=>'.SecureTopic params=>[VIEW,access not allowed on topic])',
 #                            $this->viewfile("/$this->{test_subweb}/SecureTopic/?filename=inc/file.txt"));
 
-    $this->assert_equals(
-    	$expectedError,
+    $this->assert_equals( $expectedError,
         $this->viewfile("/$this->{test_subweb}/SecureTopic?filename=/one.txt")
     );
-    $this->assert_equals(
-    	$expectedError,
+    $this->assert_equals( $expectedError,
         $this->viewfile("/$this->{test_subweb}/SecureTopic?filename=/two.txt")
     );
     $this->assert_equals(
-    	$expectedError,
+        $expectedError,
         $this->viewfile(
             "/$this->{test_subweb}/SecureTopic?filename=/inc/file.txt")
     );
@@ -421,7 +407,43 @@ sub test_MIME_types {
 sub test_binary_contents {
     my $this = shift;
 
-    $this->assert_equals( "Test\nAttach\rment\r\nEmbed\cZEOF\r\nbinaryfile.bin\n",
-        $this->viewfile("/$this->{test_web}/BinaryTopic?filename=/binaryfile.bin") );
+    $this->assert_equals(
+        "Test\nAttach\rment\r\nEmbed\cZEOF\r\nbinaryfile.bin\n",
+        $this->viewfile(
+            "/$this->{test_web}/BinaryTopic?filename=/binaryfile.bin")
+    );
+}
+
+sub test_simple_textfile {
+    my $this = shift;
+
+    # Call viewfile with flag to also return headers
+
+    my ( $headers, $text ) =
+      $this->viewfile( "/$this->{test_web}/TestTopic1/one.txt", 1 );
+
+    $this->assert_equals( "Test attachment one.txt\n", $text );
+    $this->assert_matches( 'Content-Type: text/plain; charset=ISO-8859-1',
+        $headers );
+    $this->assert_matches( 'Content-Disposition: inline; filename=one.txt',
+        $headers );
+
+}
+
+sub test_case_sensitivity {
+    my $this = shift;
+
+    # Call viewfile with flag to also return headers
+
+    my ( $headers, $text ) = $this->viewfile(
+        "/$this->{test_web}/CasePreservingTopic?filename=/CasePreserved.bin",
+        1 );
+
+    $this->assert_equals(
+        "Test\nAttach\rment\r\nEmbed\cZEOF\r\nCasePreserved.bin\n", $text );
+    $this->assert_matches( "Content-Type: application/octet-stream", $headers );
+    $this->assert_matches(
+        "Content-Disposition: inline; filename=CasePreserved.bin", $headers );
+
 }
 1;

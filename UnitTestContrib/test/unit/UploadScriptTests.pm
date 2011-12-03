@@ -29,10 +29,10 @@ sub set_up {
     $UI_FN ||= $this->getUIFn('upload');
     my $topicObject =
       Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"   * Set ATTACHFILESIZELIMIT = 511\n"});
-    $topicObject->put( 'FORM', $FORM );
+    $topicObject->putAll( 'FORM',  $FORM );
     $topicObject->putAll( 'FIELD', @FIELDS );
     $topicObject->save( forcenewrevision => 1 );
-    $this->_assert_meta_stillgood();
+    $this->_assert_meta_stillgood(0);
 
     return;
 }
@@ -404,34 +404,56 @@ qr/<img src=\"%ATTACHURLPATH%\/bomb.png\" alt=\"bomb.png\" width=\'16\' height=\
 
 # Assert that we've still got good meta
 sub _assert_meta_stillgood {
-    my ($this) = @_;
+    my ( $this, $assert ) = @_;
     my ($topicObj) =
       Foswiki::Func::readTopic( $this->{test_web}, $this->{test_topic} );
     my $tFORM       = $topicObj->get('FORM');
     my @tFIELDS     = $topicObj->find('FIELD');
     my %tFIELDShash = map { $_->{name} => $_ } @tFIELDS;
 
-    $this->assert($tFORM);
-    $this->assert( exists $tFORM->{name} );
-    $this->assert( $tFORM->{name} eq $FORM->{name} );
-    $this->assert( scalar(@tFIELDS) );
-    $this->assert( scalar(@tFIELDS) == scalar(@FIELDS) );
+    return unless $this->_assert_( $assert, $tFORM );
+    return unless $this->_assert_( $assert, exists $tFORM->{name} );
+    return unless $this->_assert_( $assert, $tFORM->{name} eq $FORM->{name} );
+    return unless $this->_assert_( $assert, scalar(@tFIELDS) );
+    return
+      unless $this->_assert_( $assert, scalar(@tFIELDS) == scalar(@FIELDS) );
     foreach my $name ( keys %FIELDShash ) {
-        $this->assert(
+        return
+          unless $this->_assert_(
+            $assert,
             exists $tFIELDShash{$name},
 "$this->{test_web}.$this->{test_topic} did not contain META:FIELD[name='$name']"
-        );
-        $this->assert(
+          );
+        return
+          unless $this->_assert_(
+            $assert,
             exists $tFIELDShash{$name}->{value},
 "$this->{test_web}.$this->{test_topic} did not contain a value key in META:FIELD[name='$name']"
-        );
-        $this->assert(
+          );
+        return
+          unless $this->_assert_(
+            $assert,
             $tFIELDShash{$name}->{value} eq $FIELDShash{$name}->{value},
 "'$this->{test_web}.$this->{test_topic}'/META:FIELD[name='$name'].value = '$tFIELDShash{$name}->{value}' but expected '$FIELDShash{$name}->{value}'"
-        );
+          );
     }
 
     return;
+}
+
+# ->assert() from set_up crashes TestRunner if LocalLib has ASSERTS=1, so die
+# differently inside set_up
+sub _assert_ {
+    my ( $this, $assert, $condition, $message ) = @_;
+
+    if ( !defined $assert || $assert ) {
+        $this->assert( $condition, $message );
+    }
+    elsif ( !$condition ) {
+        print STDERR 'ASSERT FAILED during set_up: ' . ( $message || '' );
+    }
+
+    return $condition;
 }
 
 1;

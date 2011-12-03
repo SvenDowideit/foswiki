@@ -8,19 +8,20 @@ Base Skin topic template
 		- attachments
 		
 ===================================================
-}%%TMPL:INCLUDE{"document"}%%TMPL:INCLUDE{"baseskinwebtopbar"}%%{
+}%%TMPL:INCLUDE{"view"}%%{
 ---------------------------------------------------
-	This is a view page
+	Include TopicInteractionPlugin, if installed
+---------------------------------------------------
+}%%TMPL:INCLUDE{"metadata"}%%{
+---------------------------------------------------
+	CSS class for body element says this is a view page
 ---------------------------------------------------
 }%%TMPL:DEF{"body:class"}%foswikiViewPage%TMPL:END%%{
 ---------------------------------------------------
 	Content container
 ---------------------------------------------------
-}%%TMPL:DEF{"content"}%<div class="foswikiTopic">
-<div class="foswikiTopic">
-<!-- TODO: CONTEXTUAL ACTIONS -->
+}%%TMPL:DEF{"content"}%<div class="foswikiMain foswikiColorWhite"><div class="foswikiContainer"><div class="foswikiTopic">
 <div class="foswikiContentHeader">%TMPL:P{"topic:before"}%</div>
-<div class="foswikiTopicText">
 #PageTop
 <article class='foswikiTopicText'>
 %TEXT%
@@ -29,22 +30,23 @@ Base Skin topic template
 </div>
 <div class="foswikiContentFooter">%TMPL:P{"topic:after"}%</div>
 </div>
-<div class="sidebar">
-<!--
-sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar 
--->
-</div><!--/foswikiTopic-->
 <div class="foswikiClear"></div>
+</div>
 </div>%TMPL:END%%{
 ---------------------------------------------------
 	topic:before contains the form:top and attachments:top, if set (not inside a tab pane)
 	TODO: test this
 ---------------------------------------------------
-}%%TMPL:DEF{"topic:before"}%%TMPL:P{"form:top"}%%TMPL:P{"attachments:top"}%%TMPL:END%%{
+}%%TMPL:DEF{"topic:before"}%%TMPL:P{"form:top"}%%TMPL:P{"attachments:top"}%%TMPL:P{"topic:actions"}%%TMPL:END%%{
 ---------------------------------------------------
 	topic:after contains the form and attachment tab pane
+	Conditionally include TopicInteractionPlugin meta data
 ---------------------------------------------------
-}%%TMPL:DEF{"topic:after"}%%TABPANE{class="simple"}%
+}%%TMPL:DEF{"topic:after"}%%TMPL:P{context="TopicInteractionPluginEnabled" then="metadata" else="topic:metadata:base"}%%TMPL:END%%{
+---------------------------------------------------
+	Fallback if TopicInteractionPlugin is not enabled
+---------------------------------------------------
+}%%TMPL:DEF{"topic:metadata:base"}%%TABPANE{class="simple"}%
 %IF{
 	"%QUERY{"length(attachments[NOT lc(attr)=~'h'])"}% > 0"
 	then="$percntTMPL:P{
@@ -63,11 +65,11 @@ sidebar contentsidebarsidebar contentsidebar sidebar contentsidebar sidebar cont
 ---------------------------------------------------
 	Form tab
 ---------------------------------------------------
-}%%TMPL:DEF{"form"}%%TAB{"Data form"}%%META{"form"}%%ENDTAB%%TMPL:END%%{
+}%%TMPL:DEF{"form"}%%TAB{"%MAKETEXT{"Data"}%"}%%META{"form"}%%ENDTAB%%TMPL:END%%{
 ---------------------------------------------------
 	Atachments tab
 ---------------------------------------------------
-}%%TMPL:DEF{"attachments"}%%TAB{"Attachments (%QUERY{"length(attachments[NOT lc(attr)=~'h'])"}%)"}%%META{"attachments"}%%ENDTAB% %TMPL:END%%{
+}%%TMPL:DEF{"attachments"}%%TAB{"%MAKETEXT{"Attachments [_1]" args="<span>%QUERY{"length(attachments[NOT lc(attr)=~'h']"}%</span>"}%"}%%META{"attachments"}%%ENDTAB% %TMPL:END%%{
 ---------------------------------------------------
 }%%TMPL:DEF{"attachments:top"}%%TMPL:END%%{
 ---------------------------------------------------

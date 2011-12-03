@@ -32,14 +32,15 @@ BEGIN {
     $Foswiki::cfg{Plugins}{MongoDBPlugin}{Module} =
       'Foswiki::Plugins::MongoDBPlugin';
     $Foswiki::cfg{Plugins}{MongoDBPlugin}{Enabled} = 1;
-    print STDERR "****** starting MongoDBPlugin..\n" if MONITOR;
-    
-    $Foswiki::Plugins::SESSION->{store}->setListenerPriority('Foswiki::Plugins::MongoDBPlugin::Listener', 1);
+    writeDebug("****** starting MongoDBPlugin..") if MONITOR;
+
+    $Foswiki::Plugins::SESSION->{store}
+      ->setListenerPriority( 'Foswiki::Plugins::MongoDBPlugin::Listener', 1 );
 }
 
 use Foswiki::Search::Node ();
 use Foswiki::Store::SearchAlgorithms::MongoDB();
-use Foswiki::Plugins::MongoDBPlugin       ();
+use Foswiki::Plugins::MongoDBPlugin qw(writeDebug);
 use Foswiki::Plugins::MongoDBPlugin::Meta ();
 use Foswiki::Search::InfoCache;
 use Foswiki::Plugins::MongoDBPlugin::HoistMongoDB;
@@ -131,8 +132,8 @@ sub _webQuery {
         }
     }
 
-    print STDERR "modified parsetree: "
-      . ( defined($query) ? $query->stringify() : 'undef' ) . "\n"
+    writeDebug( "modified parsetree: "
+          . ( defined($query) ? $query->stringify() : 'undef' ) )
       if MONITOR;
 
     #try HoistMongoDB first
@@ -140,27 +141,40 @@ sub _webQuery {
       Foswiki::Plugins::MongoDBPlugin::HoistMongoDB::hoist($query);
 
     if ( not defined($mongoQuery) ) {
-        print STDERR "MongoDB QuerySearch - failed to hoist to MongoDB ("
-          . $query->stringify()
-          . ") - please report the error to Sven.\n";
+        writeDebug(
+            "MongoDB QuerySearch - failed to hoist to MongoDB ("
+              . $query->stringify()
+              . ") - please report the error to Sven.",
+            -1
+        );
 
         #falling through to old regex code
     }
     else {
         ASSERT( not( defined( $mongoQuery->{ERROR} ) ) ) if DEBUG;
-        
-        if (not $session->{users}->isAdmin( $session->{user} )) {
+
+        if ( not $session->{users}->isAdmin( $session->{user} ) ) {
+
             #add ACL filter
-            my $userIsIn = Foswiki::Plugins::MongoDBPlugin::getACLProfilesFor($session->{user}, $web, $session);
+            my $userIsIn = Foswiki::Plugins::MongoDBPlugin::getACLProfilesFor(
+                $session->{user}, $web, $session );
             ### ((_ACLProfile_ALLOWTOPICVIEW: $in(userIsIn, UNDEF)) AND (_ACLProfile.DENYTOPICVIEW: $NOTin(userIsIn)))
-            #TODO: this is incorrect, it needs to also have the logic for the web default (and be inverted if the web DENYs the user..
-            if ($session->access->haveAccess('VIEW', $session->{user}, $web)) {
-                #TODO: potential BUG - if user is in both allow and deny, the algo chooses allow
-                $mongoQuery->{_ACLProfile_ALLOWTOPICVIEW} = {'$in' => [@$userIsIn, 'UNDEFINED']};
-                $mongoQuery->{_ACLProfile_DENYTOPICVIEW} = {'$nin' => $userIsIn};
-            } else {
-                #user is already denied, so we only get view access _if_ the user is specifically ALLOWed
-                $mongoQuery->{_ACLProfile_ALLOWTOPICVIEW} = {'$in' => [@$userIsIn]};
+#TODO: this is incorrect, it needs to also have the logic for the web default (and be inverted if the web DENYs the user..
+            if (
+                $session->access->haveAccess( 'VIEW', $session->{user}, $web ) )
+            {
+
+#TODO: potential BUG - if user is in both allow and deny, the algo chooses allow
+                $mongoQuery->{_ACLProfile_ALLOWTOPICVIEW} =
+                  { '$in' => [ @$userIsIn, 'UNDEFINED' ] };
+                $mongoQuery->{_ACLProfile_DENYTOPICVIEW} =
+                  { '$nin' => $userIsIn };
+            }
+            else {
+
+#user is already denied, so we only get view access _if_ the user is specifically ALLOWed
+                $mongoQuery->{_ACLProfile_ALLOWTOPICVIEW} =
+                  { '$in' => [@$userIsIn] };
             }
         }
 
@@ -293,7 +307,7 @@ sub _webQuery {
         # is intended to include different revisions of the same topic
         # or not. See BruteForce.pm for analagous code.
         $meta->loadVersion() unless ( $meta->getLoadedRev() );
-        print STDERR "Processing $topic\n"
+        writeDebug("Processing $topic")
           if ( Foswiki::Query::Node::MONITOR_EVAL() );
         next unless ( $meta->getLoadedRev() );
         my $match = $query->evaluate( tom => $meta, data => $meta );

@@ -1,0 +1,100 @@
+/*
+FORM ELEMENTS
+*/
+
+input[type='image'] {
+	width: auto;
+	border: none;
+	.border-radius(0);
+	padding: 0;
+	@select_baseline: 18px;
+	line-height: @select_baseline * 1.5;
+	vertical-align:text-bottom;
+}
+input[type='checkbox'].foswikiCheckbox,
+input[type='radio'].foswikiRadioButton {
+	margin:0 .5em 0 .1em;
+	padding:0 0 0 .5em;
+	border:0;
+}
+
+.foswikiButton,
+.jqButton,
+.jqButton:hover {
+	.btn();
+}
+.jqButton {
+	height: auto;
+	float: none;
+}
+.jqButton span {
+	background: none;
+	float: none;
+	height: auto;
+	line-height: normal;
+	padding: 0;
+	margin: 0;
+}
+.jqButton .jqButtonIcon,
+.jqButton:active .jqButtonIcon{
+	background-position: 0 50%;
+}
+.foswikiSubmit {
+	.btn();
+	.btn.primary();
+}
+.foswikiSubmit:hover {
+	.btn.primary();
+}
+.btn {
+	&.danger {
+		.gradientBar(lighten(@red, 5%), darken(@red, 5%));
+	}
+	&.primary {
+		.gradientBar(lighten(@blue, 5%), darken(@blue, 5%));
+	}
+	&.small {
+		padding: 5px 9px;
+		.fw_em_font_size(@fw_size_small);
+	}
+}
+.foswikiButtonCancel {
+	.btn();
+	.btn.danger();
+}
+.foswikiButtonCancel:hover {
+	.btn.danger();
+}
+// jqButton with ButtonCancel should not be red
+.jqButton.foswikiButtonCancel {
+	.btn();
+}
+
+.foswikiButtonSmall {
+	.btn();
+	.btn.small();
+}
+.foswikiButtonLarge {
+	.btn();
+	.btn.large();
+}
+
+
+
+.foswikiButtonDisabled,
+.foswikiSubmitDisabled,
+.foswikiSubmit.foswikiButtonDisabled,
+.foswikiButtonCancel.foswikiButtonDisabled {
+	.btn();
+	.btn.disabled();
+}
+.foswikiButtonDisabled:hover,
+.foswikiButtonDisabled:active,
+.foswikiSubmitDisabled:hover,
+.foswikiSubmitDisabled:active,
+.foswikiSubmit.foswikiButtonDisabled:hover,
+.foswikiSubmit.foswikiButtonDisabled:active,
+.foswikiButtonCancel.foswikiButtonDisabled:hover,
+.foswikiButtonCancel.foswikiButtonDisabled:active {
+	.btn.disabled();
+}

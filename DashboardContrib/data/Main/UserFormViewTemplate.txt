@@ -1,0 +1,79 @@
+%TMPL:INCLUDE{view}%
+
+%{
+user topic has a formfield of the form ''
+
+I wonder if the widgets should be in their own web?
+
+}%
+
+%TMPL:DEF{"widgetsColumn1"}%PersonalInfo,MyFeatures%TMPL:END%
+%TMPL:DEF{"widgetsColumn2"}%Changes,MyTasks%TMPL:END%
+%TMPL:DEF{"widgetsColumn3"}%Calendar,TopicText%TMPL:END%
+
+%TMPL:DEF{"widgets_boilerplate"}%
+	<div class=\"portlet\">
+		<div class=\"portlet-header\">$item</div>
+		<div class=\"portlet-content\">$percntINCLUDE{\"$itemWidget\" index=\"$index\"}$percnt</div>
+	</div>%TMPL:END%
+
+%TMPL:DEF{"content"}%%TMPL:P{
+  "LIBJS" id="JQueryPlugin/ui/jquery.ui.core" requires="JQUERYPLUGIN::FOSWIKI"
+}%%TMPL:P{
+  "LIBJS" id="JQueryPlugin/ui/jquery.ui.widget" requires="JQueryPlugin/ui/jquery.ui.core"
+}%%TMPL:P{
+  "LIBJS" id="JQueryPlugin/ui/jquery.ui.mouse" requires="JQueryPlugin/ui/jquery.ui.widget"
+}%%TMPL:P{
+  "LIBJS" id="JQueryPlugin/ui/jquery.ui.sortable" requires="JQueryPlugin/ui/jquery.ui.mouse"
+}%
+%JQREQUIRE{"loader"}%
+	<style>
+	.column { width: 33%; float: left; padding-bottom: 100px; }
+	.portlet { margin: 0 1em 1em 0; }
+	.portlet-header { margin: 0.3em; padding-bottom: 4px; padding-left: 0.2em;  }
+	.portlet-header .ui-icon { float: right; }
+	.portlet-content { padding: 0.4em; overflow: hidden; }
+	.ui-sortable-placeholder { border: 1px dotted black; visibility: visible !important; height: 50px !important; }
+	.ui-sortable-placeholder * { visibility: hidden; }
+	</style>
+	<script>
+$(document).ready(function () {
+		$( ".column" ).sortable({
+			connectWith: ".column"
+		});
+		$( ".portlet" ).addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+			.find( ".portlet-header" )
+				.addClass( "ui-widget-header ui-corner-all" )
+				.prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
+				.end()
+			.find( ".portlet-content" );
+		$( ".portlet-header .ui-icon" ).click(function() {
+			$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
+			$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
+		});
+		$( ".column" ).disableSelection();
+	});
+	</script>
+<div class="demo">
+  <div class="column">%FORMAT{
+    "%TMPL:P{"widgetsColumn1"}%"
+    type="string"
+    format="%TMPL:P{"widgets_boilerplate"}%"
+    separator=""
+  }%</div>
+  <div class="column">%FORMAT{
+    "%TMPL:P{"widgetsColumn2"}%"
+    type="string"
+    format="%TMPL:P{"widgets_boilerplate"}%"
+    separator=""
+  }%</div>
+  <div class="column">%FORMAT{
+    "%TMPL:P{"widgetsColumn3"}%"
+    type="string"
+    format="%TMPL:P{"widgets_boilerplate"}%"
+    separator=""
+  }%</div>
+</div><!-- End demo -->
+<div class="demo-description">
+</div><!-- End demo-description -->
+%TMPL:END%
