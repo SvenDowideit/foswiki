@@ -408,7 +408,8 @@ sub _generateChangeDetail {
     # for them by expanding preferences in the context of their home
     # topic.
     if ( scalar(@wns) == 1
-        && Foswiki::Func::topicExists( $Foswiki::cfg{UsersWebName}, $wns[0] ) )
+        && Foswiki::Func::topicExists( $Foswiki::cfg{UsersWebName}, $wns[0] )
+        && defined &Foswiki::Meta::load )
     {
         my ( $ww, $wt ) =
           Foswiki::Func::normalizeWebTopicName( undef, $wns[0] );
