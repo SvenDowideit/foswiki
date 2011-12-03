@@ -115,7 +115,7 @@ sub readTopic {
         # If a checkin is pending, fix the TOPICINFO
         my $ri = $args{address}->get('TOPICINFO');
         my $truth = $handler->getInfo($args{rev});
-        for my $i qw(author version date) {
+        for my $i (qw(author version date)) {
             $ri->{$i} = $truth->{$i};
         }
     }

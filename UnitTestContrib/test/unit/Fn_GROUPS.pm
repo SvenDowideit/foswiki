@@ -19,25 +19,30 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up(@_);
     my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GropeGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
+      Foswiki::Store->create( address => {web => $this->{users_web}, topic => "GropeGroup", data => {
+        _text => "   * Set GROUP = ScumBag,WikiGuest\n"}} );
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"NestingGroup"}, data=>{_text=>"   * Set GROUP = GropeGroup\n" });
+      Foswiki::Store->create( address => {web => $this->{users_web}, topic => "NestingGroup", data => {
+        _text => "   * Set GROUP = GropeGroup\n"}} );
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GroupWithHiddenGroup"}, data=>{_text=>"   * Set GROUP = HiddenGroup});
+      Foswiki::Store->create( address => {web => $this->{users_web}, topic => "GroupWithHiddenGroup", data => {
+        _text => "   * Set GROUP = HiddenGroup,WikiGuest\n"}} );
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenGroup"}, data=>{_text=>"   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n" });
+      Foswiki::Store->create( address => {web => $this->{users_web}, topic => "HiddenGroup", data => {
+        _text => "   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n"}} );
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenUserGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
+      Foswiki::Store->create( address => {web => $this->{users_web}, topic => "HiddenUserGroup", data => {
+        _text => "   * Set GROUP = ScumBag,HidemeGood\n"}} );
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Store->load(address=>{web=> $this->{users_web}, topic=> "HidemeGood"});
+      Foswiki::Store->create( address => {web => $this->{users_web}, topic => "HidemeGood"});
     my $topText = $topicObject->text();
     $topText .= "   * Set ALLOWTOPICVIEW = AdminUser\n";
     $topText = $topicObject->text($topText);

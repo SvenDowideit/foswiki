@@ -47,7 +47,7 @@ sub set_up {
     $this->{test_subweb} = $this->{test_web} . '/Nest';
     $topic = 'TestTopic1';
 
-#    try {
+    try {
         $this->{session} = new Foswiki('AdminUser');
 
         my $webObject =
@@ -63,10 +63,10 @@ sub set_up {
             )
         );
 
-#    }
-#    catch Error::Simple with {
-#        $this->assert( 0, shift->stringify() || '' );
-#    };
+    }
+    catch Error::Simple with {
+        $this->assert( 0, shift->stringify() || '' );
+    };
     $topicObject =
       Foswiki::Store::create(address=>{web=>$this->{test_subweb}, topic=>$topic}, data=>{_text=>'nested topci1 text'});
     $topicObject->save();
@@ -89,8 +89,8 @@ sub set_up {
 
     $topic = 'CasePreservingTopic';
     $topicObject =
-      Foswiki::Meta->new( $this->{session}, $this->{test_web}, $topic,
-        'CasePreserving Text', undef );
+      Foswiki::Store->create( address => {web => $this->{test_web}, topic => $topic,
+        data => { _text => 'CasePreserving Text'}});
     $topicObject->save();
     $this->sneakAttachmentsToTopic( $this->{test_web}, $topic,
         ('CasePreserved.bin') );
