@@ -20,7 +20,7 @@ about the same topic more than once.
 use Assert;
 use Foswiki::Func                   ();
 use Foswiki::Meta                   ();
-use Foswiki::Store ();
+use Foswiki::Store                  ();
 use Foswiki::Users::BaseUserMapping ();
 
 #use Monitor ();
@@ -136,7 +136,7 @@ sub addMeta {
 
     if ( not defined($meta) ) {
         $meta =
-          Foswiki::Store->load( address=>{web=>$web, topic=>$topic });
+          Foswiki::Store->load( address => { web => $web, topic => $topic } );
     }
     if (    ( defined($meta) and $meta ne '' )
         and defined( $meta->{_latestIsLoaded} )

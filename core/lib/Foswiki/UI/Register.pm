@@ -175,7 +175,8 @@ sub bulkRegister {
     Foswiki::UI::checkValidationKey($session);
 
     #-- Read the topic containing the table of people to be registered
-    my $meta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    my $meta =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
 
     my @fields;
     my @data;
@@ -228,7 +229,10 @@ sub bulkRegister {
     ( $logWeb, $logTopic ) = $session->normalizeWebTopicName( '', $logTopic );
 
     #-- Save the LogFile as designated, link back to the source topic
-    $meta = Foswiki::Store->create( address=>{web=>$logWeb, topic=>$logTopic}, data=>{_text=>$log} );
+    $meta = Foswiki::Store->create(
+        address => { web   => $logWeb, topic => $logTopic },
+        data    => { _text => $log }
+    );
     unless ( $meta->haveAccess('CHANGE') ) {
         throw Foswiki::AccessControlException( 'CHANGE', $session->{user},
             $logWeb, $logTopic, $Foswiki::Meta::reason );
@@ -1018,7 +1022,8 @@ sub _createUserTopic {
         # Use the default version
         $fromWeb = $Foswiki::cfg{SystemWebName};
     }
-    my $tobj = Foswiki::Store::load(address=>{web=>$fromWeb, topic=>$template});
+    my $tobj = Foswiki::Store::load(
+        address => { web => $fromWeb, topic => $template } );
 
     my $log =
         $b1
@@ -1047,7 +1052,8 @@ sub _writeRegistrationDetailsToTopic {
 
     my $user = $data->{WikiName};
 
-    my $topicObject = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$user});
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $Foswiki::cfg{UsersWebName}, topic => $user } );
     my $log;
     my $addText;
 
@@ -1216,9 +1222,14 @@ sub _buildConfirmationEmail {
     $templateText =~ s/%WIKINAME%/$data->{WikiName}/go;
     $templateText =~ s/%EMAILADDRESS%/$data->{Email}/go;
 
-    #user topic does not exist atm, so we're creating a fake one that we don't save
-    my $topicObject = Foswiki::Store->load( create=>1, address=>{web=>$Foswiki::cfg{UsersWebName},
-        topic=>$data->{WikiName}} );
+ #user topic does not exist atm, so we're creating a fake one that we don't save
+    my $topicObject = Foswiki::Store->load(
+        create  => 1,
+        address => {
+            web   => $Foswiki::cfg{UsersWebName},
+            topic => $data->{WikiName}
+        }
+    );
     $templateText = $topicObject->expandMacros($templateText);
 
     #add LoginName to make it clear to new users
@@ -1445,9 +1456,15 @@ sub sendEmail {
     $text =~ s/%INTRODUCTION%/$p->{Introduction}/go;
     $text =~ s/%VERIFICATIONCODE%/$p->{VerificationCode}/go;
     $text =~ s/%PASSWORD%/$p->{PasswordA}/go;
-    #user topic may not exist atm, so we're creating a fake one that we don't save
-    my $topicObject = Foswiki::Store->load( create=>1, address=>{web=>$Foswiki::cfg{UsersWebName},
-        topic=>$p->{WikiName}} );
+
+  #user topic may not exist atm, so we're creating a fake one that we don't save
+    my $topicObject = Foswiki::Store->load(
+        create  => 1,
+        address => {
+            web   => $Foswiki::cfg{UsersWebName},
+            topic => $p->{WikiName}
+        }
+    );
     $text = $topicObject->expandMacros($text);
 
     return $session->net->sendEmail($text);

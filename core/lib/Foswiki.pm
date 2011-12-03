@@ -1542,10 +1542,11 @@ sub deepWebList {
     my ( $this, $filter, $rootWeb ) = @_;
     my @list;
     my $webObject;
-    if (defined($rootWeb)) {
-        $webObject = Foswiki::Store::load(address=>{web=>$rootWeb });
-    } else {
-        $webObject = Foswiki::Store::load(address=>{string=>'/'});
+    if ( defined($rootWeb) ) {
+        $webObject = Foswiki::Store::load( address => { web => $rootWeb } );
+    }
+    else {
+        $webObject = Foswiki::Store::load( address => { string => '/' } );
     }
     my $it = $webObject->eachWeb( $Foswiki::cfg{EnableHierarchicalWebs} );
     return $it->all() unless $filter;
@@ -1697,18 +1698,23 @@ sub new {
     $this->{prefs}   = $prefs;
     $this->{plugins} = new Foswiki::Plugins($this);
 
-#    eval "require $Foswiki::cfg{Store}{Implementation}";
-#    ASSERT( !$@, $@ ) if DEBUG;
-#    $this->{store} = $Foswiki::cfg{Store}{Implementation}->new();
+    #    eval "require $Foswiki::cfg{Store}{Implementation}";
+    #    ASSERT( !$@, $@ ) if DEBUG;
+    #    $this->{store} = $Foswiki::cfg{Store}{Implementation}->new();
     $this->{store} = Foswiki::Store->new(
-              stores => [
-                        {module =>  $Foswiki::cfg{Store}{Implementation}, root=>$Foswiki::cfg{dataDir}},
-                        #last entry is the 'default' store that new webs would be created in
-                        ],
-              access => $this->access(),
-              #don't know the cuid yet - run as admin at this point
-              #cuid =>   $session->{user}        # the default user - can be over-ridden in each call?
-          );
+        stores => [
+            {
+                module => $Foswiki::cfg{Store}{Implementation},
+                root   => $Foswiki::cfg{dataDir}
+            },
+
+            #last entry is the 'default' store that new webs would be created in
+        ],
+        access => $this->access(),
+
+#don't know the cuid yet - run as admin at this point
+#cuid =>   $session->{user}        # the default user - can be over-ridden in each call?
+    );
 
     #Monitor::MARK("Created store");
 
@@ -1873,12 +1879,12 @@ sub new {
 
     #Monitor::MARK("Loaded default prefs");
 
-	#pre-cache the admin user membership before we foswiki-setuid to session user
-    $this->{users}->eachGroupMember($Foswiki::cfg{SuperAdminGroup});
+   #pre-cache the admin user membership before we foswiki-setuid to session user
+    $this->{users}->eachGroupMember( $Foswiki::cfg{SuperAdminGroup} );
 
     # SMELL: what happens if we move this into the Foswiki::Users::new?
     $this->{user} = $this->{users}->initialiseUser( $this->{remoteUser} );
-    $this->{store}->changeDefaultUser($this->{user});
+    $this->{store}->changeDefaultUser( $this->{user} );
 
     #Monitor::MARK("Initialised user");
 
@@ -2249,8 +2255,10 @@ sub inlineAlert {
     my $def      = shift;
 
     # web and topic can be anything; they are not used
-    my $topicObject =
-      Foswiki::Store->load( create=>1, address=>{web=>$this->{webName}, topic=>$this->{topicName}} );
+    my $topicObject = Foswiki::Store->load(
+        create  => 1,
+        address => { web => $this->{webName}, topic => $this->{topicName} }
+    );
     my $text = $this->templates->readTemplate( 'oops' . $template );
     if ($text) {
         my $blah = $this->templates->expandTemplate($def);
@@ -3425,7 +3433,9 @@ sub _renderZone {
 
     unless ( defined $topicObject ) {
         $topicObject =
-          Foswiki::Store->load( address=>{web=>$this->{webName}, topic=>$this->{topicName}} );
+          Foswiki::Store->load(
+            address => { web => $this->{webName}, topic => $this->{topicName} }
+          );
     }
 
     # Loop through the vertices of the graph, in any order, initiating
@@ -3672,7 +3682,7 @@ sub webExists {
     my ( $this, $web ) = @_;
 
     ASSERT( UNTAINTED($web), 'web is tainted' ) if DEBUG;
-    return $this->{store}->exists( address=>{web=>$web});
+    return $this->{store}->exists( address => { web => $web } );
 }
 
 =begin TML
@@ -3689,7 +3699,8 @@ sub topicExists {
     my ( $this, $web, $topic ) = @_;
     ASSERT( UNTAINTED($web),   'web is tainted' )   if DEBUG;
     ASSERT( UNTAINTED($topic), 'topic is tainted' ) if DEBUG;
-    return $this->{store}->exists( address=>{web=>$web, topic=>$topic});
+    return $this->{store}
+      ->exists( address => { web => $web, topic => $topic } );
 }
 
 =begin TML
@@ -3706,7 +3717,7 @@ $Foswiki::cfg{WorkingDir}/work_areas
 
 sub getWorkArea {
     my ( $this, $key ) = @_;
-    
+
     # untaint and detect nasties. The rules are the same as for
     # attachment names.
     $key = Foswiki::Sandbox::untaint( $key,

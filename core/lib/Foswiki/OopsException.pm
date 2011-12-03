@@ -159,11 +159,12 @@ sub stringify {
 
         # load the defs
         $session->templates->readTemplate( 'oops' . $this->{template},
-                                          no_oops => 1 );
+            no_oops => 1 );
         my $message = $session->templates->expandTemplate( $this->{def} )
           || "Failed to find '$this->{def}' in 'oops$this->{template}'";
         my $topicObject =
-          Foswiki::Store->load( address=>{web=>$this->{web}, topic=>$this->{topic}} );
+          Foswiki::Store->load(
+            address => { web => $this->{web}, topic => $this->{topic} } );
         $message = $topicObject->expandMacros($message);
         my $n = 1;
         foreach my $param ( @{ $this->{params} } ) {
@@ -182,7 +183,7 @@ sub stringify {
         if ( defined $this->{params} ) {
             $s .= ' params=>[' . join( ',', @{ $this->{params} } ) . ']';
         }
-        return $s . ')'.((DEBUG)?$this->stacktrace:'');
+        return $s . ')' . ( (DEBUG) ? $this->stacktrace : '' );
     }
 }
 

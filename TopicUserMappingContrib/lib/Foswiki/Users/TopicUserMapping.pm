@@ -292,7 +292,8 @@ sub addUser {
         # They exist; their password must match
         unless ( $this->{passwords}->checkPassword( $login, $password ) ) {
             throw Error::Simple(
-                'New password did not match existing password for this user: '.$login);
+                'New password did not match existing password for this user: '
+                  . $login );
         }
 
         # User exists, and the password was good.
@@ -322,16 +323,31 @@ sub addUser {
         )
       )
     {
+
         # Load existing users topic
-        $usersTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName}});
+        $usersTopicObject = Foswiki::Store::load(
+            address => {
+                web   => $Foswiki::cfg{UsersWebName},
+                topic => $Foswiki::cfg{UsersTopicName}
+            }
+        );
     }
     else {
 
         # Construct a new users topic from the template
-        my $templateTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{SystemWebName}, topic=>'UsersTemplate'});
+        my $templateTopicObject =
+          Foswiki::Store::load( address =>
+              { web => $Foswiki::cfg{SystemWebName}, topic => 'UsersTemplate' }
+          );
 
-        $usersTopicObject = Foswiki::Store::load(create=>1, address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName}});
-        $usersTopicObject->text($templateTopicObject->text());
+        $usersTopicObject = Foswiki::Store::load(
+            create  => 1,
+            address => {
+                web   => $Foswiki::cfg{UsersWebName},
+                topic => $Foswiki::cfg{UsersTopicName}
+            }
+        );
+        $usersTopicObject->text( $templateTopicObject->text() );
 
         $usersTopicObject->copyFrom($templateTopicObject);
     }
@@ -603,12 +619,10 @@ sub eachGroupMember {
 
     #    print STDERR "eachGroupMember called for $group - expand $expand \n";
 
-    #and how do i set it back?
-    #OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
-    #and then for the query impl to pass that on correctly.
+#and how do i set it back?
+#OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
+#and then for the query impl to pass that on correctly.
     Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
-
-
 
     if ( !$expand && defined( $this->{singleGroupMembers}->{$group} ) ) {
 
@@ -646,7 +660,9 @@ sub eachGroupMember {
         $expanding{$group} = 1;
 
         #        print "Expanding $group \n";
-        my $groupTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$group});
+        my $groupTopicObject = Foswiki::Store::load(
+            address => { web => $Foswiki::cfg{UsersWebName}, topic => $group }
+        );
 
         if ( !$expand ) {
             $singleGroupMembers =
@@ -844,7 +860,8 @@ sub addUserToGroup {
 
     if ( $usersObj->isGroup($groupName) ) {
 
-        $groupTopicObject = Foswiki::Store::load(address=>{web=>$groupWeb, topic=>$groupName});
+        $groupTopicObject = Foswiki::Store::load(
+            address => { web => $groupWeb, topic => $groupName } );
 
         if ( !$groupTopicObject->haveAccess( 'CHANGE', $user ) ) {
             return 0;
@@ -891,10 +908,10 @@ sub addUserToGroup {
             )
           );
 
-        $groupTopicObject =
-          Foswiki::Store::create(
-                                address=>{web=>$groupWeb, topic=>$groupName},
-                                from=>{web=>$groupWeb, topic=>'GroupTemplate' });
+        $groupTopicObject = Foswiki::Store::create(
+            address => { web => $groupWeb, topic => $groupName },
+            from    => { web => $groupWeb, topic => 'GroupTemplate' }
+        );
 
         # expand the GroupTemplate as best we can.
         $this->{session}->{request}
@@ -998,7 +1015,11 @@ sub _writeGroupTopic {
     );
 
     my $user = $this->{session}->{user};
-    Foswiki::Store::save(address=>$groupTopicObject, cuid=>$user, forcenewrevision => 0);
+    Foswiki::Store::save(
+        address          => $groupTopicObject,
+        cuid             => $user,
+        forcenewrevision => 0
+    );
 }
 
 =begin TML
@@ -1040,7 +1061,8 @@ sub removeUserFromGroup {
             return 0;
         }
         my $groupTopicObject =
-          Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$groupName });
+          Foswiki::Store::create( address =>
+              { web => $Foswiki::cfg{UsersWebName}, topic => $groupName } );
         if ( !$groupTopicObject->haveAccess( 'CHANGE', $user ) ) {
 
             #throw Error::Simple(
@@ -1268,8 +1290,12 @@ from Wiki topics.
 sub mapper_getEmails {
     my ( $session, $user ) = @_;
 
-    my $topicObject = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$session->{users}->getWikiName($user)
-    });
+    my $topicObject = Foswiki::Store::create(
+        address => {
+            web   => $Foswiki::cfg{UsersWebName},
+            topic => $session->{users}->getWikiName($user)
+        }
+    );
 
     my @addresses;
 
@@ -1311,7 +1337,8 @@ sub mapper_setEmails {
     my $user = $session->{users}->getWikiName($cUID);
 
     my $topicObject =
-      Foswiki::Store->load( address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$user} );
+      Foswiki::Store->load(
+        address => { web => $Foswiki::cfg{UsersWebName}, topic => $user } );
 
     if ( $topicObject->get('FORM') ) {
 
@@ -1516,14 +1543,15 @@ sub _getListOfGroups {
         # Temporarily set the user to admin, otherwise it cannot see groups
         # where %USERSWEB% is protected from view
         local $this->{session}->{user} = $Foswiki::cfg{SuperAdminGroup};
+
         #$this->{store}->changeDefaultUser($this->{session}->{user});
 
         #I WISHlocal undef $Foswiki::Store::singleton->{cuid};
         #$Foswiki::Store::singleton->{cuid} = 'BaseUserMapping_333';
 
-        #and how do i set it back?
-        #OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
-        #and then for the query impl to pass that on correctly.
+#and how do i set it back?
+#OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
+#and then for the query impl to pass that on correctly.
         Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
 
         $this->{session}->search->searchWeb(
@@ -1573,8 +1601,12 @@ sub _loadMapping {
             )
           )
         {
-            my $usersTopicObject = Foswiki::Store::load(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>$Foswiki::cfg{UsersTopicName}
-            });
+            my $usersTopicObject = Foswiki::Store::load(
+                address => {
+                    web   => $Foswiki::cfg{UsersWebName},
+                    topic => $Foswiki::cfg{UsersTopicName}
+                }
+            );
             my $text = $usersTopicObject->text() || '';
 
             # Get the WikiNames and userids, and build hashes in both directions

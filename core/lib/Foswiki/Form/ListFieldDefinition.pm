@@ -60,7 +60,9 @@ sub getOptions {
 
         if ( $session->topicExists( $fieldWeb, $fieldTopic ) ) {
 
-            my $meta = Foswiki::Store->load( address=>{web=>$fieldWeb, topic=>$fieldTopic });
+            my $meta =
+              Foswiki::Store->load(
+                address => { web => $fieldWeb, topic => $fieldTopic } );
             next unless $meta->haveAccess('VIEW');
 
             # Process SEARCHES for Lists

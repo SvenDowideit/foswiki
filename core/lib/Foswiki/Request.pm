@@ -86,8 +86,9 @@ sub new {
     elsif ( ref($initializer) && UNIVERSAL::isa( $initializer, 'GLOB' ) ) {
         $this->load($initializer);
     }
-    # it seems that Unit::Request will contain ?param=asd, and it then causes below to go boom.
-    ASSERT(not($this->{path_info} =~ /[?#\/]/)) if DEBUG;
+
+# it seems that Unit::Request will contain ?param=asd, and it then causes below to go boom.
+    ASSERT( not( $this->{path_info} =~ /[?#\/]/ ) ) if DEBUG;
 
     return $this;
 }
@@ -255,11 +256,13 @@ sub url {
 
     ## See Foswiki.spec for the difference between ScriptUrlPath and ScriptUrlPaths
     if ( defined $Foswiki::cfg{ScriptUrlPaths}{ $this->{action} } ) {
-        # When this is set, it is the complete script path including prefix/suffix.
-        $name = $Foswiki::cfg{ScriptUrlPaths}{ $this->{action} }
+
+     # When this is set, it is the complete script path including prefix/suffix.
+        $name = $Foswiki::cfg{ScriptUrlPaths}{ $this->{action} };
     }
     else {
         $name = $Foswiki::cfg{ScriptUrlPath} . '/' . $this->{action};
+
         # Don't add suffix if no script is used.
         $name .= $Foswiki::cfg{ScriptSuffix} if $name;
     }
@@ -780,7 +783,6 @@ sub setUrl {
 
     #print STDERR "pathinfo = $path\n";
 }
-
 
 1;
 __END__

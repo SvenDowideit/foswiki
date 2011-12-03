@@ -119,8 +119,8 @@ May throw Foswiki::OopsException
 sub upgradeCategoryTable {
     my ( $session, $web, $topic, $meta, $text ) = @_;
 
-    my $icat = $session->templates->readTemplate( 'twikicatitems',
-                                                  no_oops => 1 );
+    my $icat =
+      $session->templates->readTemplate( 'twikicatitems', no_oops => 1 );
 
     if ($icat) {
         my @items = ();
@@ -142,7 +142,7 @@ sub upgradeCategoryTable {
             }
         }
         my $prefs     = $session->{prefs};
-        my $webObject = Foswiki::Store->load( address=>{web=>$web} );
+        my $webObject = Foswiki::Store->load( address => { web => $web } );
         my $listForms = $webObject->getPreference('WEBFORMS');
         $listForms =~ s/^\s*//go;
         $listForms =~ s/\s*$//go;

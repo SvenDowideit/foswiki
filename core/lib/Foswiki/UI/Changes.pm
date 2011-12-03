@@ -19,7 +19,8 @@ sub changes {
     Foswiki::UI::checkWebExists( $session, $webObject->web, 'find changes in' );
 
     my $query = $session->{request};
-    my $webObject = Foswiki::Store->load( address=>{web=>$session->{webName}} );
+    my $webObject =
+      Foswiki::Store->load( address => { web => $session->{webName} } );
 
     my $text = $session->templates->readTemplate('changes');
     my ( $page, $eachChange, $after ) = split( /%REPEAT%/, $text );
@@ -63,7 +64,8 @@ sub changes {
         next
           unless $session->topicExists( $webObject->web, $change->{topic} );
         my $topicObject =
-          Foswiki::Store->load( address=>{web=>$webObject->web, topic=>$change->{topic}} );
+          Foswiki::Store->load(
+            address => { web => $webObject->web, topic => $change->{topic} } );
         next unless $topicObject->haveAccess('VIEW');
         my $summary =
           $topicObject->summariseChanges( undef, $change->{revision}, 1 );
@@ -97,9 +99,12 @@ sub changes {
 
     $page .= $after;
 
-    my $topicObject =
-      Foswiki::Store->load( address=>{web=>$session->{webName},
-        topic=>$session->{topicName}} );
+    my $topicObject = Foswiki::Store->load(
+        address => {
+            web   => $session->{webName},
+            topic => $session->{topicName}
+        }
+    );
     $page = $topicObject->expandMacros($page);
     $page = $topicObject->renderTML($page);
 

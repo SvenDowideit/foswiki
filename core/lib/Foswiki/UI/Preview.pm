@@ -26,7 +26,8 @@ sub preview {
 
     $topic = Foswiki::UI::Save::expandAUTOINC( $session, $web, $topic );
 
-    my $topicObject = Foswiki::Store->create( address=>{web=>$web, topic=>$topic });
+    my $topicObject =
+      Foswiki::Store->create( address => { web => $web, topic => $topic } );
 
     my ( $saveOpts, $merged ) =
       Foswiki::UI::Save::buildNewTopic( $session, $topicObject, 'preview' );
@@ -155,9 +156,9 @@ sub preview {
 }
 
 sub _disableLink {
-    my ($one, $two, $three) = @_;
-    if ($one =~ /\bhref=/i) {
-        $one = "<span class=\"foswikiEmulatedLink\">";
+    my ( $one, $two, $three ) = @_;
+    if ( $one =~ /\bhref=/i ) {
+        $one   = "<span class=\"foswikiEmulatedLink\">";
         $three = "</span>";
     }
     return "$one$two$three";

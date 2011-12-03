@@ -120,7 +120,8 @@ MESSAGE
             my $blah = $session->templates->expandTemplate($def);
             $tmplData =~ s/%INSTANTIATE%/$blah/;
         }
-        my $topicObject = Foswiki::Store->create( address=>{web=>$web, topic=>$topic} );
+        my $topicObject =
+          Foswiki::Store->create( address => { web => $web, topic => $topic } );
         $tmplData = $topicObject->expandMacros($tmplData);
         $n        = 1;
         foreach my $param (@params) {

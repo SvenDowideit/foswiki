@@ -156,7 +156,7 @@ sub statistics {
                     },
                     "$web.$tmp"
                   )
-                 . CGI::br()
+                  . CGI::br()
             );
         }
     }
@@ -361,7 +361,8 @@ sub _processWeb {
 
     # DEBUG
     # $statsTopic = 'TestStatistics';		# Create this by hand
-    my $meta = Foswiki::Store->load( address=>{web=>$web, topic=>$statsTopic} );
+    my $meta =
+      Foswiki::Store->load( address => { web => $web, topic => $statsTopic } );
     Foswiki::UI::checkAccess( $session, 'CHANGE', $meta );
     my @lines = split( /\r?\n/, $meta->text );
     my $statLine;

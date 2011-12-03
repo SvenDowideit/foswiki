@@ -202,8 +202,13 @@ sub INCLUDE {
 
     $this->{_INCLUDES}->{$key} = 1;
 
-    my $includedTopicObject =
-      Foswiki::Store->load( address=>{web=>$includedWeb, topic=>$includedTopic, rev=>$control{rev}} );
+    my $includedTopicObject = Foswiki::Store->load(
+        address => {
+            web   => $includedWeb,
+            topic => $includedTopic,
+            rev   => $control{rev}
+        }
+    );
     unless ( $includedTopicObject->haveAccess('VIEW') ) {
         if ( isTrue( $control{warn} ) ) {
             return $this->inlineAlert( 'alerts', 'access_denied',

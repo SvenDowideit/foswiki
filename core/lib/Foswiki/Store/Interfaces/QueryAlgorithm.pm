@@ -80,17 +80,15 @@ sub query {
     }
 
     my $date = $options->{'date'} || '';
-    
+
     # Fold constants
-    my $context = Foswiki::Store->load( address=>{web=>$session->{webName}} );
+    my $context =
+      Foswiki::Store->load( address => { web => $session->{webName} } );
     print STDERR "--- before: " . $query->stringify() . "\n" if MONITOR;
     $query->simplify( tom => $context, data => $context );
     print STDERR "--- simplified: " . $query->stringify() . "\n" if MONITOR;
 
-
-    my $webItr =
-      $this->getWebIterator( $session,
-        $options );
+    my $webItr = $this->getWebIterator( $session, $options );
 
     #do the search
     my $queryItr = Foswiki::Iterator::ProcessIterator->new(
@@ -102,12 +100,12 @@ sub query {
             my $infoCache =
               $this->_webQuery( $params->{query}, $web, $params->{inputset},
                 $params->{session}, $params->{options} );
-            
+
             if ($date) {
-                $infoCache->filterByDate( $date );
+                $infoCache->filterByDate($date);
             }
             $infoCache->sortResults($options);
-            
+
             return $infoCache;
         },
         {
@@ -128,22 +126,19 @@ sub query {
 
 #consider if this is un-necessary - and that we can steal the web order sort from DBIStore and push up to the webItr
     if ($date) {
-        $resultset->filterByDate( $date );
+        $resultset->filterByDate($date);
     }
     $resultset->sortResults($options);
 
     #add permissions check
-    $resultset =
-      $this->addACLFilter( $resultset,
-        $options );
+    $resultset = $this->addACLFilter( $resultset, $options );
 
     #add paging if applicable.
-    $this->addPager( $resultset,
-        $options );
+    $this->addPager( $resultset, $options );
 }
 
 sub addPager {
-    my $this = shift;
+    my $this      = shift;
     my $resultset = shift;
     my $options   = shift;
 
@@ -157,7 +152,7 @@ sub addPager {
 }
 
 sub addACLFilter {
-    my $this = shift;
+    my $this      = shift;
     my $resultset = shift;
     my $options   = shift;
 
@@ -179,8 +174,8 @@ sub addACLFilter {
 
 #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
 #lets change that
-                $topicMeta =
-                  Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
+                $topicMeta = Foswiki::Store::create(
+                    address => { web => $web, topic => $topic } );
             }
             my $info =
               $Foswiki::Plugins::SESSION->search->metacache->get( $web, $topic,
@@ -196,7 +191,7 @@ sub addACLFilter {
 }
 
 sub getWebIterator {
-    my $this = shift;
+    my $this    = shift;
     my $session = shift;
     my $options = shift;
 
@@ -219,7 +214,7 @@ sub getWebIterator {
             # can't process what ain't thar
             return 0 unless $session->webExists($web);
 
-            my $webObject = Foswiki::Store->load( address=>{web=>$web} );
+            my $webObject = Foswiki::Store->load( address => { web => $web } );
             my $thisWebNoSearchAll =
               Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
 
@@ -235,6 +230,7 @@ sub getWebIterator {
         {}
     );
 }
+
 =begin TML
 
 ---++ StaticMethod getField($class, $node, $data, $field ) -> $result
@@ -399,13 +395,15 @@ sub getRefTopic {
 
     # Get a referenced topic
     my ( $this, $relativeTo, $w, $t, $rev ) = @_;
-    
-    #TODO: another shite place where we create a nonexistant topic, rather than just failering.
-    #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
-    #lets change that
 
-    
-	my $meta = Foswiki::Store::load(create=>1, address=>{web=>$w, topic=>$t, rev=>$rev });
+#TODO: another shite place where we create a nonexistant topic, rather than just failering.
+#TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
+#lets change that
+
+    my $meta = Foswiki::Store::load(
+        create  => 1,
+        address => { web => $w, topic => $t, rev => $rev }
+    );
     print STDERR "----- getRefTopic($w, $t) -> "
       . ( $meta->getLoadedRev() ) . "\n"
       if MONITOR;
@@ -476,7 +474,8 @@ sub getListOfWebs {
                             \&Foswiki::Sandbox::validateWebName );
                         ASSERT($web) if DEBUG;
                         push( @tmpWebs, $web );
-                        $webObject = Foswiki::Store->load( address=>{web=>$web} );
+                        $webObject =
+                          Foswiki::Store->load( address => { web => $web } );
                     }
                     my $it = $webObject->eachWeb(1);
                     while ( $it->hasNext() ) {
@@ -507,7 +506,8 @@ sub getListOfWebs {
             \&Foswiki::Sandbox::validateWebName );
         push( @tmpWebs, $web );
         if ( Foswiki::isTrue($recurse) ) {
-            my $webObject = Foswiki::Store->load( address=>{web=>$session->{webName}} );
+            my $webObject =
+              Foswiki::Store->load( address => { web => $session->{webName} } );
             my $it =
               $webObject->eachWeb( $Foswiki::cfg{EnableHierarchicalWebs} );
             while ( $it->hasNext() ) {

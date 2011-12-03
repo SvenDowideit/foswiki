@@ -134,9 +134,18 @@ sub finish {
 
 # Get a backend object corresponding to the given $web,$topic
 sub _getBackend {
-    my $this       = shift;
-    return undef unless (Foswiki::Store::exists(cuid=> 'BaseUserMapping_333', address=>{web=>$_[0], topic=>$_[1]}));
-    my $metaObject = Foswiki::Store::load(cuid=> 'BaseUserMapping_333', address=>{web=>$_[0], topic=>$_[1]});
+    my $this = shift;
+    return undef
+      unless (
+        Foswiki::Store::exists(
+            cuid    => 'BaseUserMapping_333',
+            address => { web => $_[0], topic => $_[1] }
+        )
+      );
+    my $metaObject = Foswiki::Store::load(
+        cuid    => 'BaseUserMapping_333',
+        address => { web => $_[0], topic => $_[1] }
+    );
     my $path = $metaObject->getPath();
     unless ( exists $this->{paths}{$path} ) {
         $this->{paths}{$path} =
@@ -159,7 +168,7 @@ sub _pushWebInStack {
         $subWeb .= '/' if $subWeb;
         $subWeb .= $_;
         $back = $this->_getBackend( $subWeb, $Foswiki::cfg{WebPrefsTopicName} );
-        $stack->newLevel($back) if (defined($back));
+        $stack->newLevel($back) if ( defined($back) );
     }
 }
 
@@ -273,10 +282,10 @@ sub pushTopicContext {
         $subWeb .= '/' if $subWeb;
         $subWeb .= $_;
         $back = $this->_getBackend( $subWeb, $Foswiki::cfg{WebPrefsTopicName} );
-        $stack->newLevel($back) if (defined($back));
+        $stack->newLevel($back) if ( defined($back) );
     }
     $back = $this->_getBackend( $web, $topic );
-    $stack->newLevel($back) if (defined($back));
+    $stack->newLevel($back) if ( defined($back) );
     $stack->newLevel( Foswiki::Prefs::HASH->new() );
 
     while ( my ( $k, $v ) = each %{ $this->{internals} } ) {
@@ -341,7 +350,7 @@ stack.
 sub setUserPreferences {
     my ( $this, $wn ) = @_;
     my $back = $this->_getBackend( $Foswiki::cfg{UsersWebName}, $wn );
-    $this->{main}->newLevel($back) if (defined($back));
+    $this->{main}->newLevel($back) if ( defined($back) );
 }
 
 =begin TML
@@ -374,7 +383,7 @@ sub loadSitePreferences {
           $this->{session}
           ->normalizeWebTopicName( undef, $Foswiki::cfg{LocalSitePreferences} );
         my $back = $this->_getBackend( $web, $topic );
-        $this->{main}->newLevel($back) if (defined($back));
+        $this->{main}->newLevel($back) if ( defined($back) );
     }
 }
 
@@ -436,7 +445,7 @@ sub getPreference {
 
     my $value;
     my $stack = $this->{main};
-    return unless ($stack->backAtLevel(-2));
+    return unless ( $stack->backAtLevel(-2) );
     $value = $stack->backAtLevel(-2)->getLocal($key)
       unless $stack->finalizedBefore( $key, -2 );
     if ( !defined $value && $stack->prefIsDefined($key) ) {

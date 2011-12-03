@@ -32,8 +32,9 @@ sub fixture_groups {
 sub NormalTopicUserMapping {
     my $this = shift;
     $Foswiki::Users::TopicUserMapping::FOSWIKI_USER_MAPPING_ID = '';
+
     #$this->set_up_for_verify();
-	$this->createNewFoswikiSession( );
+    $this->createNewFoswikiSession();
 }
 
 sub NamedTopicUserMapping {
@@ -41,8 +42,9 @@ sub NamedTopicUserMapping {
 
     # Set a mapping ID for purposes of testing named mappings
     $Foswiki::Users::TopicUserMapping::FOSWIKI_USER_MAPPING_ID = 'TestMapping_';
+
     #$this->set_up_for_verify();
-	$this->createNewFoswikiSession( );
+    $this->createNewFoswikiSession();
 }
 
 sub useHtpasswdMgr {
@@ -62,11 +64,11 @@ sub set_up {
 
     $this->SUPER::set_up();
 
-	# the group is recursive to force a recursion block
-	Foswiki::Func::saveTopic( $testUsersWeb, $Foswiki::cfg{SuperAdminGroup},
-		undef, "   * Set GROUP = $Foswiki::cfg{SuperAdminGroup}\n" );
+    # the group is recursive to force a recursion block
+    Foswiki::Func::saveTopic( $testUsersWeb, $Foswiki::cfg{SuperAdminGroup},
+        undef, "   * Set GROUP = $Foswiki::cfg{SuperAdminGroup}\n" );
 
-	Foswiki::Func::createWeb( $testNormalWeb, '_default' );
+    Foswiki::Func::createWeb( $testNormalWeb, '_default' );
 }
 
 # Delay the calling of set_up till after the cfg's are set by above closure
@@ -157,7 +159,8 @@ sub verify_AddUsers {
     $text = <$F>;
     close($F);
     $this->assert_matches( qr/AaronUser.*GeorgeUser/s, $text );
-    $this->{session}->{users}->{mapping}->addUser( "zuser", "ZebediahUser", $me );
+    $this->{session}->{users}->{mapping}
+      ->addUser( "zuser", "ZebediahUser", $me );
     open( $F, '<', $ttpath );
     local $/ = undef;
     $text = <$F>;
@@ -177,29 +180,35 @@ sub verify_Load {
     close($F);
 
     my $zuser_id =
-      $this->{session}->{users}->{mapping}->addUser( "zuser", "ZebediahUser", $me );
+      $this->{session}->{users}->{mapping}
+      ->addUser( "zuser", "ZebediahUser", $me );
     my $auser_id =
-      $this->{session}->{users}->{mapping}->addUser( "auser", "AaronUser", $me );
+      $this->{session}->{users}->{mapping}
+      ->addUser( "auser", "AaronUser", $me );
     my $guser_id =
-      $this->{session}->{users}->{mapping}->addUser( "guser", "GeorgeUser", $me );
+      $this->{session}->{users}->{mapping}
+      ->addUser( "guser", "GeorgeUser", $me );
 
     # deliberate repeat
-    $this->{session}->{users}->{mapping}->addUser( "zuser", "ZebediahUser", $me );
+    $this->{session}->{users}->{mapping}
+      ->addUser( "zuser", "ZebediahUser", $me );
 
     # find a nonexistent user to force a cache read
-    $this->createNewFoswikiSession(  );
+    $this->createNewFoswikiSession();
     my $n = $this->{session}->{users}->{mapping}->login2cUID("auser");
     $this->assert_str_equals( $n, $auser_id );
     $this->assert_str_equals( "AaronUser",
         $this->{session}->{users}->getWikiName($n) );
-    $this->assert_str_equals( "auser", $this->{session}->{users}->getLoginName($n) );
+    $this->assert_str_equals( "auser",
+        $this->{session}->{users}->getLoginName($n) );
 
     my $i = $this->{session}->{users}->eachUser();
     my @l = ();
     while ( $i->hasNext() ) {
         push( @l, $i->next() );
     }
-    my $k = join( ",", sort map { $this->{session}->{users}->getWikiName($_) } @l );
+    my $k =
+      join( ",", sort map { $this->{session}->{users}->getWikiName($_) } @l );
     $this->assert( $k =~ s/^AaronUser,//,          $k );
     $this->assert( $k =~ s/^AdminUser,//,          $k );
     $this->assert( $k =~ s/^AttilaTheHun,//,       $k );
@@ -220,12 +229,14 @@ sub verify_Load {
 sub groupFix {
     my $this = shift;
     my $me   = $Foswiki::cfg{Register}{RegistrationAgentWikiName};
-    $this->{session}->{users}->{mapping}->addUser( "auser", "AaronUser",    $me );
-    $this->{session}->{users}->{mapping}->addUser( "guser", "GeorgeUser",   $me );
-    $this->{session}->{users}->{mapping}->addUser( "zuser", "ZebediahUser", $me );
-    $this->{session}->{users}->{mapping}->addUser( "auser", "AaronUser",    $me );
-    $this->{session}->{users}->{mapping}->addUser( "guser", "GeorgeUser",   $me );
-    $this->{session}->{users}->{mapping}->addUser( "zuser", "ZebediahUser", $me );
+    $this->{session}->{users}->{mapping}->addUser( "auser", "AaronUser",  $me );
+    $this->{session}->{users}->{mapping}->addUser( "guser", "GeorgeUser", $me );
+    $this->{session}->{users}->{mapping}
+      ->addUser( "zuser", "ZebediahUser", $me );
+    $this->{session}->{users}->{mapping}->addUser( "auser", "AaronUser",  $me );
+    $this->{session}->{users}->{mapping}->addUser( "guser", "GeorgeUser", $me );
+    $this->{session}->{users}->{mapping}
+      ->addUser( "zuser", "ZebediahUser", $me );
 
     Foswiki::Func::saveTopic( $testUsersWeb, 'AmishGroup', undef,
         "   * Set GROUP = AaronUser,%MAINWEB%.GeorgeUser, scum\n" );
@@ -255,7 +266,8 @@ sub verify_groupMembers {
     my $i = $this->{session}->{users}->eachGroupMember($g);
     my @l = ();
     while ( $i->hasNext() ) { push( @l, $i->next() ) }
-    my $k = join( ',', map { $this->{session}->{users}->getLoginName($_) } sort @l );
+    my $k =
+      join( ',', map { $this->{session}->{users}->getLoginName($_) } sort @l );
     $this->assert_str_equals( "auser,guser,scum", $k );
 
     $g = "BaptistGroup";
@@ -263,7 +275,8 @@ sub verify_groupMembers {
     $i = $this->{session}->{users}->eachGroupMember($g);
     @l = ();
     while ( $i->hasNext() ) { push( @l, $i->next() ) }
-    $k = join( ',', map { $this->{session}->{users}->getLoginName($_) } sort @l );
+    $k =
+      join( ',', map { $this->{session}->{users}->getLoginName($_) } sort @l );
     $this->assert_str_equals( "guser,zuser", $k );
 
     $g = "MultiLineGroup";
@@ -271,7 +284,8 @@ sub verify_groupMembers {
     $i = $this->{session}->{users}->eachGroupMember($g);
     @l = ();
     while ( $i->hasNext() ) { push( @l, $i->next() ) }
-    $k = join( ',', map { $this->{session}->{users}->getLoginName($_) } sort @l );
+    $k =
+      join( ',', map { $this->{session}->{users}->getLoginName($_) } sort @l );
     $this->assert_str_equals( "auser,guser,scum,zuser", $k );
 }
 

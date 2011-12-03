@@ -29,7 +29,8 @@ sub _lookupIcon {
             my ( $w, $t ) =
               $this->normalizeWebTopicName( $this->{webName}, $iconTopic );
             if ( $this->topicExists( $w, $t ) ) {
-                $this->{_ICONSPACE} = Foswiki::Store::create(address=>{web=>$w, topic=>$t });
+                $this->{_ICONSPACE} = Foswiki::Store::create(
+                    address => { web => $w, topic => $t } );
             }
             else {
                 $this->logger->log( 'warning',

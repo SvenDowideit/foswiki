@@ -76,7 +76,7 @@ the form tag.
 sub addValidationKey {
     my ( $cgis, $context, $strikeone ) = @_;
 
-    my $nonce = generateValidationKey($cgis, $context, $strikeone);
+    my $nonce = generateValidationKey( $cgis, $context, $strikeone );
 
     # Don't use CGI::hidden; it will inherit the URL param value of
     # validation key and override our value :-(
@@ -125,7 +125,6 @@ sub generateValidationKey {
 
     #used to store the actions in case there are more than one form..
     $cgis->param( 'VALID_ACTIONS', $actions );
-
 
     return $nonce;
 }
@@ -194,9 +193,8 @@ Return false if not.
 sub isValidNonce {
     my ( $cgis, $nonce ) = @_;
     my $actions = $cgis->param('VALID_ACTIONS');
-    return isValidNonceHash($actions, $nonce)
+    return isValidNonceHash( $actions, $nonce );
 }
-
 
 =begin TML
 
@@ -337,7 +335,8 @@ sub validate {
         # is ever defined can be replaced by any other undefined 4xx code.
         $session->{response}->status(419);
 
-        my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+        my $topicObject =
+          Foswiki::Store->load( address => { web => $web, topic => $topic } );
         $tmpl = $topicObject->expandMacros($tmpl);
         $tmpl = $topicObject->renderTML($tmpl);
         $tmpl =~ s/<nop>//g;

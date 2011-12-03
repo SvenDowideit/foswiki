@@ -248,7 +248,8 @@ sub searchWeb {
     ASSERT( defined $session->{webName} ) if DEBUG;
     my %params = @_;
 
-    my $baseWebObject = Foswiki::Store->load( address=>{web=>$session->{webName}} );
+    my $baseWebObject =
+      Foswiki::Store->load( address => { web => $session->{webName} } );
 
     my ( $callback, $cbdata ) = setup_callback( \%params, $baseWebObject );
 
@@ -701,7 +702,7 @@ sub formatResults {
     my $headerDone = $noHeader;
 
     my $web              = $baseWeb;
-    my $webObject        = Foswiki::Store::load(address=>{web=>$web });
+    my $webObject        = Foswiki::Store::load( address => { web => $web } );
     my $lastWebProcessed = '';
 
     #total number of topics and hits - not reset when we swap webs
@@ -738,7 +739,10 @@ sub formatResults {
 
 #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
 #lets change that
-                $topicMeta = Foswiki::Store::load(create=>1, address=>{web=>$web, topic=>$topic });
+                $topicMeta = Foswiki::Store::load(
+                    create  => 1,
+                    address => { web => $web, topic => $topic }
+                );
             }
             $info = $this->metacache->get( $web, $topic, $topicMeta );
             ASSERT( defined( $info->{tom} ) ) if DEBUG;
@@ -855,7 +859,7 @@ sub formatResults {
             }
 
             if ( $lastWebProcessed ne $web ) {
-                $webObject = Foswiki::Store::load(address=>{web=>$web });
+                $webObject = Foswiki::Store::load( address => { web => $web } );
                 $lastWebProcessed = $web;
 
                 #reset our web partitioned legacy counts

@@ -256,7 +256,7 @@ sub new {
     my $class = shift;
     my $this;
 
-    if ( blessed( $_[0] ) and (blessed($_[0]) eq 'Foswiki::Address') ) {
+    if ( blessed( $_[0] ) and ( blessed( $_[0] ) eq 'Foswiki::Address' ) ) {
 
         #print STDERR "COPY CONCTRUCTOR ($class, $_[0])\n";
         #need a copy construtor
@@ -275,9 +275,10 @@ sub new {
         );
         return $this;
     }
-#use Data::Dumper;
-#print STDERR "-------------".Dumper(@_)."\n".ref($_[0])."\n";
-    my %opts = (($#_==0) and (ref($_[0])))?%{$_[0]}:@_;
+
+    #use Data::Dumper;
+    #print STDERR "-------------".Dumper(@_)."\n".ref($_[0])."\n";
+    my %opts = ( ( $#_ == 0 ) and ( ref( $_[0] ) ) ) ? %{ $_[0] } : @_;
 
     if ( $opts{string} ) {
         ASSERT( not $opts{topic} or ( $opts{webpath} and $opts{topic} ) )
@@ -1093,11 +1094,16 @@ sub getPath {
 
 #use Data::Dumper;
 #    print STDERR Dumper($this) unless ( ($this->{web}) or (ref( $this->{webpath} ) eq 'ARRAY') or ($this->{root}) );
-    ASSERT( ($this->{web}) or (ref( $this->{webpath} ) eq 'ARRAY') or ($this->{root}) ) if DEBUG;
+    ASSERT(
+             ( $this->{web} )
+          or ( ref( $this->{webpath} ) eq 'ARRAY' )
+          or ( $this->{root} )
+    ) if DEBUG;
 
-    if ($this->{root}) {
+    if ( $this->{root} ) {
         $this->{stringified} = '/';
     }
+
     # If there's a valid address; and check that we haven't already computed
     # the stringification before with the same opts
     elsif (
@@ -1499,7 +1505,7 @@ sub isValid {
         }
         if ( $this->{type} ) {
             $this->{isA} = { $this->{type} => 1 };
-            $this->{root} = 1 if ($this->{type} eq 'root');
+            $this->{root} = 1 if ( $this->{type} eq 'root' );
         }
         else {
             $this->{isA} = {};

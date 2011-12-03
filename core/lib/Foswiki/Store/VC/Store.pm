@@ -81,27 +81,30 @@ sub getHandler {
 sub readTopic {
     my ( $this, %args ) = @_;
 
-    my ( $gotRev, $isLatest ) = $this->askListeners($args{address}, $args{rev});
+    my ( $gotRev, $isLatest ) =
+      $this->askListeners( $args{address}, $args{rev} );
 
     if ( defined($gotRev) and ( $gotRev > 0 or ($isLatest) ) ) {
         return ( $gotRev, $isLatest );
     }
     ASSERT( not $isLatest ) if DEBUG;
 
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     $isLatest = 0;
 
     # check that the requested revision actually exists
     if ( defined $args{rev} && $args{rev} =~ /^\d+$/ ) {
-        if ( $args{rev} == 0 || !$handler->revisionExists($args{rev}) ) {
+        if ( $args{rev} == 0 || !$handler->revisionExists( $args{rev} ) ) {
             $args{rev} = $handler->getLatestRevisionID();
         }
-    } else {
-	undef $args{rev}; # if it's a non-numeric string, we need to return undef
-	# "...$args{rev} is defined but refers to a version that does not exist, then $rev is undef"
+    }
+    else {
+        undef
+          $args{rev};    # if it's a non-numeric string, we need to return undef
+         # "...$args{rev} is defined but refers to a version that does not exist, then $rev is undef"
     }
 
-    ( my $text, $isLatest ) = $handler->getRevision($args{rev});
+    ( my $text, $isLatest ) = $handler->getRevision( $args{rev} );
     unless ( defined $text ) {
         ASSERT( not $isLatest ) if DEBUG;
         return ( undef, $isLatest );
@@ -110,11 +113,11 @@ sub readTopic {
     $text =~ s/\r//g;    # Remove carriage returns
     $args{address}->setEmbeddedStoreForm($text);
 
-    unless ($handler->noCheckinPending()) {
+    unless ( $handler->noCheckinPending() ) {
 
         # If a checkin is pending, fix the TOPICINFO
-        my $ri = $args{address}->get('TOPICINFO');
-        my $truth = $handler->getInfo($args{rev});
+        my $ri    = $args{address}->get('TOPICINFO');
+        my $truth = $handler->getInfo( $args{rev} );
         for my $i (qw(author version date)) {
             $ri->{$i} = $truth->{$i};
         }
@@ -125,7 +128,7 @@ sub readTopic {
 
         # First try the just-loaded for the revision.
         my $ri = $args{address}->get('TOPICINFO');
-	$gotRev = $ri->{version} if defined $ri;
+        $gotRev = $ri->{version} if defined $ri;
     }
     if ( !defined $gotRev ) {
 
@@ -177,8 +180,7 @@ sub readTopic {
 }
 
 sub moveAttachment {
-    my ( $this, %args )
-      = @_;
+    my ( $this, %args ) = @_;
 
     my $handler = $this->getHandler( $args{from}, $args{fromattachment} );
     if ( $handler->storedDataExists() ) {
@@ -196,8 +198,7 @@ sub moveAttachment {
 }
 
 sub copyAttachment {
-    my ( $this, %args )
-      = @_;
+    my ( $this, %args ) = @_;
 
     my $handler = $this->getHandler( $args{from}, $args{fromattachment} );
     if ( $handler->storedDataExists() ) {
@@ -220,7 +221,7 @@ sub attachmentExists {
 
 sub moveTopic {
     my ( $this, %args ) = @_;
-    ASSERT($args{cuid}) if DEBUG;
+    ASSERT( $args{cuid} ) if DEBUG;
 
     my $handler = $this->getHandler( $args{from}, '' );
     $args{rev} = $handler->getLatestRevisionID();
@@ -245,9 +246,9 @@ sub moveTopic {
 
 sub moveWeb {
     my ( $this, %args ) = @_;
-    ASSERT($args{cuid}) if DEBUG;
+    ASSERT( $args{cuid} ) if DEBUG;
 
-    my $handler = $this->getHandler($args{from});
+    my $handler = $this->getHandler( $args{from} );
     $handler->moveWeb( $args{address}->web );
 
     $this->tellListeners(
@@ -258,14 +259,14 @@ sub moveWeb {
 
     # We have to log in the new web, otherwise we would re-create the dir with
     # a useless .changes. See Item9278
-    $handler = $this->getHandler($args{address});
+    $handler = $this->getHandler( $args{address} );
     $handler->recordChange( $args{cuid}, 0, 'Moved from ' . $args{from}->web );
 }
 
 sub testAttachment {
     my ( $this, %args ) = @_;
     my $handler = $this->getHandler( $args{address}, $args{attachment} );
-    return $handler->test($args{test});
+    return $handler->test( $args{test} );
 }
 
 sub openAttachment {
@@ -277,8 +278,9 @@ sub openAttachment {
 
 sub getRevisionHistory {
     my ( $this, %args ) = @_;
-    
-    my $itr = $this->askListenersRevisionHistory($args{address}, $args{attachment});
+
+    my $itr =
+      $this->askListenersRevisionHistory( $args{address}, $args{attachment} );
 
     if ( defined($itr) ) {
         return $itr;
@@ -290,17 +292,17 @@ sub getRevisionHistory {
 
 sub getNextRevision {
     my ( $this, %args ) = @_;
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     return $handler->getNextRevisionID();
 }
 
 sub getRevisionDiff {
     my ( $this, %args ) = @_;
-    ASSERT( defined($args{contextLines}) ) if DEBUG;
+    ASSERT( defined( $args{contextLines} ) ) if DEBUG;
 
-    my $rcs = $this->getHandler($args{address});
-    return $rcs->revisionDiff( $args{address}->getLoadedRev(), $args{rev},
-        $args{contextLines} );
+    my $rcs = $this->getHandler( $args{address} );
+    return $rcs->revisionDiff( $args{address}->getLoadedRev(),
+        $args{rev}, $args{contextLines} );
 }
 
 sub DELETED_getAttachmentVersionInfo {
@@ -311,27 +313,36 @@ sub DELETED_getAttachmentVersionInfo {
 
 sub getVersionInfo {
     my ( $this, %args ) = @_;
-    if ($this->exists(%args)) {
-        my $handler = $this->getHandler($args{address}, $args{attachment});
-        return $handler->getInfo( $args{address}{rev} || 0  );
+    if ( $this->exists(%args) ) {
+        my $handler = $this->getHandler( $args{address}, $args{attachment} );
+        return $handler->getInfo( $args{address}{rev} || 0 );
     }
-    #TODO: push the default for 'does not exist' into the API, rather than the store impl
+
+#TODO: push the default for 'does not exist' into the API, rather than the store impl
     use Foswiki::Users::BaseUserMapping;
-    return {comment=>'', date=>0, version=>0, author=>$Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID };
+    return {
+        comment => '',
+        date    => 0,
+        version => 0,
+        author  => $Foswiki::Users::BaseUserMapping::DEFAULT_USER_CUID
+    };
 }
 
 sub saveAttachment {
     my ( $this, %args ) = @_;
-    
-    $args{address}->attachment($args{attachment}) if (defined($args{attachment}));
-    
+
+    $args{address}->attachment( $args{attachment} )
+      if ( defined( $args{attachment} ) );
+
     my $handler    = $this->getHandler( $args{address} );
     my $currentRev = $handler->getLatestRevisionID();
     my $nextRev    = $currentRev + 1;
-    #my $verb = ( $args{address}->hasAttachment($args{attachment}) ) ? 'update' : 'insert';
-    my $verb = ( exists($args{address}) ) ? 'update' : 'insert';
 
-    $handler->addRevisionFromStream( $args{stream}, 'save attachment', $args{cuid} );
+#my $verb = ( $args{address}->hasAttachment($args{attachment}) ) ? 'update' : 'insert';
+    my $verb = ( exists( $args{address} ) ) ? 'update' : 'insert';
+
+    $handler->addRevisionFromStream( $args{stream}, 'save attachment',
+        $args{cuid} );
     $this->tellListeners(
         verb          => $verb,
         newmeta       => $args{address},
@@ -344,17 +355,17 @@ sub saveAttachment {
 sub saveTopic {
     my ( $this, %args ) = @_;
     ASSERT( $args{address}->isa('Foswiki::Meta') ) if DEBUG;
-    ASSERT($args{cuid}) if DEBUG;
+    ASSERT( $args{cuid} ) if DEBUG;
 
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
 
     my $verb = ( $args{address}->existsInStore() ) ? 'update' : 'insert';
 
     # just in case they are not sequential
     my $nextRev = $handler->getNextRevisionID();
-    my $ti = $args{address}->get('TOPICINFO');
+    my $ti      = $args{address}->get('TOPICINFO');
     $ti->{version} = $nextRev;
-    $ti->{author} = $args{cuid};
+    $ti->{author}  = $args{cuid};
 
     $handler->addRevisionFromText( $args{address}->getEmbeddedStoreForm(),
         'save topic', $args{cuid}, $args{forcedate} );
@@ -370,10 +381,10 @@ sub saveTopic {
 sub repRev {
     my ( $this, %args ) = @_;
     ASSERT( $args{address}->isa('Foswiki::Meta') ) if DEBUG;
-    ASSERT($args{cuid}) if DEBUG;
+    ASSERT( $args{cuid} ) if DEBUG;
 
     my $info    = $args{address}->getRevisionInfo();
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     $handler->replaceRevision( $args{address}->getEmbeddedStoreForm(),
         'reprev', $args{cuid}, $info->{date} );
     $args{rev} = $handler->getLatestRevisionID();
@@ -387,10 +398,10 @@ sub repRev {
 sub delRev {
     my ( $this, %args ) = @_;
     ASSERT( $args{address}->isa('Foswiki::Meta') ) if DEBUG;
-    ASSERT($args{cuid}) if DEBUG;
+    ASSERT( $args{cuid} ) if DEBUG;
 
-    my $handler = $this->getHandler($args{address});
-    $args{rev}     = $handler->getLatestRevisionID();
+    my $handler = $this->getHandler( $args{address} );
+    $args{rev} = $handler->getLatestRevisionID();
     if ( $args{rev} <= 1 ) {
         throw Error::Simple( 'Cannot delete initial revision of '
               . $args{address}->web . '.'
@@ -399,7 +410,7 @@ sub delRev {
     $handler->deleteRevision();
 
     # restore last topic from repository
-    $handler->restoreLatestRevision($args{cuid});
+    $handler->restoreLatestRevision( $args{cuid} );
 
     # reload the topic object
     $args{address}->unload();
@@ -414,8 +425,8 @@ sub delRev {
 
 sub atomicLockInfo {
     my ( $this, %args ) = @_;
-    my $handler = $this->getHandler($args{address});
-    my @info = $handler->isLocked();
+    my $handler = $this->getHandler( $args{address} );
+    my @info    = $handler->isLocked();
     return \@info;
 }
 
@@ -423,14 +434,14 @@ sub atomicLockInfo {
 # (doesn't work on all platforms)
 sub atomicLock {
     my ( $this, %args ) = @_;
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     $handler->setLock( 1, $args{cuid} );
 }
 
 sub atomicUnlock {
     my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     $handler->setLock( 0, $args{cuid} );
 }
 
@@ -458,7 +469,7 @@ sub webExists {
 
 sub topicExists {
     my ( $this, $web, $topic ) = @_;
-    
+
     return 0 unless defined $web && $web ne '';
     $web =~ s#\.#/#go;
     return 0 unless defined $topic && $topic ne '';
@@ -470,21 +481,21 @@ sub topicExists {
 sub getApproxRevTime {
     my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     return $handler->getLatestRevisionTime();
 }
 
 sub eachChange {
     my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($args{address});
-    return $handler->eachChange($args{time});
+    my $handler = $this->getHandler( $args{address} );
+    return $handler->eachChange( $args{time} );
 }
 
 sub eachAttachment {
     my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     my @list    = $handler->getAttachmentList();
     require Foswiki::ListIterator;
     return new Foswiki::ListIterator( \@list );
@@ -492,10 +503,10 @@ sub eachAttachment {
 
 sub eachTopic {
     my ( $this, %args ) = @_;
-    
-    ASSERT($args{address}->type() eq 'webpath') if DEBUG;
 
-    my $handler = $this->getHandler($args{address});
+    ASSERT( $args{address}->type() eq 'webpath' ) if DEBUG;
+
+    my $handler = $this->getHandler( $args{address} );
     my @list    = $handler->getTopicNames();
 
     require Foswiki::ListIterator;
@@ -544,11 +555,13 @@ sub remove {
     if ( my $topic = $args{address}->topic ) {
         $handler->recordChange( $args{cuid}, 0, 'Deleted ' . $topic );
     }
-    elsif ($args{attachment}) {
-        $handler->recordChange( $args{cuid}, 0, 'Deleted attachment ' . $args{attachment} );
+    elsif ( $args{attachment} ) {
+        $handler->recordChange( $args{cuid}, 0,
+            'Deleted attachment ' . $args{attachment} );
     }
-    
-    return (defined($result)?$result:1);    #return true unless handler returns false.
+
+    return ( defined($result) ? $result : 1 )
+      ;    #return true unless handler returns false.
 }
 
 sub query {
@@ -587,14 +600,14 @@ sub query {
 sub getRevisionAtTime {
     my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($args{address});
-    return $handler->getRevisionAtTime($args{time});
+    my $handler = $this->getHandler( $args{address} );
+    return $handler->getRevisionAtTime( $args{time} );
 }
 
 sub getLease {
     my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($args{address});
+    my $handler = $this->getHandler( $args{address} );
     my $lease   = $handler->getLease();
     return $lease;
 }
@@ -602,8 +615,8 @@ sub getLease {
 sub setLease {
     my ( $this, %args ) = @_;
 
-    my $handler = $this->getHandler($args{address});
-    $handler->setLease($args{length});
+    my $handler = $this->getHandler( $args{address} );
+    $handler->setLease( $args{length} );
 }
 
 sub removeSpuriousLeases {
@@ -617,36 +630,45 @@ sub removeSpuriousLeases {
 sub save {
     my $this = shift;
     my %args = @_;
-    ASSERT($args{address}) if DEBUG;
+    ASSERT( $args{address} ) if DEBUG;
     my $type = $args{address}->type();
-#    ASSERT($type) if DEBUG;
-    if ($type eq 'webpath') {
-        return $this->saveWeb($args{address}->web);
-    } elsif ($type eq 'topic') {
-        return $this->saveAttachment(%args) if (defined($args{attachment}));
+
+    #    ASSERT($type) if DEBUG;
+    if ( $type eq 'webpath' ) {
+        return $this->saveWeb( $args{address}->web );
+    }
+    elsif ( $type eq 'topic' ) {
+        return $this->saveAttachment(%args) if ( defined( $args{attachment} ) );
         return $this->saveTopic(%args);
-    } elsif ($type eq 'attachment') {
+    }
+    elsif ( $type eq 'attachment' ) {
         return $this->saveAttachment(%args);
-    } 
-    die "can't call save(".$args{address}->getPath().")" if DEBUG;
+    }
+    die "can't call save(" . $args{address}->getPath() . ")" if DEBUG;
 }
 
 sub exists {
     my $this = shift;
     my %args = @_;
-    ASSERT($args{address}) if DEBUG;
+    ASSERT( $args{address} ) if DEBUG;
     my $type = $args{address}->type();
 
     ASSERT($type) if DEBUG;
-    if ($type eq 'webpath') {
-        return $this->webExists($args{address}->web);
-    } elsif ($type eq 'topic') {
-        return $this->attachmentExists(%args) if (defined($args{attachment}));
-        return $this->topicExists($args{address}->web, $args{address}->topic);
-    } elsif ($type eq 'attachment') {
+    if ( $type eq 'webpath' ) {
+        return $this->webExists( $args{address}->web );
+    }
+    elsif ( $type eq 'topic' ) {
+        return $this->attachmentExists(%args)
+          if ( defined( $args{attachment} ) );
+        return $this->topicExists( $args{address}->web, $args{address}->topic );
+    }
+    elsif ( $type eq 'attachment' ) {
         return $this->attachmentExists(%args);
-    } 
-    die "can't call exists(".$args{address}->getPath().") cos its type = $type " if DEBUG;
+    }
+    die "can't call exists("
+      . $args{address}->getPath()
+      . ") cos its type = $type "
+      if DEBUG;
 }
 
 #create a writeable item that might not exist? - need to give the func a better name i think
@@ -654,90 +676,99 @@ sub exists {
 sub create {
     my $this = shift;
     my %args = @_;
-    ASSERT($args{address}) if DEBUG;
+    ASSERT( $args{address} ) if DEBUG;
+
     #print STDERR "create ".$args{address}->getPath()."\n";
-    ASSERT(not $this->exists(address=>$args{address})) if DEBUG;
-    
+    ASSERT( not $this->exists( address => $args{address} ) ) if DEBUG;
+
     my $type = $args{address}->type();
-    
+
     #make sure we're trying to default the values from the same type of obj.
-    if (defined($args{from})) {
-        if (ref($args{from}) ne 'Foswiki::Meta') {
+    if ( defined( $args{from} ) ) {
+        if ( ref( $args{from} ) ne 'Foswiki::Meta' ) {
+
             #need to do this to allow copying from another store backend
-            $args{from} = Foswiki::Store->load(address=>$args{from});
+            $args{from} = Foswiki::Store->load( address => $args{from} );
         }
 
-        ASSERT($type eq $args{from}->type()) if DEBUG;
+        ASSERT( $type eq $args{from}->type() ) if DEBUG;
+
         #now copy the 'data' ..
         #use slices?
         #TODO: move this from manipulation into Foswiki::Store??...
-        
-        if (defined($args{data})) {
-            my %data = %{$args{data}};
+
+        if ( defined( $args{data} ) ) {
+            my %data = %{ $args{data} };
+
             #%{$args{data}} = (%{$args{from}}, %{$args{data}});
-            @{$args{data}}{keys(%{$args{from}})} = values(%{$args{from}});
-            @{$args{data}}{keys(%data)} = values(%data);
-        } else {
+            @{ $args{data} }{ keys( %{ $args{from} } ) } =
+              values( %{ $args{from} } );
+            @{ $args{data} }{ keys(%data) } = values(%data);
+        }
+        else {
             $args{data} = {};
         }
     }
-    
+
     ASSERT($type) if DEBUG;
-    if ($type eq 'webpath') {
-        my $newResource =  Foswiki::Meta->NEWnew( %args );
+    if ( $type eq 'webpath' ) {
+        my $newResource = Foswiki::Meta->NEWnew(%args);
         return $newResource;
-    } elsif ($type eq 'topic') {
-        my $newResource =  Foswiki::Meta->NEWnew( %args );
+    }
+    elsif ( $type eq 'topic' ) {
+        my $newResource = Foswiki::Meta->NEWnew(%args);
         return $newResource;
-    } 
+    }
     die "can't call create($type)" if DEBUG;
 }
 
 sub move {
     my $this = shift;
     my %args = @_;
-    ASSERT($args{address}) if DEBUG;
-    ASSERT($args{from}) if DEBUG;
-    ASSERT(ref($args{from}) eq 'Foswiki::Meta') if DEBUG;
+    ASSERT( $args{address} ) if DEBUG;
+    ASSERT( $args{from} )    if DEBUG;
+    ASSERT( ref( $args{from} ) eq 'Foswiki::Meta' ) if DEBUG;
 
     my $type = $args{address}->type();
-    
-   
-#    ASSERT($type) if DEBUG;
-    if ($type eq 'webpath') {
+
+    #    ASSERT($type) if DEBUG;
+    if ( $type eq 'webpath' ) {
         return $this->moveWeb(%args);
-    } elsif ($type eq 'topic') {
-        return $this->moveAttachment(%args) if (defined($args{attachment}));
+    }
+    elsif ( $type eq 'topic' ) {
+        return $this->moveAttachment(%args) if ( defined( $args{attachment} ) );
         return $this->moveTopic(%args);
-    } elsif ($type eq 'attachment') {
+    }
+    elsif ( $type eq 'attachment' ) {
         return $this->moveAttachment(%args);
-    } 
-    die "can't call save(".$args{address}->getPath().")" if DEBUG;
+    }
+    die "can't call save(" . $args{address}->getPath() . ")" if DEBUG;
 }
 
 sub load {
     my $this = shift;
     my %args = @_;
-    ASSERT($args{address}) if DEBUG;
+    ASSERT( $args{address} ) if DEBUG;
     my $type = $args{address}->type();
     ASSERT($type) if DEBUG;
-    if ($type eq 'webpath') {
-        return undef unless ($this->exists(%args));
-        my $newResource =  Foswiki::Meta->NEWnew( @_ );
+    if ( $type eq 'webpath' ) {
+        return undef unless ( $this->exists(%args) );
+        my $newResource = Foswiki::Meta->NEWnew(@_);
         return $newResource;
-    } elsif ($type eq 'topic') {
-        my $handler = $this->getHandler($args{address});
+    }
+    elsif ( $type eq 'topic' ) {
+        my $handler = $this->getHandler( $args{address} );
 
         # check that the requested revision actually exists
         $args{rev} = $args{address}->rev();
         if ( defined $args{rev} ) {
-            if ( !$args{rev} || !$handler->revisionExists($args{rev}) ) {
+            if ( !$args{rev} || !$handler->revisionExists( $args{rev} ) ) {
                 $args{rev} = $handler->getLatestRevisionID();
             }
         }
 
         #read the raw text file.
-        my ( $text, $isLatest ) = $handler->getRevision($args{rev});
+        my ( $text, $isLatest ) = $handler->getRevision( $args{rev} );
         unless ( defined $text ) {
             ASSERT( not $isLatest ) if DEBUG;
             return undef;
@@ -746,21 +777,22 @@ sub load {
         #parse it into a hash so we can use it to create a new Foswiki::Object
         #$text =~ s/\r//g;    # Remove carriage returns
         #$args{address}->setEmbeddedStoreForm($text);
-        my $parsedObj = Foswiki::Serialise::deserialise( $Foswiki::Plugins::SESSION, $text, 'embedded' );
-      
-#        return $this->topicExists($args{address}->web, $args{address}->topic);
-        my $newResource =  Foswiki::Meta->NEWnew( data=>$parsedObj, @_ );
+        my $parsedObj =
+          Foswiki::Serialise::deserialise( $Foswiki::Plugins::SESSION, $text,
+            'embedded' );
+
+ #        return $this->topicExists($args{address}->web, $args{address}->topic);
+        my $newResource = Foswiki::Meta->NEWnew( data => $parsedObj, @_ );
         return $newResource;
-    } 
+    }
     die "can't call load($type)" if DEBUG;
 }
 
 sub log {
     my $self = shift;
+
     #IMPLEMENTME
 }
-
-
 
 1;
 __END__

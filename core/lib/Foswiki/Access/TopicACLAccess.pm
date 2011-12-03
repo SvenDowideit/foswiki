@@ -27,8 +27,8 @@ sub new {
     my ( $class, $session ) = @_;
     ASSERT( $session->isa('Foswiki') ) if DEBUG;
     my $this = bless( { session => $session }, $class );
-    
-    ASSERT(defined($this->{session})) if DEBUG;
+
+    ASSERT( defined( $this->{session} ) ) if DEBUG;
 
     return $this;
 }
@@ -47,20 +47,20 @@ may result in the topic being read.
 =cut
 
 sub haveAccess {
-    if ($_[$#_-1] eq 'dontload') {
-        #print STDERR "-------------say its ok, even if its not $_[$#_-1] => $_[$#_]\n";
-        return 1 ;
+    if ( $_[ $#_ - 1 ] eq 'dontload' ) {
+
+#print STDERR "-------------say its ok, even if its not $_[$#_-1] => $_[$#_]\n";
+        return 1;
     }
     my ( $this, $mode, $cUID, $param1, $param2, $param3 ) = @_;
     $mode ||= 'VIEW';
     $cUID ||= $this->{session}->{user};
-    
-    #print STDERR "cUID isa ".ref($cUID)."\n";
-    ASSERT(ref($cUID) eq '') if DEBUG;
-    
-    ASSERT(ref($this) eq 'Foswiki::Access::TopicACLAccess') if DEBUG;
-    ASSERT(defined($this->{session})) if DEBUG;
 
+    #print STDERR "cUID isa ".ref($cUID)."\n";
+    ASSERT( ref($cUID) eq '' ) if DEBUG;
+
+    ASSERT( ref($this) eq 'Foswiki::Access::TopicACLAccess' ) if DEBUG;
+    ASSERT( defined( $this->{session} ) ) if DEBUG;
 
     my $session = $this->{session};
     undef $this->{failure};
@@ -70,13 +70,21 @@ sub haveAccess {
     if ( ref($param1) eq '' ) {
 
         #scalar - treat as web, topic
-        $meta = Foswiki::Store::load(cuid=> 'BaseUserMapping_333', address=>{web=>$param1, topic=>$param2});
+        $meta = Foswiki::Store::load(
+            cuid    => 'BaseUserMapping_333',
+            address => { web => $param1, topic => $param2 }
+        );
 
-        ASSERT(not defined($param3)) if DEBUG;  #attachment ACL not currently supported in traditional topic ACL
+        ASSERT( not defined($param3) )
+          if DEBUG
+        ;    #attachment ACL not currently supported in traditional topic ACL
     }
     else {
         if ( ref($param1) eq 'Foswiki::Address' ) {
-            $meta = Foswiki::Store::load(cuid=> 'BaseUserMapping_333', address=>$param1);
+            $meta = Foswiki::Store::load(
+                cuid    => 'BaseUserMapping_333',
+                address => $param1
+            );
         }
         else {
             $meta = $param1;
@@ -236,21 +244,23 @@ sub _getContainer {
     my $meta = shift;
 
     if ( $meta->{topic} ) {
-        if (Foswiki::Store->exists(address=>{web=>$meta->{web}})) {
-            return Foswiki::Store->load(cuid=> 'BaseUserMapping_333', address=>{web=>$meta->{web}});
+        if ( Foswiki::Store->exists( address => { web => $meta->{web} } ) ) {
+            return Foswiki::Store->load(
+                cuid    => 'BaseUserMapping_333',
+                address => { web => $meta->{web} }
+            );
         }
 
         #not really sure what should happen here..
-        return Foswiki::Store->load(address=>{string=>'/'});
+        return Foswiki::Store->load( address => { string => '/' } );
 
     }
     if ( $meta->{web} ) {
-        return Foswiki::Store->load(address=>{string=>'/'});
+        return Foswiki::Store->load( address => { string => '/' } );
     }
     ASSERT( 0, 'no container for this object type' ) if DEBUG;
     return;
 }
-
 
 1;
 __END__

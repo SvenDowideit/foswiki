@@ -507,15 +507,17 @@ sub verify_editSaveTopicWithUnnamedUnicodeEntity {
     }
 
     # Create the test topic
-    my $topicName = $this->{test_topic} . "For9170";
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topicName}, data=>{_text=>"Before${testText}After\n" });
+    my $topicName   = $this->{test_topic} . "For9170";
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => $topicName },
+        data    => { _text => "Before${testText}After\n" }
+    );
     $topicObject->save();
     $topicObject->finish();
 
     # Reload the topic and note the topic date
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topicName });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => $topicName } );
     $topicObject->load();
     my $topicinfo                = $topicObject->get('TOPICINFO');
     my $dateBeforeSaveFromEditor = $topicinfo->{date};
@@ -534,8 +536,8 @@ sub verify_editSaveTopicWithUnnamedUnicodeEntity {
     $this->{editor}->save();
 
     # Reload the topic and check that the content is as expected
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topicName });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => $topicName } );
     $topicObject->load();
 
     # Make sure the topic really was saved

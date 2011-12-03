@@ -112,9 +112,10 @@ sub new {
                 $web, $form, $Foswiki::Meta::reason );
         }
 
-        if (ref($this) ne 'Foswiki::Form') {
+        if ( ref($this) ne 'Foswiki::Form' ) {
+
             #recast if we have to - allowing the cache to work its magic
-            $this = bless($this, 'Foswiki::Form');
+            $this = bless( $this, 'Foswiki::Form' );
             $session->{forms}->{"$web.$form"} = $this;
         }
 
@@ -166,7 +167,7 @@ sub getAvailableForms {
     my $metaObject = shift;
     if ( defined $metaObject->topic ) {
         $metaObject =
-          Foswiki::Store::load(address=>{web=>$metaObject->web });
+          Foswiki::Store::load( address => { web => $metaObject->web } );
     }
     my $legalForms = $metaObject->getPreference('WEBFORMS') || '';
     $legalForms =~ s/^\s+//;
@@ -346,7 +347,9 @@ sub _link {
     }
     else {
         my $that =
-          Foswiki::Store::create(address=>{web=>$web, topic=>$topic || $Foswiki::cfg{HomeTopicName} });
+          Foswiki::Store::create( address =>
+              { web => $web, topic => $topic || $Foswiki::cfg{HomeTopicName} }
+          );
         my $expanded = $that->expandMacros($string);
         if ( $tooltip ne $defaultToolTip ) {
             $link = CGI::span( { title => $tooltip }, $expanded );
@@ -595,7 +598,7 @@ sub renderForDisplay {
 
     my $text = $templates->expandTemplate('FORM:display:header');
 
-    my $rowTemplate = $templates->expandTemplate('FORM:display:row');
+    my $rowTemplate        = $templates->expandTemplate('FORM:display:row');
     my $hasAllFieldsHidden = 1;
     foreach my $fieldDef ( @{ $this->{fields} } ) {
         my $fm = $topicObject->get( 'FIELD', $fieldDef->{name} );
@@ -612,7 +615,7 @@ sub renderForDisplay {
         }
     }
     return '' if $hasAllFieldsHidden;
-    
+
     $text .= $templates->expandTemplate('FORM:display:footer');
 
     # substitute remaining placeholders in footer and header

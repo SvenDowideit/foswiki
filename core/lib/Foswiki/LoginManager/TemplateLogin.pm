@@ -155,8 +155,7 @@ sub login {
 
     # UserMappings can over-ride where the login template is defined
     my $loginTemplate = $users->loginTemplateName();    #defaults to login.tmpl
-    my $tmpl =
-      $session->templates->readTemplate( $loginTemplate );
+    my $tmpl = $session->templates->readTemplate($loginTemplate);
 
     my $banner = $session->templates->expandTemplate('LOG_IN_BANNER');
     my $note   = '';
@@ -208,7 +207,7 @@ sub login {
                 # Unpack params encoded in the origurl and restore them
                 # to the query. If they were left in the query string they
                 # would be lost if we redirect with passthrough.
-		# First extract the params, ignoring any trailing fragment.
+                # First extract the params, ignoring any trailing fragment.
                 if ( $origurl =~ s/\?([^#]*)// ) {
                     foreach my $pair ( split( /[&;]/, $1 ) ) {
                         if ( $pair =~ /(.*?)=(.*)/ ) {
@@ -280,7 +279,8 @@ sub login {
         ERROR     => $error
     );
 
-    my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    my $topicObject =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
     $tmpl = $topicObject->expandMacros($tmpl);
     $tmpl = $topicObject->renderTML($tmpl);
     $tmpl =~ s/<nop>//g;

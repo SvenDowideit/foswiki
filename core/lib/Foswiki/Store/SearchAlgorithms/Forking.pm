@@ -188,7 +188,7 @@ sub _webQuery {
 
         #then we start with the whole web
         #TODO: i'm sure that is a flawed assumption
-        my $webObject = Foswiki::Store->load( address=>{web=>$web });
+        my $webObject = Foswiki::Store->load( address => { web => $web } );
         $topicSet =
           Foswiki::Search::InfoCache::getTopicListIterator( $webObject,
             $options );

@@ -152,7 +152,8 @@ sub viewfile {
     #print STDERR "VIEWFILE: web($web), topic($topic), file($fileName)\n";
 
     my $rev = Foswiki::Store::cleanUpRevID( $query->param('rev') );
-    my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    my $topicObject =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
 
     # This check will fail if the attachment has no "presence" in metadata
     unless ( $topicObject->hasAttachment($fileName) ) {

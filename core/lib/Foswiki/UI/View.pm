@@ -66,6 +66,7 @@ sub view {
             $session->{response}->redirect( $cachedPage->{location} );
         }
         else {
+
             # See Item9941 to understand why do not set status when 200
             $session->{response}->status($status) unless $status eq 200;
         }
@@ -111,10 +112,12 @@ sub view {
 
         # Load the most recent rev. This *should* be maxRev, but may
         # not say it is because the TOPICINFO could be up the spout
-        $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+        $topicObject =
+          Foswiki::Store->load( address => { web => $web, topic => $topic } );
         Foswiki::UI::checkAccess( $session, 'VIEW', $topicObject );
 
-        $revIt  = $topicObject->getRevisionHistory();
+        $revIt = $topicObject->getRevisionHistory();
+
         # The topic exists; it must have at least one rev
         ASSERT( $revIt->hasNext() ) if DEBUG;
         $maxRev = $revIt->next();
@@ -137,7 +140,9 @@ sub view {
 
                 # Load the old revision instead
                 $topicObject =
-                  Foswiki::Store->load( address=>{web=>$web, topic=>$topic, rev=>$showRev} );
+                  Foswiki::Store->load(
+                    address => { web => $web, topic => $topic, rev => $showRev }
+                  );
                 if ( !$topicObject->haveAccess('VIEW') ) {
                     throw Foswiki::AccessControlException( 'VIEW',
                         $session->{user}, $web, $topic,
@@ -174,7 +179,7 @@ sub view {
         }
     }
     else {    # Topic does not exist yet
-        $topicObject = Foswiki::Address->new( web=>$web, topic=>$topic );
+        $topicObject = Foswiki::Address->new( web => $web, topic => $topic );
         $indexableView = 0;
         $session->enterContext('new_topic');
         $session->{response}->status(404);
@@ -255,12 +260,13 @@ sub view {
         next if ( $name eq 'topic' );
         push @qparams, $name => $query->param($name);
     }
-    # SMELL: %QUERYPARAMSTRING% isn't a documented macro, and is no longer used in core
-    # or core extensions. Maintained for legacy only.
-    if ($tmpl =~ /%QUERYPARAMSTRING%/) {
-	my $qps = Foswiki::make_params(@qparams);
-	$qps =~ s/^.*\?/;/; # remove any anchor (there should be none) and the ?
-	$tmpl =~ s/%QUERYPARAMSTRING%/$qps/g;
+
+# SMELL: %QUERYPARAMSTRING% isn't a documented macro, and is no longer used in core
+# or core extensions. Maintained for legacy only.
+    if ( $tmpl =~ /%QUERYPARAMSTRING%/ ) {
+        my $qps = Foswiki::make_params(@qparams);
+        $qps =~ s/^.*\?/;/; # remove any anchor (there should be none) and the ?
+        $tmpl =~ s/%QUERYPARAMSTRING%/$qps/g;
     }
 
     # extract header and footer from the template, if there is a
@@ -378,7 +384,7 @@ sub view {
                     -class    => 'foswikiTextarea foswikiTextareaRawView',
                     -id       => 'topic',
                     -default  => $text
-                   );
+                );
             }
         }
         else {

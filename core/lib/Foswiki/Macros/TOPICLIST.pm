@@ -17,10 +17,12 @@ sub TOPICLIST {
     my $web = $params->{web} || $this->{webName};
     $web =~ s#\.#/#go;
 
-    my $webObject = Foswiki::Store::load(address=>{web=>$web });
-    my $thisWebNoSearchAll = Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
+    my $webObject = Foswiki::Store::load( address => { web => $web } );
+    my $thisWebNoSearchAll =
+      Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
     return ''
-      if !defined($params->{web}) && $web ne $this->{webName}
+      if !defined( $params->{web} )
+          && $web ne $this->{webName}
           && $thisWebNoSearchAll;
 
     return '' unless $webObject->haveAccess();

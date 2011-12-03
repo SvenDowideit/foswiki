@@ -83,9 +83,12 @@ sub setup_new_session() {
     # close this Foswiki session - its using the wrong mapper and login
     $this->{session}->finish();
     $this->{session} = new Foswiki( undef, $query );
-    $this->{test_topicObject} =
-      Foswiki::Store->load( address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}} );
+    $this->{test_topicObject} = Foswiki::Store->load(
+        address => {
+            web   => $this->{test_web},
+            topic => $this->{test_topic}
+        }
+    );
 }
 
 sub set_up_user {
@@ -222,15 +225,21 @@ sub std_tests {
         $CuidWithMappers );
 
     #test that all 4 raw internal values are ok cUIDs
-    my $nob =
-      Foswiki::Store->create( address=>{web=>$this->{test_web},
-        topic=>'CuidWithMappersNEW'} );
+    my $nob = Foswiki::Store->create(
+        address => {
+            web   => $this->{test_web},
+            topic => 'CuidWithMappersNEW'
+        }
+    );
     my $info = $nob->getRevisionInfo();
     $this->assert_not_null( $info->{author} );
 
-    my $meta =
-      Foswiki::Store->load( address=>{web=>$this->{test_web},
-        topic=>'CuidWithMappers'} );
+    my $meta = Foswiki::Store->load(
+        address => {
+            web   => $this->{test_web},
+            topic => 'CuidWithMappers'
+        }
+    );
 
     my $topicinfo = $meta->get('TOPICINFO');
     $this->assert_not_null( $topicinfo->{author} );

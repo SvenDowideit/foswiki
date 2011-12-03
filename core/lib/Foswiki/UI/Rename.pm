@@ -51,11 +51,11 @@ parameters:
 sub rename {
     my $session = shift;
 
-    my $oldWeb             = $session->{webName};
-    my $oldTopic           = $session->{topicName};
-    my $query              = $session->{request};
-    my $action             = $session->{cgiQuery}->param('action') || '';
-    my $redirectto_param   = $session->{cgiQuery}->param('redirectto') || '';
+    my $oldWeb           = $session->{webName};
+    my $oldTopic         = $session->{topicName};
+    my $query            = $session->{request};
+    my $action           = $session->{cgiQuery}->param('action') || '';
+    my $redirectto_param = $session->{cgiQuery}->param('redirectto') || '';
 
     Foswiki::UI::checkWebExists( $session, $oldWeb, 'rename' );
 
@@ -145,7 +145,8 @@ sub _renameTopicOrAttachment {
     my $attachment    = $query->param('attachment');
     my $newAttachment = $query->param('newattachment');
 
-    my $old = Foswiki::Store->load( address=>{web=>$oldWeb, topic=>$oldTopic} );
+    my $old =
+      Foswiki::Store->load( address => { web => $oldWeb, topic => $oldTopic } );
 
     if ($attachment) {
 
@@ -188,7 +189,9 @@ sub _renameTopicOrAttachment {
             Foswiki::UI::checkTopicExists( $session, $newWeb, $newTopic,
                 'rename' );
 
-            my $new = Foswiki::Store->load( address=>{web=>$newWeb, topic=>$newTopic} );
+            my $new =
+              Foswiki::Store->load(
+                address => { web => $newWeb, topic => $newTopic } );
 
             # does new attachment already exist?
             if ( $new->hasAttachment($newAttachment) ) {
@@ -232,8 +235,12 @@ sub _renameTopicOrAttachment {
         Foswiki::UI::checkAccess( $session, 'CHANGE', $old );
     }
 
-    my $new = Foswiki::Store::create(address=>{web=>$newWeb   || $old->web, topic=>$newTopic || $old->topic
-    });
+    my $new = Foswiki::Store::create(
+        address => {
+            web   => $newWeb   || $old->web,
+            topic => $newTopic || $old->topic
+        }
+    );
 
     # Has user selected new name yet?
     if ( !$newTopic || ( $attachment && !$newAttachment ) || $confirm ) {
@@ -283,7 +290,9 @@ sub _renameTopicOrAttachment {
         else {
 
             # redirect to parent topic, if set
-            my $meta = Foswiki::Store->load( address=>{web=>$new->web, topic=>$new->topic} );
+            my $meta =
+              Foswiki::Store->load(
+                address => { web => $new->web, topic => $new->topic } );
             my $parent = $meta->get('TOPICPARENT');
             my ( $parentWeb, $parentTopic );
             if ( $parent && defined $parent->{name} ) {
@@ -310,7 +319,7 @@ sub _renameTopicOrAttachment {
 
         # redirect to new topic
         $new_url = $session->getScriptUrl( 0, 'view', $newWeb, $newTopic );
-        $session->{webName} = $newWeb;
+        $session->{webName}   = $newWeb;
         $session->{topicName} = $newTopic;
     }
 
@@ -335,7 +344,7 @@ sub _safeTopicName {
 sub _renameWeb {
     my ( $session, $oldWeb ) = @_;
 
-    my $oldWebObject = Foswiki::Store->load( address=>{web=>$oldWeb} );
+    my $oldWebObject = Foswiki::Store->load( address => { web => $oldWeb } );
 
     my $query = $session->{request};
     my $cUID  = $session->{user};
@@ -398,7 +407,7 @@ sub _renameWeb {
     # This also ensures we check root webs for ALLOWROOTRENAME and
     # DENYROOTRENAME
     my $oldParentWebObject =
-      Foswiki::Store::load(address=>{web=>$oldParentWeb || undef });
+      Foswiki::Store::load( address => { web => $oldParentWeb || undef } );
     Foswiki::UI::checkAccess( $session, 'RENAME', $oldParentWebObject );
 
     # If old web is a root web then also stop if ALLOW/DENYROOTCHANGE
@@ -431,7 +440,8 @@ sub _renameWeb {
         }
 
         # Check if we have change permission in the new parent
-        my $newParentWebObject = Foswiki::Store::load(address=>{web=>$newParentWeb });
+        my $newParentWebObject =
+          Foswiki::Store::load( address => { web => $newParentWeb } );
         Foswiki::UI::checkAccess( $session, 'CHANGE', $newParentWebObject );
     }
 
@@ -461,7 +471,8 @@ sub _renameWeb {
                 my $webIter = join( '/', @path );
 
                 my $topicObject =
-                  Foswiki::Store->create( address=>{web=>$webIter, topic=>$webTopic });
+                  Foswiki::Store->create(
+                    address => { web => $webIter, topic => $webTopic } );
                 if ( $confirm eq 'getlock' ) {
                     $topicObject->setLease( $Foswiki::cfg{LeaseLength} );
                     $lease_ref = $topicObject->getLease();
@@ -602,7 +613,7 @@ sub _renameWeb {
 
     Foswiki::UI::checkValidationKey($session);
 
-    my $newWebObject = Foswiki::Store->create( address=>{web=>$newWeb} );
+    my $newWebObject = Foswiki::Store->create( address => { web => $newWeb } );
 
     Foswiki::UI::checkAccess( $session, 'CHANGE', $oldWebObject );
     Foswiki::UI::checkAccess( $session, 'CHANGE', $newWebObject );
@@ -630,7 +641,7 @@ sub _renameWeb {
     }
 
     # now remove leases on all topics inside $newWeb.
-    my $nwom = Foswiki::Store->load( address=>{web=>$newWeb} );
+    my $nwom = Foswiki::Store->load( address => { web => $newWeb } );
     my $it = $nwom->eachWeb(1);
     _releaseContents( $session, $newWeb );
     while ( $it->hasNext() ) {
@@ -642,10 +653,12 @@ sub _renameWeb {
 
     # also remove lease on all referring topics
     foreach my $ref (@$refs) {
-        my @path        = split( /[.\/]/, $ref );
-        my $webTopic    = pop(@path);
-        my $webIter     = join( '/', @path );
-        my $topicObject = Foswiki::Store->load( address=>{web=>$webIter, topic=>$webTopic} );
+        my @path     = split( /[.\/]/, $ref );
+        my $webTopic = pop(@path);
+        my $webIter  = join( '/', @path );
+        my $topicObject =
+          Foswiki::Store->load(
+            address => { web => $webIter, topic => $webTopic } );
         $topicObject->clearLease();
     }
 
@@ -674,7 +687,7 @@ sub _renameWeb {
         $new_url =
           $session->getScriptUrl( 0, 'view', $newWeb,
             $Foswiki::cfg{HomeTopicName} );
-        $session->{webName} = $newWeb;
+        $session->{webName}   = $newWeb;
         $session->{topicName} = $Foswiki::cfg{HomeTopicName};
     }
 
@@ -684,12 +697,13 @@ sub _renameWeb {
 sub _leaseContents {
     my ( $session, $info, $web, $confirm ) = @_;
 
-    my $webObject = Foswiki::Store->load( address=>{web=>$web} );
+    my $webObject = Foswiki::Store->load( address => { web => $web } );
     my $it = $webObject->eachTopic();
     while ( $it->hasNext() ) {
         my $topic = $it->next();
         my $lease_ref;
-        my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic });
+        my $topicObject =
+          Foswiki::Store->load( address => { web => $web, topic => $topic } );
         if ( $confirm eq 'getlock' ) {
             $topicObject->setLease( $Foswiki::cfg{LeaseLength} );
             $lease_ref = $topicObject->getLease();
@@ -717,11 +731,12 @@ sub _leaseContents {
 sub _releaseContents {
     my ( $session, $web ) = @_;
 
-    my $webObject = Foswiki::Store->load( address=>{web=>$web} );
+    my $webObject = Foswiki::Store->load( address => { web => $web } );
     my $it = $webObject->eachTopic();
     while ( $it->hasNext() ) {
         my $topic = $it->next();
-        my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic });
+        my $topicObject =
+          Foswiki::Store->load( address => { web => $web, topic => $topic } );
         $topicObject->clearLease();
     }
 }
@@ -959,7 +974,7 @@ sub _replaceWebInternalReferences {
     my ( $session, $from, $to ) = @_;
 
     my $renderer  = $session->renderer;
-    my $webObject = Foswiki::Store->load( address=>{web=>$from->web()} );
+    my $webObject = Foswiki::Store->load( address => { web => $from->web() } );
     my $it        = $webObject->eachTopic();
     my $oldTopic  = $from->topic();
 
@@ -1003,7 +1018,7 @@ sub _replaceWebInternalReferences {
 
     # Ok, let's look for links to topics in the
     # new web and remove their web qualifiers
-    $webObject = Foswiki::Store->load( address=>{web=>$to->web()} );
+    $webObject = Foswiki::Store->load( address => { web => $to->web() } );
     $it = $webObject->eachTopic();
 
     $options = {
@@ -1117,7 +1132,9 @@ sub _newTopicOrAttachmentScreen {
                 $renamedTopic = $base . $n;
                 $n++;
             }
-            $to = Foswiki::Store->create( address=>{web=>$to->web, topic=>$renamedTopic} );
+            $to =
+              Foswiki::Store->create(
+                address => { web => $to->web, topic => $renamedTopic } );
         }
     }
 
@@ -1295,8 +1312,9 @@ sub _newWebScreen {
     $tmpl =~ s/%LOCAL_SEARCH%/$search/go;
     $tmpl =~ s/%SEARCH_COUNT%/$resultCount/go;
 
-    my $fromWebHome =
-      Foswiki::Store::create(address=>{web=>$from->web, topic=>$Foswiki::cfg{HomeTopicName} });
+    my $fromWebHome = Foswiki::Store::create(
+        address => { web => $from->web, topic => $Foswiki::cfg{HomeTopicName} }
+    );
     $tmpl = $fromWebHome->expandMacros($tmpl);
     $tmpl = $fromWebHome->renderTML($tmpl);
 
@@ -1352,7 +1370,8 @@ sub _getReferringTopics {
         my $interWeb = ( $searchWeb ne $om->web() );
         next if ( $allWebs && !$interWeb );
 
-        my $webObject = Foswiki::Store->load( address=>{web=>$searchWeb} );
+        my $webObject =
+          Foswiki::Store->load( address => { web => $searchWeb } );
         next unless $webObject->haveAccess('VIEW');
 
         # Search for both the foswiki form and the URL form
@@ -1397,7 +1416,9 @@ sub _getReferringTopics {
 
             # Individual topics may be view restricted. Only return
             # those we can see.
-            my $m = Foswiki::Store->load( address=>{web=>$searchWeb, topic=>$searchTopic} );
+            my $m =
+              Foswiki::Store->load(
+                address => { web => $searchWeb, topic => $searchTopic } );
             next unless $m->haveAccess('VIEW');
 
             $results{ $searchWeb . '.' . $searchTopic } = 1;
@@ -1422,7 +1443,8 @@ sub _updateReferringTopics {
 
         if ( $session->topicExists( $itemWeb, $itemTopic ) ) {
             my $topicObject =
-              Foswiki::Store->load( address=>{web=>$itemWeb, topic=>$itemTopic} );
+              Foswiki::Store->load(
+                address => { web => $itemWeb, topic => $itemTopic } );
             unless ( $topicObject->haveAccess('CHANGE') ) {
                 $session->logger->log( 'warning',
                     "Access to CHANGE $itemWeb.$itemTopic is denied: "

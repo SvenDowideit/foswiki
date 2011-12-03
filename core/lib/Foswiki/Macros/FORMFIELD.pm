@@ -9,9 +9,9 @@ sub FORMFIELD {
     if ( $args->{topic} ) {
         my $web = $args->{web} || $topicObject->web;
         my $topic = $args->{topic};
-        ( $web, $topic ) =
-          $this->normalizeWebTopicName( $web, $topic );
-        $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
+        ( $web, $topic ) = $this->normalizeWebTopicName( $web, $topic );
+        $topicObject =
+          Foswiki::Store::create( address => { web => $web, topic => $topic } );
     }
     else {
 

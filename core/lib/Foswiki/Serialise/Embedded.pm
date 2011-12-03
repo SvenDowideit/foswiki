@@ -19,7 +19,7 @@ use Foswiki::Meta ();
 use Assert;
 
 #debug!
-    use Data::Dumper;
+use Data::Dumper;
 
 =begin TML
 
@@ -47,50 +47,55 @@ sub DELETEMEread {
     my $module = shift;
     my ( $session, $result ) = @_;
 
-    my @elements = split(/^(%META:.*)%\n/, $result);   
+    my @elements = split( /^(%META:.*)%\n/, $result );
 
-    print STDERR "-elements --- = ".Dumper(@elements)."\n";
-
+    print STDERR "-elements --- = " . Dumper(@elements) . "\n";
 
     #split(/(\%META:.*\%\n)/, $result);
     my %output;
     foreach my $element (@elements) {
-            #1.0 compatibility
-            #$text =~ s/^%META:([^{]+){(.*)}%\n/ ..... /gem
-            #$text =~ s/^(%META:([^{]+){(.*)}%\n)/ ..... /gem
-        
+
+        #1.0 compatibility
+        #$text =~ s/^%META:([^{]+){(.*)}%\n/ ..... /gem
+        #$text =~ s/^(%META:([^{]+){(.*)}%\n)/ ..... /gem
+
         #if ($element =~ /%META:([A..Z0..9]*)({.*})%/ ) {
-        if ($element =~ /^%META/ ) {
+        if ( $element =~ /^%META/ ) {
+
             #TODO: find the marco parsing code?
-            print STDERR "Meta $1 - params $2\n"
-        } else {
+            print STDERR "Meta $1 - params $2\n";
+        }
+        else {
             print STDERR "text - $element\n";
-            ASSERT(not defined($output{text})) if DEBUG;
+            ASSERT( not defined( $output{text} ) ) if DEBUG;
             $output{text} = $element;
         }
     }
-    print STDERR "-complete --- = ".Dumper(%output)."\n";
+    print STDERR "-complete --- = " . Dumper(%output) . "\n";
     die;
     return \%output;
 }
+
 sub read {
     my $module = shift;
     my ( $session, $result ) = @_;
 
     my %output;
-    $result =~ s/^%META:([^{]+){(.*)}%\n/push(@{$output{$1}}, _readKeyValues($2));''/gem;
-    
+    $result =~
+      s/^%META:([^{]+){(.*)}%\n/push(@{$output{$1}}, _readKeyValues($2));''/gem;
+
     #correct the META for which there can be only one. (ignore all but first)
-    my $mcount=0;
+    my $mcount = 0;
     map {
-        if (defined($output{$_})) {
-            $output{$_} = [$output{$_}[0]];
+        if ( defined( $output{$_} ) )
+        {
+            $output{$_} = [ $output{$_}[0] ];
             $mcount++;
         }
-     } qw(TOPICINFO TOPICPARENT TOPICMOVED);
-     
-    $result =~ s/\n$// if (scalar(keys(%output)) >= $mcount);
-    
+    } qw(TOPICINFO TOPICPARENT TOPICMOVED);
+
+    $result =~ s/\n$// if ( scalar( keys(%output) ) >= $mcount );
+
     $output{_text} = $result;
 
     #die "-complete --- = ".Dumper(\%output)."\n";
@@ -175,16 +180,16 @@ sub _writeTypes {
     }
 
     foreach my $type (@types) {
-        next if ($type =~ /^_/ );
+        next if ( $type =~ /^_/ );
         my $data = $this->{$type};
         next if !defined $data;
-        
+
         #HACK. DELETE and replace with serialise only registered tpes?
-        next unless (ref($data) eq 'ARRAY');    #data from Foswiki::Address
-        next if ($type eq 'webpath');
-        
+        next unless ( ref($data) eq 'ARRAY' );    #data from Foswiki::Address
+        next if ( $type eq 'webpath' );
+
         foreach my $item (@$data) {
-            next if ($item =~ /^_/ );
+            next if ( $item =~ /^_/ );
             my $sep = '';
             $text .= '%META:' . $type . '{';
             my $name = $item->{name};
@@ -196,6 +201,7 @@ sub _writeTypes {
                 $sep = ' ';
             }
             foreach my $key ( sort keys %$item ) {
+
                 #next if ($key =~ /^_/ );
                 if ( $key ne 'name' ) {
                     $text .= $sep;
@@ -252,7 +258,6 @@ sub dataDecode {
     $datum =~ s/%([\da-f]{2})/chr(hex($1))/gei;
     return $datum;
 }
-
 
 # STATIC Build a hash by parsing name=value comma separated pairs
 # SMELL: duplication of Foswiki::Attrs, using a different

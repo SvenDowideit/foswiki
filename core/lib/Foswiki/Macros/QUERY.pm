@@ -19,16 +19,24 @@ sub QUERY {
     # Either the home-made cache there should go into Meta so that both
     # FORMFIELD and QUERY benefit, or the store should be made a lot smarter.
 
-    if (defined $rev) {
+    if ( defined $rev ) {
         my $crev = $topicObject->getLoadedRev();
-        if (defined $crev && $crev != $rev) {
+        if ( defined $crev && $crev != $rev ) {
             $topicObject = Foswiki::Store->load(
-                address=>{web=>$topicObject->web, topic=>$topicObject->topic, rev=>$rev});
+                address => {
+                    web   => $topicObject->web,
+                    topic => $topicObject->topic,
+                    rev   => $rev
+                }
+            );
         }
-    } elsif (!$topicObject->latestIsLoaded()) {
+    }
+    elsif ( !$topicObject->latestIsLoaded() ) {
+
         # load latest rev
-            $topicObject = Foswiki::Store->load(
-                address=>{web=>$topicObject->web, topic=>$topicObject->topic});
+        $topicObject =
+          Foswiki::Store->load( address =>
+              { web => $topicObject->web, topic => $topicObject->topic } );
     }
 
     # Recursion block.
@@ -50,7 +58,7 @@ sub QUERY {
     try {
         my $node = $evalParser->parse($expr);
         $result = $node->evaluate( tom => $topicObject, data => $topicObject );
-        $result = Foswiki::Serialise::serialise($this, $result, $style);
+        $result = Foswiki::Serialise::serialise( $this, $result, $style );
     }
     catch Foswiki::Infix::Error with {
         my $e = shift;

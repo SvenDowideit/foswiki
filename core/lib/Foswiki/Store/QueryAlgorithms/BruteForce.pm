@@ -68,7 +68,8 @@ sub _webQuery {
     # go in Search.pm
     # TODO: what about simplify to constant in _this_ web?
     my $queryIsAConstantFastpath;    # undefined if this is a 'real' query'
-    my $context = Foswiki::Store->load( address=>{web=>$session->{webName}} );
+    my $context =
+      Foswiki::Store->load( address => { web => $session->{webName} } );
     $query->simplify( tom => $context, data => $context );
 
     if ( $query->evaluatesToConstant() ) {
@@ -130,7 +131,7 @@ sub _webQuery {
 
         # then we start with the whole web?
         # TODO: i'm sure that is a flawed assumption
-        my $webObject = Foswiki::Store->load( address=>{web=>$web});
+        my $webObject = Foswiki::Store->load( address => { web => $web } );
         $topicSet =
           Foswiki::Search::InfoCache::getTopicListIterator( $webObject,
             $options );

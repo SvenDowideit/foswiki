@@ -45,7 +45,8 @@ sub buildNewTopic {
 
     # Prevent creating a topic in a web without change access
     unless ($topicExists) {
-        my $webObject = Foswiki::Store->load( address=>{web=>$topicObject->web} );
+        my $webObject =
+          Foswiki::Store->load( address => { web => $topicObject->web } );
         Foswiki::UI::checkAccess( $session, 'CHANGE', $webObject );
     }
 
@@ -131,7 +132,9 @@ sub buildNewTopic {
         }
 
         # Initialise new topic from template topic
-        $ttom = Foswiki::Store->load( address=>{web=>$templateWeb, topic=>$templateTopic} );
+        $ttom =
+          Foswiki::Store->load(
+            address => { web => $templateWeb, topic => $templateTopic } );
         Foswiki::UI::checkAccess( $session, 'VIEW', $ttom );
 
         $text = $ttom->text();
@@ -303,7 +306,8 @@ sub buildNewTopic {
 
             # Load the prev rev again, so we can do a 3 way merge
             my $prevTopicObject =
-                Foswiki::Store->load(address=>{web=>$topicObject->web, topic=>$topicObject->topic} );
+              Foswiki::Store->load( address =>
+                  { web => $topicObject->web, topic => $topicObject->topic } );
 
             require Foswiki::Merge;
 
@@ -331,8 +335,13 @@ sub buildNewTopic {
             else {
 
                 # common ancestor; we can 3-way merge
-                my $ancestorMeta =
-                  Foswiki::Store->load( address=>{web=>$topicObject->web, topic=>$topicObject->topic, rev=>$ancestorRev});
+                my $ancestorMeta = Foswiki::Store->load(
+                    address => {
+                        web   => $topicObject->web,
+                        topic => $topicObject->topic,
+                        rev   => $ancestorRev
+                    }
+                );
                 $session->{plugins}->dispatch(
                     'beforeMergeHandler', $text,
                     $info->{version},     $prevTopicObject->text,
@@ -370,9 +379,11 @@ sub expandAUTOINC {
     # TWiki 4.0.x: Allow for dynamic topic creation by replacing strings
     # of at least 10 x's XXXXXX with a next-in-sequence number.
     if ( $topic =~ /X{10}/ ) {
-        my $n           = 0;
-        my $baseTopic   = $topic;
-        my $topicObject = Foswiki::Store->create( address=>{web=>$web, topic=>$baseTopic} );
+        my $n         = 0;
+        my $baseTopic = $topic;
+        my $topicObject =
+          Foswiki::Store->create(
+            address => { web => $web, topic => $baseTopic } );
         $topicObject->clearLease();
         do {
             $topic = $baseTopic;
@@ -384,13 +395,14 @@ sub expandAUTOINC {
     # Allow for more flexible topic creation with sortable names.
     # See Codev.AutoIncTopicNameOnSave
     if ( $topic =~ /^(.*)AUTOINC(\d+)(.*)$/ ) {
-        my $pre         = $1;
-        my $start       = $2;
-        my $pad         = length($start);
-        my $post        = $3;
-        my $topicObject = Foswiki::Store->create( address=>{web=>$web, topic=>$topic} );
+        my $pre   = $1;
+        my $start = $2;
+        my $pad   = length($start);
+        my $post  = $3;
+        my $topicObject =
+          Foswiki::Store->create( address => { web => $web, topic => $topic } );
         $topicObject->clearLease();
-        my $webObject = Foswiki::Store->load( address=>{web=>$web} );
+        my $webObject = Foswiki::Store->load( address => { web => $web } );
         my $it = $webObject->eachTopic();
 
         while ( $it->hasNext() ) {
@@ -461,7 +473,10 @@ WARN
 
     $topic = expandAUTOINC( $session, $web, $topic );
 
-    my $topicObject = Foswiki::Store->load( create=>1, address=>{web=>$web, topic=>$topic} );
+    my $topicObject = Foswiki::Store->load(
+        create  => 1,
+        address => { web => $web, topic => $topic }
+    );
 
     if ( $saveaction eq 'cancel' ) {
         my $lease = $topicObject->getLease();

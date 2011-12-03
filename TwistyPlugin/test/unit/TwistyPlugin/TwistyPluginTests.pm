@@ -300,7 +300,8 @@ sub test_twistyInSubWeb {
     $this->{session} = Foswiki->new();
 
     my $testWebSubWebPath = $this->{test_web} . '/SubWeb';
-    my $webObject = Foswiki::Store::load(address=>{web=>$testWebSubWebPath });
+    my $webObject =
+      Foswiki::Store::load( address => { web => $testWebSubWebPath } );
     $webObject->populateNewWeb();
     my $testTopic = 'TwistyTestTopic';
     my $source    = <<'SOURCE';
@@ -314,8 +315,10 @@ my twisty content
 %ENDTWISTY%
 SOURCE
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$testWebSubWebPath, topic=>$testTopic}, data=>{_text=>$source });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $testWebSubWebPath, topic => $testTopic },
+        data    => { _text => $source }
+    );
 
     $topicObject->save();
 

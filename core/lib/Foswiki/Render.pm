@@ -184,7 +184,7 @@ sub renderParent {
         # rapid access to parent meta (as in TWiki) accept the hit
         # of reading the whole topic.
         my $topicObject =
-          Foswiki::Store::load(address=>{web=>$pWeb, topic=>$pTopic });
+          Foswiki::Store::load( address => { web => $pWeb, topic => $pTopic } );
         my $parentMeta = $topicObject->get('TOPICPARENT');
         $parent = $parentMeta->{name} if $parentMeta;
     }
@@ -444,7 +444,7 @@ sub _makeAnchorHeading {
     $text =~ s/$Foswiki::regex{headerPatternNoTOC}//o;
 
     my $html =
-        '<nop><h'
+        '<nop><h' 
       . $level . '>'
       . $anchors->makeHTMLTarget($text) . ' '
       . $text . ' </h'
@@ -477,9 +477,10 @@ sub _linkToolTipInfo {
     # info and summary
     my $users = $this->{session}->{users};
 
-    my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
-    my $info        = $topicObject->getRevisionInfo();
-    my $tooltip     = $this->{LINKTOOLTIPINFO};
+    my $topicObject =
+      Foswiki::Store::create( address => { web => $web, topic => $topic } );
+    my $info    = $topicObject->getRevisionInfo();
+    my $tooltip = $this->{LINKTOOLTIPINFO};
     $tooltip =~ s/\$web/<nop>$web/g;
     $tooltip =~ s/\$topic/<nop>$topic/g;
     $tooltip =~ s/\$rev/1.$info->{version}/g;
@@ -693,8 +694,12 @@ sub _renderNonExistingWikiWord {
     $ans =~ s/\$web/$web/g;
     $ans =~ s/\$topic/$topic/g;
     $ans =~ s/\$text/$text/g;
-    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{session}->{webName}, topic=>$this->{session}->{topicName}
-    });
+    my $topicObject = Foswiki::Store::create(
+        address => {
+            web   => $this->{session}->{webName},
+            topic => $this->{session}->{topicName}
+        }
+    );
     return $topicObject->expandMacros($ans);
 }
 
@@ -1017,15 +1022,14 @@ sub renderFORMFIELD {
     # this may have been a one-off optimisation.
     my $formTopicObject = $this->{ffCache}{ $topicObject->getPath() . $rev };
     unless ($formTopicObject) {
-        if (Foswiki::Store->exists(address => $topicObject)) {
-          $formTopicObject = Foswiki::Store->load( address => $topicObject );
+        if ( Foswiki::Store->exists( address => $topicObject ) ) {
+            $formTopicObject = Foswiki::Store->load( address => $topicObject );
         }
         unless ( $formTopicObject and $formTopicObject->haveAccess('VIEW') ) {
 
             # Access violation, create dummy meta with empty text, so
             # it looks like it was already loaded.
-            $formTopicObject =
-              Foswiki::Address->new( address => $topicObject);
+            $formTopicObject = Foswiki::Address->new( address => $topicObject );
         }
         $this->{ffCache}{ $formTopicObject->getPath() . $rev } =
           $formTopicObject;
@@ -1616,7 +1620,8 @@ sub protectPlainText {
 # DEPRECATED: retained for compatibility with various hack-job extensions
 sub makeTopicSummary {
     my ( $this, $text, $topic, $web, $flags ) = @_;
-    my $topicObject = Foswiki::Store::create(address=>{web=>$web, topic=>$topic });
+    my $topicObject =
+      Foswiki::Store::create( address => { web => $web, topic => $topic } );
     return $topicObject->summariseText( '', $text );
 }
 

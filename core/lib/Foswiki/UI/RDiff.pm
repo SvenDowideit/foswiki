@@ -59,8 +59,12 @@ sub _renderCellData {
         $data =~ s/^%META:([A-Z]+){(.*)}%$/
           '|*META '.$1.'*|'._renderAttrs($2).'||'/gem;
         if ( Foswiki::Func::getContext()->{'TablePluginEnabled'} ) {
-            $data =
-              "\n" . '%TABLE{summary="' . $session->i18n->maketext('Topic data') . '" tablerules="all" databg="#ffffff" headeralign="left"}%' . "\n" . $data;
+            $data = "\n"
+              . '%TABLE{summary="'
+              . $session->i18n->maketext('Topic data')
+              . '" tablerules="all" databg="#ffffff" headeralign="left"}%'
+              . "\n"
+              . $data;
         }
         $data = $topicObject->expandMacros($data);
         $data = $topicObject->renderTML($data);
@@ -161,11 +165,8 @@ sub _renderSideBySide {
                 bgcolor => $format{l}[0],
                 class   => $format{l}[1],
             },
-            CGI::th(
-                ( $session->i18n->maketext( 'Line: [_1]', $left ) ) )
-              . CGI::th(
-                ( $session->i18n->maketext( 'Line: [_1]', $right ) )
-              )
+            CGI::th( ( $session->i18n->maketext( 'Line: [_1]', $left ) ) )
+              . CGI::th( ( $session->i18n->maketext( 'Line: [_1]', $right ) ) )
         );
     }
 
@@ -247,11 +248,7 @@ sub _sequentialRow {
         );
     }
     else {
-        $row = CGI::td(
-            {
-                class   => 'foswikiDiffUnchangedMarker',
-            },
-            '&nbsp;' );
+        $row = CGI::td( { class => 'foswikiDiffUnchangedMarker', }, '&nbsp;' );
     }
     $row .= CGI::td( { class => "foswikiDiff${bodycls}Text" }, $data );
     $row = CGI::Tr( {}, $row );
@@ -319,9 +316,7 @@ sub _renderSequential {
                 class   => 'foswikiDiffLineNumberHeader'
             },
             CGI::th(
-                {
-                    colspan => 9
-                },
+                { colspan => 9 },
                 (
                     $session->i18n->maketext(
                         'Line: [_1] to [_2]',
@@ -471,7 +466,8 @@ sub diff {
     Foswiki::UI::checkWebExists( $session, $web, 'diff' );
     Foswiki::UI::checkTopicExists( $session, $web, $topic, 'diff' );
 
-    my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic });
+    my $topicObject =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
 
     my $renderStyle =
          $query->param('render')
@@ -508,7 +504,7 @@ sub diff {
     my ( $olderi, $neweri );                            # indexes into history
     if ( $diffType eq 'last' ) {
         $neweri = 0;
-        $olderi = ( scalar @history > 1) ? $neweri + 1 : 0;
+        $olderi = ( scalar @history > 1 ) ? $neweri + 1 : 0;
     }
     else {
         for ( my $i = 0 ; $i <= $#history ; $i++ ) {
@@ -555,18 +551,24 @@ sub diff {
         my $rLow  = $history[$rOlder];
 
         # Load the revs being diffed
-        $toms{$rHigh} =
-          Foswiki::Store->load( address=>{web=>$topicObject->web, topic=>$topicObject->topic,
-            rev=>$rHigh })
-          unless $toms{$rHigh};
+        $toms{$rHigh} = Foswiki::Store->load(
+            address => {
+                web   => $topicObject->web,
+                topic => $topicObject->topic,
+                rev   => $rHigh
+            }
+        ) unless $toms{$rHigh};
         ASSERT(
             $toms{$rHigh}->getLoadedRev() == $rHigh,
             $toms{$rHigh}->getLoadedRev() . " == $rHigh"
         ) if DEBUG;
-        $toms{$rLow} =
-          Foswiki::Store->load( address=>{web=>$topicObject->web, topic=>$topicObject->topic,
-            rev=>$rLow })
-          unless $toms{$rLow};
+        $toms{$rLow} = Foswiki::Store->load(
+            address => {
+                web   => $topicObject->web,
+                topic => $topicObject->topic,
+                rev   => $rLow
+            }
+        ) unless $toms{$rLow};
         ASSERT(
             $toms{$rLow}->getLoadedRev() == $rLow,
             $toms{$rLow}->getLoadedRev() . " == $rLow"

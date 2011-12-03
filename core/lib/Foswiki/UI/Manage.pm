@@ -154,7 +154,7 @@ sub _action_createweb {
     }
 
     # check permission, user authorized to create web here?
-    my $webObject = Foswiki::Store->load( address=>{web=>$parent} );
+    my $webObject = Foswiki::Store->load( address => { web => $parent } );
     Foswiki::UI::checkAccess( $session, 'CHANGE', $webObject );
 
     my $baseWeb = $query->param('baseweb') || '';
@@ -215,7 +215,7 @@ sub _action_createweb {
         );
     }
 
-    $webObject = Foswiki::Store->create( address=>{web=>$newWeb} );
+    $webObject = Foswiki::Store->create( address => { web => $newWeb } );
     try {
         $webObject->populateNewWeb( $baseWeb, $opts );
     }
@@ -343,7 +343,9 @@ sub _action_create {
     );
 
     # user must have change access
-    my $topicObject = Foswiki::Store->create( address=>{web=>$newWeb, topic=>$newTopic} );
+    my $topicObject =
+      Foswiki::Store->create(
+        address => { web => $newWeb, topic => $newTopic } );
     Foswiki::UI::checkAccess( $session, 'CHANGE', $topicObject );
 
     my $oldWeb   = $session->{webName};
@@ -361,7 +363,8 @@ sub _action_editSettings {
     my $topic   = $session->{topicName};
     my $web     = $session->{webName};
 
-    my $topicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    my $topicObject =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
     Foswiki::UI::checkAccess( $session, 'VIEW',   $topicObject );
     Foswiki::UI::checkAccess( $session, 'CHANGE', $topicObject );
 
@@ -372,9 +375,11 @@ sub _action_editSettings {
         my $name  = $field->{name};
         my $value = $field->{value};
         $settings .= '   * '
-          . ( ( defined( $field->{type} ) and $field->{type} eq 'Local' )
+          . (
+            ( defined( $field->{type} ) and $field->{type} eq 'Local' )
             ? 'Local'
-            : 'Set' )
+            : 'Set'
+          )
           . ' '
           . $name . ' = '
           . $value . "\n";
@@ -400,7 +405,8 @@ sub _action_saveSettings {
 
     # set up editing session
     require Foswiki::Meta;
-    my $newTopicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    my $newTopicObject =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
 
     Foswiki::UI::checkAccess( $session, 'CHANGE', $newTopicObject );
 
@@ -427,7 +433,9 @@ s(^(?:\t|   )+\*\s+(Set|Local)\s+($Foswiki::regex{tagNameRegex})\s*=\s*?(.*)$)
         if (   $info->{version} ne $originalrev
             && $info->{author} ne $session->{user} )
         {
-            my $currTopicObject = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+            my $currTopicObject =
+              Foswiki::Store->load(
+                address => { web => $web, topic => $topic } );
             $newTopicObject->merge($currTopicObject);
         }
     }
@@ -472,7 +480,8 @@ sub _action_restoreRevision {
         $session->{topicName} );
 
     # read the current topic
-    my $meta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic} );
+    my $meta =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
 
     if ( !$meta->haveAccess('CHANGE') ) {
 
@@ -498,7 +507,9 @@ sub _action_restoreRevision {
         );
     }
 
-    my $oldmeta = Foswiki::Store->load( address=>{web=>$web, topic=>$topic, rev=>$requestedRev} );
+    my $oldmeta =
+      Foswiki::Store->load(
+        address => { web => $web, topic => $topic, rev => $requestedRev } );
 
 #print STDERR "REVS (".$meta->getLoadedRev().") (".$oldmeta->getLoadedRev().") ($requestedRev) \n";
 
