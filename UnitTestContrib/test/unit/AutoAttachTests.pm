@@ -34,7 +34,7 @@ sub set_up_topic {
     my $text  = "hi";
 
     my $topicObject =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, $topic, topic=> $text });
+      Foswiki::Store->create(address=>{web=> $this->{test_web}, topic => $topic, _text => $text });
     $topicObject->save();
 }
 
