@@ -16,9 +16,11 @@ sub new {
 }
 
 sub test_NOP {
-    my $this        = shift;
-    my $topicObject = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'WebHome' });
-    my $result      = $topicObject->expandMacros("%NOP%");
+    my $this = shift;
+    my $topicObject =
+      Foswiki::Store->create(
+        address => { web => $this->{test_web}, topic => 'WebHome' } );
+    my $result = $topicObject->expandMacros("%NOP%");
     $this->assert_equals( '<nop>', $result );
 
     $result = $topicObject->expandMacros("%NOP{   ignore me   }%");

@@ -24,10 +24,10 @@ sub new {
     my $self = shift()->SUPER::new( 'FuncUsers', @_ );
 
     my $dep = new Foswiki::Configure::Dependency(
-            type    => "perl",
-            module  => "Foswiki",
-            version => ">=1.2"
-           );
+        type    => "perl",
+        module  => "Foswiki",
+        version => ">=1.2"
+    );
     ( $post11, my $message ) = $dep->check();
 
     return $self;
@@ -40,23 +40,25 @@ sub loadExtraConfig {
     $this->SUPER::loadExtraConfig( $context, @_ );
 
     if ($post11) {
-    #turn on the MongoDBPlugin so that the saved data goes into mongoDB
-    #This is temoprary until Crawford and I cna find a way to push dependencies into unit tests
+
+#turn on the MongoDBPlugin so that the saved data goes into mongoDB
+#This is temoprary until Crawford and I cna find a way to push dependencies into unit tests
         if (   ( $Foswiki::cfg{Store}{SearchAlgorithm} =~ /MongoDB/ )
             or ( $Foswiki::cfg{Store}{QueryAlgorithm} =~ /MongoDB/ )
-            or ( $context                             =~ /MongoDB/ ) )
+            or ( $context =~ /MongoDB/ ) )
         {
             $Foswiki::cfg{Plugins}{MongoDBPlugin}{Module} =
               'Foswiki::Plugins::MongoDBPlugin';
             $Foswiki::cfg{Plugins}{MongoDBPlugin}{Enabled}             = 1;
             $Foswiki::cfg{Plugins}{MongoDBPlugin}{EnableOnSaveUpdates} = 1;
 
-    #push(@{$Foswiki::cfg{Store}{Listeners}}, 'Foswiki::Plugins::MongoDBPlugin::Listener');
+#push(@{$Foswiki::cfg{Store}{Listeners}}, 'Foswiki::Plugins::MongoDBPlugin::Listener');
             $Foswiki::cfg{Store}{Listeners}
               {'Foswiki::Plugins::MongoDBPlugin::Listener'} = 1;
             require Foswiki::Plugins::MongoDBPlugin;
             Foswiki::Plugins::MongoDBPlugin::getMongoDB()
-              ->remove( $this->{test_web}, 'current', { '_web' => $this->{test_web} } );
+              ->remove( $this->{test_web}, 'current',
+                { '_web' => $this->{test_web} } );
         }
     }
 }
@@ -163,7 +165,6 @@ sub noUsersRegistered {
 sub set_up_for_verify {
     my $this = shift;
 
-
     $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
 
     try {
@@ -196,21 +197,48 @@ sub set_up_for_verify {
 
 #            $this->registerUser($loginname{EmailLogin}, 'Email', 'Login', 'email@example.com');
 
-        my $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandBGroup'}, data=>{_text=>"   * Set GROUP = UserA"});
+        my $topicObject = Foswiki::Store::create(
+            address => { web => $this->{users_web}, topic => 'AandBGroup' },
+            data    => {
+                _text =>
+"   * Set GROUP = UserA, UserB, $Foswiki::cfg{AdminUserWikiName}"
+            }
+        );
         $topicObject->save();
-        $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AandCGroup'}, data=>{_text=>"   * Set GROUP = UserA"});
+        $topicObject = Foswiki::Store::create(
+            address => { web => $this->{users_web}, topic => 'AandCGroup' },
+            data => { _text => "   * Set GROUP = UserA, UserC" }
+        );
         $topicObject->save();
-        $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'BandCGroup'}, data=>{_text=>"   * Set GROUP = UserC"});
+        $topicObject = Foswiki::Store::create(
+            address => { web => $this->{users_web}, topic => 'BandCGroup' },
+            data => { _text => "   * Set GROUP = UserC, UserB" }
+        );
         $topicObject->save();
-        $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'NestingGroup'}, data=>{_text=>"   * Set GROUP = UserE"});
+        $topicObject = Foswiki::Store::create(
+            address => { web => $this->{users_web}, topic => 'NestingGroup' },
+            data =>
+              { _text => "   * Set GROUP = UserE, AandCGroup, BandCGroup" }
+        );
         $topicObject->save();
-        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'ScumGroup'}, data=>{_text=>"   * Set GROUP = UserA"});
+        $topicObject = Foswiki::Store::create(
+            address => { web => $this->{users_web}, topic => 'ScumGroup' },
+            data    => {
+                _text =>
+"   * Set GROUP = UserA, $Foswiki::cfg{DefaultUserWikiName}, $loginname{UserZ}"
+            }
+        );
         $topicObject->save();
-        $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>$Foswiki::cfg{SuperAdminGroup}}, data=>{_text=>"   * Set GROUP = UserA"});
+        $topicObject = Foswiki::Store::create(
+            address => {
+                web   => $this->{users_web},
+                topic => $Foswiki::cfg{SuperAdminGroup}
+            },
+            data => {
+                _text =>
+                  "   * Set GROUP = UserA, $Foswiki::cfg{AdminUserWikiName}"
+            }
+        );
         $topicObject->save();
     }
     catch Foswiki::AccessControlException with {
@@ -223,9 +251,9 @@ sub set_up_for_verify {
 
     # Force a re-read
 
-    $this->{session}           = new Foswiki();
+    $this->{session} = new Foswiki();
 
-    @FoswikiFntestCase::mails  = ();
+    @FoswikiFntestCase::mails = ();
 }
 
 sub verify_emailToWikiNames {
@@ -304,9 +332,9 @@ sub verify_eachGroupTraditional {
 
     # Force a re-read
 
-    $this->{session}           = new Foswiki();
+    $this->{session} = new Foswiki();
 
-    @FoswikiFntestCase::mails  = ();
+    @FoswikiFntestCase::mails = ();
 
     my $ite = Foswiki::Func::eachGroup();
     while ( $ite->hasNext() ) {
@@ -336,9 +364,9 @@ sub verify_eachGroupCustomAdmin {
 
     # Force a re-read
 
-    $this->{session}           = new Foswiki();
+    $this->{session} = new Foswiki();
 
-    @FoswikiFntestCase::mails  = ();
+    @FoswikiFntestCase::mails = ();
 
     my $ite = Foswiki::Func::eachGroup();
     while ( $ite->hasNext() ) {
@@ -426,7 +454,8 @@ sub verify_eachMembership {
         my $g = $it->next();
         push( @list, $g );
     }
-    $this->assert_str_equals( 'AandBGroup,AandCGroup,AdminGroup,NestingGroup,ScumGroup',
+    $this->assert_str_equals(
+        'AandBGroup,AandCGroup,AdminGroup,NestingGroup,ScumGroup',
         join( ',', sort @list ) );
     $it   = Foswiki::Func::eachMembership('UserB');
     @list = ();
@@ -452,8 +481,7 @@ sub verify_eachMembership {
         my $g = $it->next();
         push( @list, $g );
     }
-    $this->assert_str_equals( 'NestingGroup',
-        sort join( ',', @list ) );
+    $this->assert_str_equals( 'NestingGroup', sort join( ',', @list ) );
 
     $it   = Foswiki::Func::eachMembership('WikiGuest');
     @list = ();
@@ -520,7 +548,8 @@ sub verify_eachGroupMember {
     $this->assert_str_equals( "UserA,$Foswiki::cfg{DefaultUserWikiName},UserZ",
         sort join( ',', @list ) );
 
-    $it   = Foswiki::Func::eachGroupMember('NestingGroup', { expand => "true" } );
+    $it =
+      Foswiki::Func::eachGroupMember( 'NestingGroup', { expand => "true" } );
     @list = ();
     while ( $it->hasNext() ) {
         my $g = $it->next();
@@ -529,7 +558,7 @@ sub verify_eachGroupMember {
     $this->assert_str_equals( "UserE,UserA,UserC,UserB",
         sort join( ',', @list ) );
 
-    $it   = Foswiki::Func::eachGroupMember('NestingGroup', { expand => 'off' } );
+    $it = Foswiki::Func::eachGroupMember( 'NestingGroup', { expand => 'off' } );
     @list = ();
     while ( $it->hasNext() ) {
         my $g = $it->next();
@@ -1409,12 +1438,13 @@ sub verify_topic_meta_usermapping {
 
     my $text = "This is some test text\n   * some list\n   * content\n :) :)";
     my $topicObject =
-      Foswiki::Store->create(address=>{web=> $web, topic=>$topic });
+      Foswiki::Store->create( address => { web => $web, topic => $topic } );
     $topicObject->text($text);
     $topicObject->save();
 
     $this->assert( $this->{session}->topicExists( $web, $topic ) );
-    my $readMeta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
+    my $readMeta =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
     my $info = $readMeta->getRevisionInfo();
     $this->assert_equals( $info->{author}, $cUID, "$info->{author}=$cUID" );
     my $revinfo =
@@ -1428,9 +1458,10 @@ sub verify_topic_meta_usermapping {
         name    => "testfile.gif",
         file    => "$Foswiki::cfg{TempfileDir}/testfile.gif",
         comment => "a comment",
-        filedate => 1262347200, # 01 Jan 2010 12:00
+        filedate => 1262347200,    # 01 Jan 2010 12:00
     );
-    $readMeta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
+    $readMeta =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
 
     my @attachments = $readMeta->find('FILEATTACHMENT');
     $this->assert_equals( 1, scalar @attachments );
@@ -1445,7 +1476,7 @@ sub verify_topic_meta_usermapping {
 
     #Task:Item6000
     $metainfo =~ s/^.*?(\|.*\|).*?$/$1/s;
-    my $size = ( $post11 ) ? '1 byte' : '0.1&nbsp;K';
+    my $size = ($post11) ? '1 byte' : '0.1&nbsp;K';
     $this->assert_html_equals( <<HERE, $metainfo );
 | *I* | *Attachment* | *Action* | *Size* | *Date* | *Who* | *Comment* |
 | <span class=foswikiIcon><img width="16" alt="testfile.gif" src="$Foswiki::cfg{PubUrlPath}/System/DocumentGraphics/gif.png" height="16" /></span><span class="foswikiHidden">gif</span> | <a href="$Foswiki::cfg{PubUrlPath}/TemporaryFuncUsersTestWebFuncUsers/TestStoreTopic/testfile.gif"><noautolink>testfile.gif</noautolink></a> | <a href="$Foswiki::cfg{ScriptUrlPath}/attach$Foswiki::cfg{ScriptSuffix}/TemporaryFuncUsersTestWebFuncUsers/TestStoreTopic?filename=testfile.gif;revInfo=1" title="change, update, previous revisions, move, delete..." rel="nofollow">manage</a> |  $size|<span class="foswikiNoBreak">01 Jan 2010 - 12:00</span> |TemporaryFuncUsersUsersWeb.Asdf3Poiu  |a comment  |
@@ -1523,34 +1554,32 @@ sub verify_addToGroup {
 
     $this->createNewFoswikiSession();
 
-
     # Func::isGroupMember must return success if the user is in the group
     # Being a member of a group requires that you are listed in the group
     # topic and you do not need to be known by the user mapper (Item9848)
     $this->assert(
-       Foswiki::Func::isGroupMember( 'ZeeGroup', 'WiseGuyDoesntExist' ) );
+        Foswiki::Func::isGroupMember( 'ZeeGroup', 'WiseGuyDoesntExist' ) );
 
 }
 
 sub verify_NestedGroups {
     my $this = shift;
 
-#   NestingGroup =   * Set GROUP = UserE, AandCGroup, BandCGroup" );
+    #   NestingGroup =   * Set GROUP = UserE, AandCGroup, BandCGroup" );
     return if ( $this->noUsersRegistered() );
 
     # Force a re-read
 
     $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
 
-
     #test nested groups
-    $this->assert( Foswiki::Func::addUserToGroup( 'UserZ',    'TeeGroup', 1 ) );
-    $this->assert( Foswiki::Func::addUserToGroup( 'NestingGroup', 'TeeGroup', 1 ) );
+    $this->assert( Foswiki::Func::addUserToGroup( 'UserZ', 'TeeGroup', 1 ) );
+    $this->assert(
+        Foswiki::Func::addUserToGroup( 'NestingGroup', 'TeeGroup', 1 ) );
 
     # Force a re-read
 
-    $this->createNewFoswikiSession( 'UserZ' );
-
+    $this->createNewFoswikiSession('UserZ');
 
     my $it = Foswiki::Func::eachGroupMember('TeeGroup');
     my @list;
@@ -1562,42 +1591,39 @@ sub verify_NestedGroups {
         sort join( ',', @list ) );
 
     @list = ();
-    $it = Foswiki::Func::eachGroupMember('TeeGroup', { expand => 'False' } );
+    $it = Foswiki::Func::eachGroupMember( 'TeeGroup', { expand => 'False' } );
     while ( $it->hasNext() ) {
         my $g = $it->next();
         push( @list, $g );
     }
-    $this->assert_str_equals( "UserZ,NestingGroup",
-        sort join( ',', @list ) );
+    $this->assert_str_equals( "UserZ,NestingGroup", sort join( ',', @list ) );
 
-
-    #$this->assert( !Foswiki::Func::removeUserFromGroup( 'UserE', 'TeeGroup' ) );
-    #$this->assert( Foswiki::Func::removeUserFromGroup( 'UserZ', 'TeeGroup' ) );
-    $this->assert( Foswiki::Func::removeUserFromGroup( 'NestingGroup', 'TeeGroup' ) );
+   #$this->assert( !Foswiki::Func::removeUserFromGroup( 'UserE', 'TeeGroup' ) );
+   #$this->assert( Foswiki::Func::removeUserFromGroup( 'UserZ', 'TeeGroup' ) );
+    $this->assert(
+        Foswiki::Func::removeUserFromGroup( 'NestingGroup', 'TeeGroup' ) );
 
     # Force a re-read
 
     $this->createNewFoswikiSession();
 
-
     @list = ();
-    $it = Foswiki::Func::eachGroupMember('TeeGroup', { expand => 0 });
+    $it = Foswiki::Func::eachGroupMember( 'TeeGroup', { expand => 0 } );
     while ( $it->hasNext() ) {
         my $g = $it->next();
         push( @list, $g );
     }
-    $this->assert_str_equals( "UserZ",
-        sort join( ',', @list ) );
+    $this->assert_str_equals( "UserZ", sort join( ',', @list ) );
 
+    $this->assert(
+        !Foswiki::Func::isGroupMember( 'TeeGroup', 'NestingGroup' ) );
 
-    $this->assert( !Foswiki::Func::isGroupMember( 'TeeGroup', 'NestingGroup' ) );
     #$this->assert( !Foswiki::Func::isGroupMember( 'TeeGroup', 'UserA' ) );
     #$this->assert( !Foswiki::Func::isGroupMember( 'TeeGroup', 'UserB' ) );
     $this->assert( !Foswiki::Func::isGroupMember( 'TeeGroup', 'UserC' ) );
     $this->assert( !Foswiki::Func::isGroupMember( 'TeeGroup', 'UserE' ) );
-    $this->assert( Foswiki::Func::isGroupMember( 'TeeGroup', 'UserZ' ) );
+    $this->assert( Foswiki::Func::isGroupMember( 'TeeGroup',     'UserZ' ) );
     $this->assert( Foswiki::Func::isGroupMember( 'NestingGroup', 'UserE' ) );
-
 
 }
 
@@ -1623,25 +1649,30 @@ sub verify_removeFromGroup {
 
     $this->assert( Foswiki::Func::topicExists( undef, 'ZeeGroup' ) );
     my ( $date, $user, $rev, $comment );
-    ( $date, $user, $rev, $comment ) = Foswiki::Func::getRevisionInfo(undef, 'ZeeGroup');
+    ( $date, $user, $rev, $comment ) =
+      Foswiki::Func::getRevisionInfo( undef, 'ZeeGroup' );
     $this->assert( $rev == 1 );
-    $this->assert( Foswiki::Func::isGroupMember('ZeeGroup',  'guest' ) );
+    $this->assert( Foswiki::Func::isGroupMember( 'ZeeGroup', 'guest' ) );
 
     $this->assert( Foswiki::Func::addUserToGroup( 'UserZ', 'ZeeGroup', 1 ) );
-    ( $date, $user, $rev, $comment ) = Foswiki::Func::getRevisionInfo(undef, 'ZeeGroup');
+    ( $date, $user, $rev, $comment ) =
+      Foswiki::Func::getRevisionInfo( undef, 'ZeeGroup' );
     $this->assert( $rev == 1 );
     $this->assert( Foswiki::Func::isGroupMember( 'ZeeGroup', 'UserZ' ) );
 
     $this->assert( Foswiki::Func::addUserToGroup( 'UserA', 'ZeeGroup', 1 ) );
-    ( $date, $user, $rev, $comment ) = Foswiki::Func::getRevisionInfo(undef, 'ZeeGroup');
+    ( $date, $user, $rev, $comment ) =
+      Foswiki::Func::getRevisionInfo( undef, 'ZeeGroup' );
     $this->assert( $rev == 1 );
     $this->assert( Foswiki::Func::isGroupMember( 'ZeeGroup', 'UserA' ) );
 
-    $this->assert( Foswiki::Func::addUserToGroup( 'WiseGuyDoesntExist', 'ZeeGroup', 1 ) );
-    ( $date, $user, $rev, $comment ) = Foswiki::Func::getRevisionInfo(undef, 'ZeeGroup');
+    $this->assert(
+        Foswiki::Func::addUserToGroup( 'WiseGuyDoesntExist', 'ZeeGroup', 1 ) );
+    ( $date, $user, $rev, $comment ) =
+      Foswiki::Func::getRevisionInfo( undef, 'ZeeGroup' );
     $this->assert( $rev == 1 );
-    $this->assert( Foswiki::Func::isGroupMember( 'ZeeGroup', 'WiseGuyDoesntExist' ) );
-
+    $this->assert(
+        Foswiki::Func::isGroupMember( 'ZeeGroup', 'WiseGuyDoesntExist' ) );
 
     # Force a re-read
 
@@ -1651,8 +1682,7 @@ sub verify_removeFromGroup {
     $this->assert( Foswiki::Func::isGroupMember( 'ZeeGroup', 'UserA' ) );
 
     # We verify that the user WiseGuyDoesntExist is not a member of the group
-    $this->assert(
-        !Foswiki::Func::isGroupMember( 'UserB', 'ZeeGroup' ) );
+    $this->assert( !Foswiki::Func::isGroupMember( 'UserB', 'ZeeGroup' ) );
 
     # Removing a user that is a member of the group should work no matter
     # if he is known by user mapper or password manager
@@ -1662,17 +1692,16 @@ sub verify_removeFromGroup {
     );
 
     # Removing a user that is not member of the group should fail
+    $this->assert( !Foswiki::Func::removeUserFromGroup( 'UserB', 'ZeeGroup' ) );
     $this->assert(
-        !Foswiki::Func::removeUserFromGroup( 'UserB', 'ZeeGroup' )
-    );
-    $this->assert(
-        !Foswiki::Func::removeUserFromGroup( 'SillyGuyDoesntExist', 'ZeeGroup' )
+        !Foswiki::Func::removeUserFromGroup(
+            'SillyGuyDoesntExist', 'ZeeGroup'
+        )
     );
 
     # Force a re-read
 
     $this->createNewFoswikiSession();
-
 
     $this->assert( Foswiki::Func::isGroupMember( 'ZeeGroup', 'UserZ' ) );
     $this->assert( !Foswiki::Func::isGroupMember( 'ZeeGroup', 'UserA' ) );
@@ -1771,38 +1800,36 @@ sub verify_denyNonAdminReadOfAdminGroupTopic {
 
     $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
 
+    $this->assert( Foswiki::Func::addUserToGroup( 'UserB', 'AdminGroup', 1 ) );
 
-    $this->assert( Foswiki::Func::addUserToGroup( 'UserB',    'AdminGroup', 1 ) );
-
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'AdminGroup' });
-    $topicObject->load();
-    $topicObject->text($topicObject."\n\n   * Set ALLOWTOPICVIEW = AdminGroup\n\n");
+    my $topicObject = Foswiki::Store::load(
+        address => { web => $this->{users_web}, topic => 'AdminGroup' } );
+    $topicObject->text(
+        $topicObject . "\n\n   * Set ALLOWTOPICVIEW = AdminGroup\n\n" );
     $topicObject->save();
-
 
     {
 
         $this->createNewFoswikiSession( $Foswiki::cfg{AdminUserLogin} );
 
-
         my $it = Foswiki::Func::eachGroupMember('AdminGroup');
         my @list;
         while ( $it->hasNext() ) {
             my $g = $it->next();
             push( @list, $g );
         }
-        #as the baseusermapper is always admin, they should always see the full list
+
+    #as the baseusermapper is always admin, they should always see the full list
         $this->assert_str_equals( "AdminUser,UserA,UserB",
             sort join( ',', @list ) );
-        $this->assert($this->{session}->isAdmin());
+        $this->assert( Foswiki::Func::isAnAdmin() );
     }
 
     {
+
         # Force a re-read
 
-        $this->createNewFoswikiSession( 'UserB' );
-
+        $this->createNewFoswikiSession('UserB');
 
         my $it = Foswiki::Func::eachGroupMember('AdminGroup');
         my @list;
@@ -1812,14 +1839,14 @@ sub verify_denyNonAdminReadOfAdminGroupTopic {
         }
         $this->assert_str_equals( "AdminUser,UserA,UserB",
             sort join( ',', @list ) );
-        $this->assert($this->{session}->isAdmin())
+        $this->assert( Foswiki::Func::isAnAdmin() );
     }
 
     {
+
         # Force a re-read
 
-        $this->createNewFoswikiSession( 'UserZ' );
-
+        $this->createNewFoswikiSession('UserZ');
 
         my $it = Foswiki::Func::eachGroupMember('AdminGroup');
         my @list;
@@ -1829,9 +1856,8 @@ sub verify_denyNonAdminReadOfAdminGroupTopic {
         }
         $this->assert_str_equals( "AdminUser,UserA,UserB",
             sort join( ',', @list ) );
-        $this->assert(not $this->{session}->isAdmin())
+        $this->assert( not Foswiki::Func::isAnAdmin() );
     }
 }
-
 
 1;

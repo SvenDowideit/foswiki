@@ -619,11 +619,6 @@ sub eachGroupMember {
 
     #    print STDERR "eachGroupMember called for $group - expand $expand \n";
 
-#and how do i set it back?
-#OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
-#and then for the query impl to pass that on correctly.
-#Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
-
     if ( !$expand && defined( $this->{singleGroupMembers}->{$group} ) ) {
 
         #        print STDERR "Returning cached unexpanded list for $group\n";
@@ -661,7 +656,8 @@ sub eachGroupMember {
 
         #        print "Expanding $group \n";
         my $groupTopicObject = Foswiki::Store::load(
-            address => { web => $Foswiki::cfg{UsersWebName}, topic => $group }
+            address => { web => $Foswiki::cfg{UsersWebName}, topic => $group },
+            cuid => 'BaseUserMapping_333'
         );
 
         if ( !$expand ) {
@@ -1537,39 +1533,36 @@ sub _getListOfGroups {
         my $users = $this->{session}->{users};
         $this->{groupsList} = [];
 
-        # Temporarily set the user to admin, otherwise it cannot see groups
-        # where %USERSWEB% is protected from view
-        local $this->{session}->{user} = $Foswiki::cfg{SuperAdminGroup};
+        my $params = {
+            web           => $Foswiki::cfg{UsersWebName},
+            includeTopics => "*Group",
+            scope         => 'topic',
+            search        => '1',
+            type          => 'query',
+            nosummary     => 'on',
+            nosearch      => 'on',
+            noheader      => 'on',
+            nototal       => 'on',
+            noempty       => 'on',
+            format        => '$topic',
+            separator     => '',
 
-        #$this->{store}->changeDefaultUser($this->{session}->{user});
+            #  set the user to admin, otherwise it cannot see groups
+            # where %USERSWEB% is protected from view
+            cuid => 'BaseUserMapping_333'
+        };
+        require Foswiki::Query::Parser;
+        my $theParser = new Foswiki::Query::Parser();
+        my $query = $theParser->parse( $params->{search}, $params );
+        my $iterator =
+          Foswiki::Store->query( $query, undef, $Foswiki::Plugins::SESSION,
+            $params );
+        @{ $this->{groupsList} } = map {
+            my ( $web, $topic ) =
+              Foswiki::Func::normalizeWebTopicName( '', $_ );
+            $topic
+        } $iterator->all();
 
-        #I WISHlocal undef $Foswiki::Store::singleton->{cuid};
-        #$Foswiki::Store::singleton->{cuid} = 'BaseUserMapping_333';
-
-#and how do i set it back?
-#OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
-#and then for the query impl to pass that on correctly.
-#Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
-
-        $this->{session}->search->searchWeb(
-            _callback => \&_collateGroups,
-            _cbdata   => {
-                list  => $this->{groupsList},
-                users => $users
-            },
-            web       => $Foswiki::cfg{UsersWebName},
-            topic     => "*Group",
-            scope     => 'topic',
-            search    => '1',
-            type      => 'query',
-            nosummary => 'on',
-            nosearch  => 'on',
-            noheader  => 'on',
-            nototal   => 'on',
-            noempty   => 'on',
-            format    => '$topic',
-            separator => '',
-        );
     }
     return $this->{groupsList};
 }
