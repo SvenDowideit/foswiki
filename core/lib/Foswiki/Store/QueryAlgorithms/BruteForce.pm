@@ -36,7 +36,6 @@ use Foswiki::Search::ResultSet                  ();
 use Foswiki();
 use Foswiki::Func();
 use Foswiki::Meta            ();
-use Foswiki::MetaCache       ();
 use Foswiki::Query::Node     ();
 use Foswiki::Query::HoistREs ();
 use Foswiki::ListIterator();
@@ -76,8 +75,12 @@ sub _webQuery {
         print STDERR "-- constant?\n" if MONITOR;
 
         # SMELL: use any old topic
-        my $cache = $Foswiki::Plugins::SESSION->search->metacache->get( $web,
-            'WebPreferences' );
+        my $cache = Foswiki::Store::load(
+            address => {
+                web   => $web,
+                topic => 'WebPreferences'
+            }
+        );
         my $meta = $cache->{tom};
         $queryIsAConstantFastpath =
           $query->evaluate( tom => $meta, data => $meta );
@@ -181,22 +184,19 @@ sub _webQuery {
 
         if ($queryIsAConstantFastpath) {
             print STDERR "-- add $Iweb, $topic\n" if MONITOR;
-            if ( defined( $options->{date} ) ) {
-
-                # TODO: preload the meta cache if we're doing date
-                # based filtering - else the wrong filedate will be used
-                $Foswiki::Plugins::SESSION->search->metacache->get( $Iweb,
-                    $topic );
-            }
 
             # TODO: frustratingly, there is no way to evaluate a
             # filterIterator without actually iterating over it..
             $resultTopicSet->addTopics( $Iweb, $topic );
         }
         else {
-            my $meta =
-              $Foswiki::Plugins::SESSION->search->metacache->addMeta( $Iweb,
-                $topic );
+            my $meta = Foswiki::Store::load(
+                address => {
+                    web   => $Iweb,
+                    topic => $topic
+                },
+                cuid => 'BaseUserMapping_333'
+            );
             print STDERR "-- evaluate $Iweb, $topic\n" if MONITOR;
             next unless ( defined($meta) );    #not a valid or loadable topic
 

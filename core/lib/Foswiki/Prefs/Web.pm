@@ -65,6 +65,11 @@ Returns true if this web is the hihger of the underlying stack object.
 
 sub isInTopOfStack {
     my $this = shift;
+
+    return $this->{level} > $this->{stack}->size() - 1;
+
+#SVEN - ok, i don't understand how the original code matched up to the comment, so trying the above
+
     return $this->{level} == $this->{stack}->size() - 1;
 }
 

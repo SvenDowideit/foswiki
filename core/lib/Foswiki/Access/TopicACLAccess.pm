@@ -44,10 +44,12 @@ sub new {
 Check if the user has the given mode of access to the topic. This call
 may result in the topic being read.
 
+   * __PLUS__ if the last 2 params are dontload=>1, then this could be used for ACL cache code.
+
 =cut
 
 sub haveAccess {
-    if ( $_[ $#_ - 1 ] eq 'dontload' ) {
+    if ( ( $_[ $#_ - 1 ] eq 'dontload' ) && ( $_[$#_] ) ) {
 
 #print STDERR "-------------say its ok, even if its not $_[$#_-1] => $_[$#_]\n";
         return 1;
@@ -58,12 +60,16 @@ sub haveAccess {
 
     #print STDERR "cUID isa ".ref($cUID)."\n";
     ASSERT( ref($cUID) eq '' ) if DEBUG;
-
     ASSERT( ref($this) eq 'Foswiki::Access::TopicACLAccess' ) if DEBUG;
     ASSERT( defined( $this->{session} ) ) if DEBUG;
-
     my $session = $this->{session};
     undef $this->{failure};
+
+    # super admin is always allowed
+    if ( $session->{users}->isAdmin($cUID) ) {
+        print STDERR "$cUID - ADMIN\n" if MONITOR;
+        return 1;
+    }
 
     my $meta;
 
@@ -86,6 +92,12 @@ sub haveAccess {
                 address => $param1
             );
         }
+        elsif ( ref($param1) eq 'HASH' ) {
+            $meta = Foswiki::Store::load(
+                cuid    => 'BaseUserMapping_333',
+                address => $param1
+            );
+        }
         else {
             $meta = $param1;
         }
@@ -94,12 +106,6 @@ sub haveAccess {
 
     print STDERR "Check $mode access $cUID to " . $meta->getPath() . "\n"
       if MONITOR;
-
-    # super admin is always allowed
-    if ( $session->{users}->isAdmin($cUID) ) {
-        print STDERR "$cUID - ADMIN\n" if MONITOR;
-        return 1;
-    }
 
     $mode = uc($mode);
 

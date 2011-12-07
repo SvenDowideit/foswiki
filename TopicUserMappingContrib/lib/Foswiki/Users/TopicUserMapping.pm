@@ -622,7 +622,7 @@ sub eachGroupMember {
 #and how do i set it back?
 #OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
 #and then for the query impl to pass that on correctly.
-    Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
+#Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
 
     if ( !$expand && defined( $this->{singleGroupMembers}->{$group} ) ) {
 
@@ -1537,9 +1537,6 @@ sub _getListOfGroups {
         my $users = $this->{session}->{users};
         $this->{groupsList} = [];
 
-        #create a MetaCache _before_ we do silly things with the session's users
-        $this->{session}->search->metacache();
-
         # Temporarily set the user to admin, otherwise it cannot see groups
         # where %USERSWEB% is protected from view
         local $this->{session}->{user} = $Foswiki::cfg{SuperAdminGroup};
@@ -1552,7 +1549,7 @@ sub _getListOfGroups {
 #and how do i set it back?
 #OK, so the right thing to do is to re-code the search below to use the new store API directly, and to set the cuid there
 #and then for the query impl to pass that on correctly.
-        Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
+#Foswiki::Store::changeDefaultUser('BaseUserMapping_333');
 
         $this->{session}->search->searchWeb(
             _callback => \&_collateGroups,

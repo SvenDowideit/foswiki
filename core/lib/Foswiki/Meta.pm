@@ -476,7 +476,8 @@ sub NEWnew {
                           . (
                             defined( $keys->{value} )
                             ? $keys->{value}
-                            : 'undef' )
+                            : 'undef'
+                          )
                           . "\n"
                           if MONITOR;
                     }
@@ -907,7 +908,8 @@ sub populateNewWeb {
                 web   => $this->{web},
                 topic => $Foswiki::cfg{WebPrefsTopicName}
             },
-            data => { _text => $prefsText }
+            data => { _text => $prefsText },
+            cuid => 'BaseUserMapping_333'
         );
         $prefsTopicObject->save();
     }

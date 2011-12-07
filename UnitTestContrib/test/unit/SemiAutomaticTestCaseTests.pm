@@ -15,22 +15,31 @@ my $VIEW_UI_FN;
 sub set_up {
     my $this = shift;
     $this->SUPER::set_up;
+
     # Testcases are written using good anchors
     $Foswiki::cfg{RequireCompatibleAnchors} = 0;
     $VIEW_UI_FN ||= $this->getUIFn('view');
 
     # This user is used in some testcases. All we need to do is make sure
     # their topic exists in the test users web
-    if (!$this->{session}->topicExists(
-            $Foswiki::cfg{UsersWebName},
-            'WikiGuest')){
-        my $to = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>'WikiGuest'}, data=>{_text=>'This user is used in some testcases'});
+    if ( !$this->{session}
+        ->topicExists( $Foswiki::cfg{UsersWebName}, 'WikiGuest' ) )
+    {
+        my $to = Foswiki::Store::create(
+            address =>
+              { web => $Foswiki::cfg{UsersWebName}, topic => 'WikiGuest' },
+            data => { _text => 'This user is used in some testcases' }
+        );
         $to->save();
     }
-    if (!$this->{session}->topicExists(
-            $Foswiki::cfg{UsersWebName},
-            'UnknownUser')){
-        my $to = Foswiki::Store::create(address=>{web=>$Foswiki::cfg{UsersWebName}, topic=>'UnknownUser'}, data=>{_text=>'This user is used in some testcases'});
+    if ( !$this->{session}
+        ->topicExists( $Foswiki::cfg{UsersWebName}, 'UnknownUser' ) )
+    {
+        my $to = Foswiki::Store::create(
+            address =>
+              { web => $Foswiki::cfg{UsersWebName}, topic => 'UnknownUser' },
+            data => { _text => 'This user is used in some testcases' }
+        );
         $to->save();
     }
 }
@@ -39,7 +48,7 @@ sub list_tests {
     my ( $this, $suite ) = @_;
     my @set = $this->SUPER::list_tests(@_);
 
-    my $wiki = new Foswiki();
+    my $wiki = $this->createNewFoswikiSession();
     unless ( $wiki->webExists('TestCases') ) {
         print STDERR
           "Cannot run semi-automatic test cases; TestCases web not found";
@@ -49,7 +58,6 @@ sub list_tests {
     if ($@) {
         print STDERR
 "Cannot run semi-automatic test cases; could not find TestFixturePlugin";
-        $wiki->finish();
         return;
     }
     foreach my $case ( Foswiki::Func::getTopicList('TestCases') ) {
@@ -60,7 +68,6 @@ sub list_tests {
         use strict 'refs';
         push( @set, $test );
     }
-    $wiki->finish();
     return @set;
 }
 
@@ -68,9 +75,10 @@ sub run_testcase {
     my ( $this, $testcase ) = @_;
     my $query = new Unit::Request(
         {
-            test               => 'compare',
-            debugenableplugins => 'TestFixturePlugin,SpreadSheetPlugin,InterwikiPlugin',
-            skin               => 'pattern'
+            test => 'compare',
+            debugenableplugins =>
+              'TestFixturePlugin,SpreadSheetPlugin,InterwikiPlugin',
+            skin => 'pattern'
         }
     );
     $query->path_info("/TestCases/$testcase");
@@ -78,9 +86,12 @@ sub run_testcase {
     $Foswiki::cfg{Plugins}{TestFixturePlugin}{Enabled} = 1;
     $Foswiki::cfg{Plugins}{TestFixturePlugin}{Module} =
       'Foswiki::Plugins::TestFixturePlugin';
-    my $wiki = new Foswiki( $this->{test_user_login}, $query );
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>'ProjectContributor'}, data=>{_text=>'none' });
+    my $wiki =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $query );
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{users_web}, topic => 'ProjectContributor' },
+        data => { _text => 'none' }
+    );
     $topicObject->save();
     my ($text) = $this->capture( $VIEW_UI_FN, $wiki );
 
@@ -89,6 +100,10 @@ sub run_testcase {
         print F $text;
         close F;
         $query->delete('test');
+
+#SMELL: it seems that in the store2 work, a foswiki session became use once
+#BUG: actually, this might have broken persistent perls?
+#this shows itself in the following capture dieing due to the query being undefined
         ($text) = $this->capture( $VIEW_UI_FN, $wiki );
         open( F, ">${testcase}.html" );
         print F $text;
@@ -97,7 +112,6 @@ sub run_testcase {
 "$testcase FAILED - output in ${testcase}.html and ${testcase}_run.html"
         );
     }
-    $wiki->finish();
 }
 
 sub test_suppresswarning {

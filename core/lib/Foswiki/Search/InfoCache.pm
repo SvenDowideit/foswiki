@@ -95,9 +95,6 @@ sub addTopic {
     my $webtopic = "$w.$t";
     push( @{ $this->{list} }, $webtopic );
     $this->{count}++;
-    if ( defined($meta) ) {
-        $this->{_session}->search->metacache->addMeta( $web, $topic, $meta );
-    }
     undef $this->{sorted};
 }
 
@@ -282,55 +279,82 @@ sub sortTopics {
         return;
     }
 
-    my $metacache = $Foswiki::Plugins::SESSION->search->metacache;
-
     # populate the cache for each topic
     foreach my $webtopic ( @{$listRef} ) {
 
-        my $info = $metacache->get($webtopic);
-
-        if ( $sortfield =~ /^creat/ ) {
-
-            # The act of getting the info will cache it
-            #$metacache->getRev1Info( $webtopic, $sortfield );
-            $info->{$sortfield} = $info->{tom}->getRev1Info($sortfield);
-        }
-        else {
-
-            # SMELL: SD duplicated from above - I'd rather do it only here,
-            # but i'm not sure if i can.
-            $sortfield =~ s/^formfield\((.*)\)$/$1/;    # form field
-
-            if ( !defined( $info->{$sortfield} ) ) {
-
-#under normal circumstances this code is not called, because the metacach has already filled it.
-                if ( $sortfield eq 'modified' ) {
-                    my $ri = $info->{tom}->getRevisionInfo();
-                    $info->{$sortfield} = $ri->{date};
-                }
-                else {
-                    $info->{$sortfield} =
-                      Foswiki::Search::displayFormField( $info->{tom},
-                        $sortfield );
-                }
-            }
-        }
-
-        # SMELL: CDot isn't clear why this is needed, but it is otherwise
-        # we end up with the users all being identified as "undef"
-        $info->{editby} =
-          $info->{tom}->session->{users}->getWikiName( $info->{editby} );
     }
     if ($revSort) {
         @{$listRef} = map { $_->[1] }
           sort { _compare( $b->[0], $a->[0] ) }
-          map { [ $metacache->get($_)->{$sortfield}, $_ ] } @{$listRef};
+          map { [ getSortKey( $_, $sortfield ), $_ ] } @{$listRef};
     }
     else {
         @{$listRef} = map { $_->[1] }
           sort { _compare( $a->[0], $b->[0] ) }
-          map { [ $metacache->get($_)->{$sortfield}, $_ ] } @{$listRef};
+          map { [ getSortKey( $_, $sortfield ), $_ ] } @{$listRef};
     }
+}
+
+my $infoCache = {};
+
+sub getSortKey {
+    my $this      = shift;
+    my $webtopic  = shift;
+    my $sortfield = shift;
+
+    my ( $web, $topic ) = Foswiki::Func::normalizeWebTopicName( '', $webtopic );
+    my $topicObject =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
+    my $info;
+
+    #from MetaCache
+    {
+        if ( !defined( $infoCache->{$web} ) ) {
+            $infoCache->{$web} = {};
+        }
+        if ( !defined( $infoCache->{$web}{$topic} ) ) {
+            $infoCache->{$web}{$topic} = {};
+        }
+        $info = $infoCache->{$web}{$topic};
+
+        my $ri = $topicObject->getRevisionInfo();
+
+        # Rename fields to match sorting criteria
+        $info->{editby}   = $ri->{author} || '';
+        $info->{modified} = $ri->{date};
+        $info->{revNum}   = $ri->{version};
+    }
+
+    if ( $sortfield =~ /^creat/ ) {
+
+        $info->{$sortfield} = $topicObject->getRev1Info($sortfield);
+    }
+    else {
+
+        # SMELL: SD duplicated from above - I'd rather do it only here,
+        # but i'm not sure if i can.
+        $sortfield =~ s/^formfield\((.*)\)$/$1/;    # form field
+
+        if ( !defined( $info->{$sortfield} ) ) {
+
+#under normal circumstances this code is not called, because the metacach has already filled it.
+            if ( $sortfield eq 'modified' ) {
+                my $ri = $topicObject->getRevisionInfo();
+                $info->{$sortfield} = $ri->{date};
+            }
+            else {
+                $info->{$sortfield} =
+                  Foswiki::Search::displayFormField( $topicObject, $sortfield );
+            }
+        }
+    }
+
+    # SMELL: CDot isn't clear why this is needed, but it is otherwise
+    # we end up with the users all being identified as "undef"
+    $info->{editby} =
+      $topicObject->session->{users}->getWikiName( $info->{editby} );
+
+    return $info->{$sortfield};
 }
 
 # RE for a full-spec floating-point number

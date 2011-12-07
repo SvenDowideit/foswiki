@@ -22,7 +22,6 @@ use Foswiki::ListIterator             ();
 use Foswiki::Iterator::FilterIterator ();
 use Foswiki::Iterator::PagerIterator  ();
 use Foswiki::WebFilter                ();
-use Foswiki::MetaCache                ();
 use Foswiki::Infix::Error             ();
 
 use constant MONITOR => 0;
@@ -77,27 +76,6 @@ sub finish {
         $this->{searchParser}->finish();
         undef $this->{searchParser};
     }
-    if ( defined( $this->{MetaCache} ) ) {
-        $this->{MetaCache}->finish();
-        undef $this->{MetaCache};
-    }
-}
-
-=begin TML
-
----++ ObjectMethod metacache
-returns the metacache.
-
-=cut
-
-sub metacache {
-    my $this = shift;
-
-# these may well be function objects, but if (a setting changes, it needs to be picked up again.
-    if ( !defined( $this->{MetaCache} ) ) {
-        $this->{MetaCache} = new Foswiki::MetaCache( $this->{session} );
-    }
-    return $this->{MetaCache};
 }
 
 =begin TML
@@ -717,7 +695,7 @@ sub formatResults {
         #TOPIC specific
         my $topic = $listItem;
         my $text;    #undef means the formatResult() gets it from $info->text;
-        my $info;
+        my $topicMeta;
         my @multipleHitLines = ();
         if (
             ( $infoCache->isa('Foswiki::Search::ResultSet') )        or  #SEARCH
@@ -734,24 +712,18 @@ sub formatResults {
                 $cache->addDependency( $web, $topic );
             }
 
-            my $topicMeta = $this->metacache->getMeta( $web, $topic );
-            if ( not defined($topicMeta) ) {
-
 #TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
 #lets change that
-                $topicMeta = Foswiki::Store::load(
-                    create  => 1,
-                    address => { web => $web, topic => $topic }
-                );
-            }
-            $info = $this->metacache->get( $web, $topic, $topicMeta );
-            ASSERT( defined( $info->{tom} ) ) if DEBUG;
+            $topicMeta = Foswiki::Store::load(
+                create  => 1,
+                address => { web => $web, topic => $topic }
+            );
 
             $text = '';
 
             # Special handling for format='...'
             if ($formatDefined) {
-                $text = $info->{tom}->text();
+                $text = $topicMeta->text();
                 $text = '' unless defined $text;
 
                 if ($doExpandVars) {
@@ -760,7 +732,7 @@ sub formatResults {
                         # primitive way to prevent recursion
                         $text =~ s/%SEARCH/%<nop>SEARCH/g;
                     }
-                    $text = $info->{tom}->expandMacros($text);
+                    $text = $topicMeta->expandMacros($text);
                 }
             }
 
@@ -773,7 +745,7 @@ sub formatResults {
                 my @tokens = @{ $query->tokens() };
                 my $pattern = $tokens[$#tokens];   # last token in an AND search
                 $pattern = quotemeta($pattern) if ( $type ne 'regex' );
-                $text = $info->{tom}->text() unless defined $text;
+                $text = $topicMeta->text() unless defined $text;
                 $text = '' unless defined $text;
 
                 if ($caseSensitive) {
@@ -912,15 +884,13 @@ sub formatResults {
             my $handleRev1Info = sub {
 
                 # Handle e.g. createdate, createwikiuser etc
-                my $info =
-                  $this->metacache->get( $_[1]->web, $_[1]->topic, $_[1] );
-                my $r = $info->{tom}->getRev1Info( $_[0] );
+                my $r = $_[1]->getRev1Info( $_[0] );
                 return $r;
             };
             my $handleRevInfo = sub {
                 return $session->renderer->renderRevisionInfo(
                     $_[1],
-                    $info->{revNum} || 0,
+                    $_[1]->getRevisionInfo->{version} || 0,
                     '$' . $_[0]
                 );
             };
@@ -957,7 +927,7 @@ sub formatResults {
                 # also call.. (which then goes into the callback?
                 $out = $this->formatResult(
                     $format,
-                    $info->{tom} || $webObject,    #SMELL: horrid hack
+                    $topicMeta || $webObject,    #SMELL: horrid hack
                     $text,
                     $searchOptions,
                     {
@@ -968,7 +938,10 @@ sub formatResults {
 
                         %pager_formatting,
 
-                        'revNum' => sub { return ( $info->{revNum} || 0 ); },
+                        'revNum' => sub {
+                            return ( $topicMeta->getRevisionInfo()->{version}
+                                  || 0 );
+                        },
                         'doBookView' => sub { return $doBookView; },
                         'baseWeb'    => sub { return $baseWeb; },
                         'baseTopic'  => sub { return $baseTopic; },

@@ -51,6 +51,9 @@ sub start {
     my ($start_cwd) = Cwd->cwd() =~ m/^(.*)$/;
     print "Starting CWD is $start_cwd \n";
 
+#avoid spawning a worker if only running one test file - so that the test is debuggable
+    my $useWorker = $#files > 0;
+
     # First use all the tests to get them compiled
     while ( scalar(@files) ) {
         my $testSuiteModule = shift @files;
@@ -140,7 +143,7 @@ sub start {
         else {
             my $completed;
             my $action;
-            if ( $tester->run_in_new_process() ) {
+            if ( $useWorker && $tester->run_in_new_process() ) {
                 $action =
                   $this->runOneInNewProcess( $testSuiteModule, $suite,
                     $testToRun );

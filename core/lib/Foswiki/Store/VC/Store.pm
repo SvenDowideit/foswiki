@@ -514,20 +514,28 @@ sub eachTopic {
 }
 
 sub eachWeb {
-    my ( $this, $webObject, $all ) = @_;
+
+    #my ( $this, $webObject, $all ) = @_;
+    my ( $this, %args ) = @_;
 
     # Undocumented; this fn actually accepts a web name as well. This is
     # to make the recursion more efficient.
-    my $web = ref($webObject) ? $webObject->web : $webObject;
+    #my $web = ref($webObject) ? $webObject->web : $webObject;
 
-    my $handler = $this->getHandler($web);
+    my $handler = $this->getHandler( $args{address} );
     my @list    = $handler->getWebNames();
-    if ($all) {
+    if ( $args{all} ) {
+        my $web =
+          $args{address}
+          ->{web}; #SMELL: address can be a hash, addr, meta... but it is breaking encapsulation
         my $root = $web ? "$web/" : '';
         my @expandedList;
         while ( my $wp = shift(@list) ) {
             push( @expandedList, $wp );
-            my $it = $this->eachWeb( $root . $wp, $all );
+            my $it = $this->eachWeb(
+                address => { web => $root . $wp },
+                all     => $args{all}
+            );
             push( @expandedList, map { "$wp/$_" } $it->all() );
         }
         @list = @expandedList;
@@ -782,7 +790,7 @@ sub load {
             'embedded' );
 
  #        return $this->topicExists($args{address}->web, $args{address}->topic);
-        my $newResource = Foswiki::Meta->NEWnew( data => $parsedObj, @_ );
+        my $newResource = Foswiki::Meta->NEWnew( @_, data => $parsedObj );
         return $newResource;
     }
     die "can't call load($type)" if DEBUG;

@@ -170,21 +170,23 @@ sub load {
     else {
 
 #see if we are _able_ to test permissions using just an unloaded topic, if not, fall through to load&then test
-        throw Foswiki::AccessControlException(
-            $access_type, $args{cuid},
-            $args{address}->web(),
-            $args{address}->topic(),
-            $singleton->{access}->getReason()
-          )
-          if (
-            defined( $args{cuid} )
-            and not(
-                $singleton->{access}->haveAccess(
-                    $access_type, $args{cuid},
-                    $args{address}, dontload => 1
+        if (
+            not(
+                Foswiki::Store::haveAccess(
+                    access_type => $access_type,
+                    dontload    => 1,
+                    %args
                 )
             )
-          );
+          )
+        {
+            throw Foswiki::AccessControlException(
+                $access_type, $args{cuid},
+                $args{address}->web(),
+                $args{address}->topic(),
+                $singleton->{access}->getReason()
+            );
+        }
 
 #$cfg::Foswiki{Stores} is an ordered list, managed by configure that prioritises the cache stores first.
         foreach my $impl ( @{ $singleton->{stores} } ) {
@@ -243,9 +245,13 @@ sub load {
             $result->web(), $result->topic(),
             $singleton->{access}->getReason() )
           if (
-            defined( $args{cuid} )
-            and not( $singleton->{access}
-                ->haveAccess( $access_type, $args{cuid}, $result ) )
+            not(
+                Foswiki::Store::haveAccess(
+                    access_type => $access_type,
+                    cuid        => $args{cuid},
+                    address     => $result
+                )
+            )
           );
     }
 
@@ -281,7 +287,7 @@ returns an object of the appropriate type from the Foswiki::Object:: hieracy
 =cut
 
 sub create {
-    return template_function( 'create', @_ );
+    return template_function( 'create', @_, writeable => 1 );
 }
 
 =begin TML
@@ -913,21 +919,23 @@ sub template_function {
     {
 
 #see if we are _able_ to test permissions using just an unloaded topic, if not, fall through to load&then test
-        throw Foswiki::AccessControlException(
-            $access_type, $args{cuid},
-            $args{address}->web(),
-            $args{address}->topic(),
-            $singleton->{access}->getReason()
-          )
-          if (
-            defined( $args{cuid} )
-            and not(
-                $singleton->{access}->haveAccess(
-                    $access_type, $args{cuid},
-                    $args{address}, dontload => 1
+        if (
+            not(
+                Foswiki::Store::haveAccess(
+                    access_type => $access_type,
+                    dontload    => 1,
+                    %args
                 )
             )
-          );
+          )
+        {
+            throw Foswiki::AccessControlException(
+                $access_type, $args{cuid},
+                $args{address}->web(),
+                $args{address}->topic(),
+                $singleton->{access}->getReason()
+            );
+        }
 
         #        if ( defined( $args{from} ) ) {
         #
@@ -994,14 +1002,20 @@ sub template_function {
 
         #print STDERR "..cUID isa ".ref($args{cuid})." ($args{cuid})\n";
 
-        throw Foswiki::AccessControlException( $access_type, $args{cuid},
-            $result->web(), $result->topic(),
-            $singleton->{access}->getReason() )
-          if (
-            defined( $args{cuid} )
-            and not( $singleton->{access}
-                ->haveAccess( $access_type, $args{cuid}, $result ) )
-          );
+        if (
+            not(
+                Foswiki::Store::haveAccess(
+                    access_type => $access_type,
+                    cuid        => $args{cuid},
+                    address     => $result
+                )
+            )
+          )
+        {
+            throw Foswiki::AccessControlException( $access_type, $args{cuid},
+                $result->web(), $result->topic(),
+                $singleton->{access}->getReason() );
+        }
     }
 
     $singleton->{count}{$functionname}{ $args{address}->getPath() }--;
@@ -1085,6 +1099,20 @@ sub cleanUpRevID {
     }
 
     return 0;
+}
+
+sub haveAccess {
+    return 1 unless ( defined( $singleton->{access} ) );
+    my %args = @_;
+    if ( not defined( $args{cuid} ) ) {
+
+      #no cuid defined at all == admin (could be used without a foswiki session)
+        return 1 if ( not defined( $singleton->{cuid} ) );
+        $args{cuid} = $singleton->{cuid};
+    }
+    return $singleton->{access}
+      ->haveAccess( $args{access_type}, $args{cuid}, $args{address},
+        dontload => $args{dontload} );
 }
 
 1;

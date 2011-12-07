@@ -67,9 +67,15 @@ sub new {
     if ( UNIVERSAL::isa( $web, 'Foswiki::Address' ) ) {
 
         # $web refers to a meta object
-        $attachment = $web->attachment() || $topic;
+        $attachment = $web->attachment();    # || $topic;
         $topic      = $web->topic();
         $web        = $web->web();
+    }
+    if ( ref($web) eq 'HASH' ) {
+
+        $attachment = $web->{attachment};
+        $topic      = $web->{topic};
+        $web        = $web->{web};
     }
 
     # Reuse is good

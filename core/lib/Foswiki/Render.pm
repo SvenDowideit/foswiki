@@ -694,7 +694,7 @@ sub _renderNonExistingWikiWord {
     $ans =~ s/\$web/$web/g;
     $ans =~ s/\$topic/$topic/g;
     $ans =~ s/\$text/$text/g;
-    my $topicObject = Foswiki::Store::create(
+    my $topicObject = Foswiki::Store::load(
         address => {
             web   => $this->{session}->{webName},
             topic => $this->{session}->{topicName}

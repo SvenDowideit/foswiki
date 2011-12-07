@@ -179,7 +179,8 @@ sub view {
         }
     }
     else {    # Topic does not exist yet
-        $topicObject = Foswiki::Address->new( web => $web, topic => $topic );
+        $topicObject =
+          Foswiki::Store->create( address => { web => $web, topic => $topic } );
         $indexableView = 0;
         $session->enterContext('new_topic');
         $session->{response}->status(404);

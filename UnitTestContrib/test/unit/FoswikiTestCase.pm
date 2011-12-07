@@ -265,7 +265,8 @@ sub removeWebFixture {
     my ( $this, $session, $web ) = @_;
 
     try {
-        Foswiki::Store->remove( address=>{web=>$web} ) if (Foswiki::Store->exists( address=>{web=>$web} ));
+        Foswiki::Store->remove( address => { web => $web } )
+          if ( Foswiki::Store->exists( address => { web => $web } ) );
     }
     otherwise {
         my $e = shift;
@@ -322,7 +323,7 @@ sub capture {
         # Capture body
         $responseText .= $response->body() if $response->body();
     }
-    
+
     #TODO: why does removing this cause the following test to crash?
     $this->createNewFoswikiSession();
 
@@ -436,22 +437,25 @@ __DO NOT CALL session->finish() yourself__
 =cut
 
 sub createNewFoswikiSession {
-    my $this = shift;
+    my $this  = shift;
     my $login = shift;
     my $query = shift;
-    
-    $this->{session}->finish();
 
-    if (not defined($query)) {
+    $this->{session}->finish() if ( $this->{session} );
+
+    if ( not defined($query) ) {
         $query = new Unit::Request("");
         die unless defined $this->{test_web};
         $this->{test_topic} ||= '';
         $query->path_info("/$this->{test_web}/$this->{test_topic}");
     }
-    
-    $this->{session} = new Foswiki($login, $query, @_ );
+
+    $this->{session} = new Foswiki( $login, $query, @_ );
     $Foswiki::Plugins::SESSION = $this->{session};
-    
+    $this->{request} = $query;
+
+    #$this->{response} = new Unit::Response();
+
     return $this->{session};
 }
 
@@ -460,7 +464,7 @@ __DATA__
 
 Author: Crawford Currie, http://c-dot.co.uk
 
-Copyright (C) 2008-2010 Foswiki Contributors
+Copyright (C) 2008-2011 Foswiki Contributors
 
 Additional copyrights apply to some or all of the code in this file
 as follows:

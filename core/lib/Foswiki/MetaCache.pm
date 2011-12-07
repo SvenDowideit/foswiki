@@ -1,5 +1,5 @@
 # See bottom of file for license and copyright information
-package Foswiki::MetaCache;
+package Foswiki::MetaCacheDELETE;
 use strict;
 use warnings;
 
@@ -189,7 +189,7 @@ and then, the MetaCache can only return Meta objects that actually exist
 
 =cut
 
-sub get {
+sub NOget {
     my ( $this, $web, $topic, $meta ) = @_;
     ASSERT( $meta->isa('Foswiki::Meta') ) if ( defined($meta) and DEBUG );
 

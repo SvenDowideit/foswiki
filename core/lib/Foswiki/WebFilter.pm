@@ -35,7 +35,11 @@ sub ok {
 
     return 0 if !$session->webExists($web);
 
-    my $webObject = Foswiki::Store->load( address => { web => $web } );
+#SMELL: we're breaking security here to support the 'allowed' flag - is it used?
+    my $webObject = Foswiki::Store->load(
+        address => { web => $web },
+        cuid    => 'BaseUserMapping_333'
+    );
     my $thisWebNoSearchAll =
       Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
 

@@ -24,12 +24,11 @@ sub REVINFO {
         || !defined($loadedRev)
         || $loadedRev ne $rev )
     {
-        $topicObject =
-          Foswiki::Store::create( address => { web => $web, topic => $topic } );
+        $topicObject = Foswiki::Store::load(
+            address => { web => $web, topic => $topic, rev => $rev } );
 
         # haveAccess will try to load the object on the fly, so make sure
         # it is loaded if rev is defined
-        $topicObject = $topicObject->load($rev) if ($rev);
         unless ( $topicObject->haveAccess('VIEW') ) {
             return $this->inlineAlert( 'alerts', 'access_denied', $web,
                 $topic );

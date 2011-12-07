@@ -1257,6 +1257,7 @@ sub web {
         scalar(@_) == 2
           or
           ( defined( $this->{webpath} ) and ref( $this->{webpath} ) eq 'ARRAY' )
+          or $this->{type} eq 'root'
     ) if DEBUG;
     if ( scalar(@_) == 2 ) {
         $this->webpath( [ split( /[\/\.]/, $web ) ] );

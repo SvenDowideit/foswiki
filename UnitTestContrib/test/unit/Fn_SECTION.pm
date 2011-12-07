@@ -182,8 +182,10 @@ Still-in-the-INCLUDEable bit
 $junk%STOPINCLUDE% Post-INCLUDEable 
 %STARTSECTION{"3"}% 3 content %STARTSECTION{"224"}% 2.2.4f continue yet again even more continued content $junk%ENDSECTION{"224"}%$junk%ENDSECTION{"3"}%
 HERE
-    my $topicObj =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>$text });
+    my $topicObj = Foswiki::Store::load(
+        address => { web   => $this->{test_web}, topic => $this->{test_topic} },
+        data    => { _text => $text }
+    );
     my $c1   = ' 1 content ' . $junk;
     my $c21  = ' 2.1 content ' . $junk;
     my $c221 = ' 2.2.1 content ' . $junk;

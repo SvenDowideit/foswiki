@@ -24,15 +24,23 @@ sub set_up {
     $Foswiki::cfg{Plugins}{TwistyPlugin}{Enabled} = 0;
     $Foswiki::cfg{Plugins}{TablePlugin}{Enabled}  = 0;
 
-    my $query = new Unit::Request("");
-    $query->path_info("/$this->{test_web}/$this->{test_topic}");
+    $this->createNewFoswikiSession();
 
-    $this->{session}  = new Foswiki( undef, $query );
-    $this->{request}  = $query;
-    $this->{response} = new Unit::Response();
+    my $webObject =
+      Foswiki::Store->create( address => { web => $this->{test_web} } );
+    $webObject->populateNewWeb();
+    $this->{test_topicObject} = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => $this->{test_topic} },
+        data    => { _text => "BLEEGLE\n" }
+    );
+    $this->{test_topicObject}->save();
+}
 
-    $this->{test_topicObject} = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"BLEEGLE\n"
-    });
+sub tear_down {
+    my $this = shift;
+
+    $this->removeWebFixture( $this->{session}, $this->{test_web} );
+    $this->SUPER::tear_down();
 }
 
 sub test_1 {

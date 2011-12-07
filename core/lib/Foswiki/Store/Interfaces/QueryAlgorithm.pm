@@ -12,7 +12,6 @@ use Foswiki::Search::ResultSet                  ();
 use Foswiki();
 use Foswiki::Func();
 use Foswiki::Meta            ();
-use Foswiki::MetaCache       ();
 use Foswiki::Query::Node     ();
 use Foswiki::Query::HoistREs ();
 use Foswiki::ListIterator();
@@ -167,23 +166,18 @@ sub addACLFilter {
             my ( $web, $topic ) =
               Foswiki::Func::normalizeWebTopicName( '', $listItem );
 
-            my $topicMeta =
-              $Foswiki::Plugins::SESSION->search->metacache->addMeta( $web,
-                $topic );
-            if ( not defined($topicMeta) ) {
-
-#TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
-#lets change that
-                $topicMeta = Foswiki::Store::create(
-                    address => { web => $web, topic => $topic } );
-            }
-            my $info =
-              $Foswiki::Plugins::SESSION->search->metacache->get( $web, $topic,
-                $topicMeta );
-            ##ASSERT( defined( $info->{tom} ) ) if DEBUG;
-
-# Check security (don't show topics the current user does not have permission to view)
-            return 0 unless ( $info->{allowView} );
+            return 0
+              unless (
+                Foswiki::Store::exists(
+                    address => { web => $web, topic => $topic }
+                )
+              );
+            return 0
+              unless (
+                Foswiki::Store::haveAccess(
+                    address => { web => $web, topic => $topic }
+                )
+              );
             return 1;
         },
         $options
@@ -397,12 +391,13 @@ sub getRefTopic {
     my ( $this, $relativeTo, $w, $t, $rev ) = @_;
 
 #TODO: another shite place where we create a nonexistant topic, rather than just failering.
-#TODO: OMG! Search.pm relies on Meta::load (in the metacache) returning a meta object even when the topic does not exist.
+#TODO: OMG! Search.pm relies on Meta::load (in the ache) returning a meta object even when the topic does not exist.
 #lets change that
 
     my $meta = Foswiki::Store::load(
         create  => 1,
-        address => { web => $w, topic => $t, rev => $rev }
+        address => { web => $w, topic => $t, rev => $rev },
+        cuid => 'BaseUserMapping_333'    #need to load as admin?
     );
     print STDERR "----- getRefTopic($w, $t) -> "
       . ( $meta->getLoadedRev() ) . "\n"
