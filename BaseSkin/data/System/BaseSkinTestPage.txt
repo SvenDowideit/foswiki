@@ -301,6 +301,12 @@ Should look the same
 %BUTTON{"%MAKETEXT{"Globe"}%" icon="world_key" onclick="alert('foo')"}%
 %CLEAR%
 
+---++ Re-created jQuery buttons
+
+<a class="jqButton jqButtonDefault" href="#"><span> <span class="jqButtonIcon" style="background-image:url(%ICONURLPATH{"choice-yes"}%)">OK</span> </span></a>
+
+
+
 ---++ Form steps
 <div class="foswikiFormSteps">
 <div class="foswikiFormStep">

@@ -20,6 +20,10 @@ Base Skin topic template
 ---------------------------------------------------
 	Content container
 ---------------------------------------------------
+}%%TMPL:DEF{"controls:title"}%%TMPL:END%%{
+---------------------------------------------------
+	Content container
+---------------------------------------------------
 }%%TMPL:DEF{"content"}%<div class="foswikiMain foswikiColorWhite"><div class="foswikiContainer"><div class="foswikiTopic">
 <div class="foswikiContentHeader">%TMPL:P{"topic:before"}%</div>
 #PageTop
@@ -28,11 +32,29 @@ Base Skin topic template
 </article>
 #TopicEnd
 </div>
-<div class="foswikiContentFooter">%TMPL:P{"topic:after"}%</div>
+<div class="foswikiContentFooter">%TMPL:P{"breadcrumb"}%%TMPL:P{"topic:after"}%</div>
 </div>
 <div class="foswikiClear"></div>
 </div>
 </div>%TMPL:END%%{
+---------------------------------------------------
+	breadcrumb
+---------------------------------------------------
+}%%TMPL:DEF{"breadcrumb"}%<ul class="breadcrumb">
+	<li>You are here: </li>	
+	<li><a href="#">Home</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Middle page</a> <span class="divider">/</span></li>
+	<li><a href="#">Another one</a> <span class="divider">/</span></li>
+	<li class="active">You are here</li>
+</ul>%TMPL:END%%{
 ---------------------------------------------------
 	topic:before contains the form:top and attachments:top, if set (not inside a tab pane)
 	TODO: test this

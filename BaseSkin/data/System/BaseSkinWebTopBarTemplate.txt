@@ -9,5 +9,10 @@
 	then="$percntINCLUDE{$quot%SYSTEMWEB%.BaseSkinWebTopBar$quot}$percnt" 	
 	else="$percntINCLUDE{$quot%SYSTEMWEB%.BaseSkinWebTopBarExample$quot}$percnt"
 }%</nav>%TMPL:END%%{
+---------------------------------------------------
+	Top bar (mini)
+---------------------------------------------------
+}%%TMPL:DEF{"topbar:mini"}%<nav class="foswikiHeader"><div class="foswikiBar foswikiTopBar foswikiColorBlack"></div>
+</nav>%TMPL:END%%{
 ===================================================
 </verbatim>}%

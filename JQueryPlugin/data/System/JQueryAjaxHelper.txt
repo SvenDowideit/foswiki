@@ -1,12 +1,13 @@
 %META:TOPICINFO{author="ProjectContributor" date="1320871779" format="1.1" reprev="12" version="12"}%
 %META:TOPICPARENT{name="JQueryPlugin"}%
+---+!! %TOPIC%
 <!--
 Hidden form definition
 |*Name*  |*Type*  |*Size*  |*Values*  |*Tooltip message*  |*Attributes*  |
 | Example | text | 40 | | | |
+
+%JQREQUIRE{"chili, ui, ui::autocomplete"}%
 -->
-%JQREQUIRE{"chili, ui"}%
----+!! %TOPIC%
 
 This page contains a set of example JQueryPlugin helpers that can be used in
 wiki applications. The examples demonstrate how you can
@@ -21,7 +22,7 @@ This page also acts as a library of some commonly-used form inputs. For
 example, the [[#Topic_selector][Topic selector]] example can be used
 in your own topics to define an HTML form input with the name =newtopic=
 by putting this in your topic:
-<verbatim>
+<verbatim class="tml">
 %INCLUDE{
  "%SYSTEMWEB%.JQueryAjaxHelper"
  section="topicselector"
@@ -60,22 +61,19 @@ loads the =topic= section of this topic, which expands to the topic list.
    * =term=: search term substring typed so far
    * =limit=: number of search results to return, defaults to 10
    * =baseweb=: the web where to search for topics
-   * =format=: format of returned values, defaults to =$topic=
    * =exclude=: exclude expression to filter out unwanted topics
 <verbatim class="tml">
-%STARTSECTION{"topic"}%%SEARCH{
+%STARTSECTION{"topic"}%[%SEARCH{
   "^%URLPARAM{"term" default="does not exist"}%.*"
   type="regex"
   scope="topic"
-  header="["
-  format="<nop>%URLPARAM{"format" default="\\"$topic\\""}%"
+  format="{\"label\":\"$topic\", \"webtopic\":\"$web.$topic\"}"
   separator=","
-  footer="]"
   limit="%URLPARAM{"limit" default="10"}%"
   nonoise="on"
   excludetopic="%URLPARAM{"exclude"}%"
   web="%URLPARAM{"baseweb" default="%BASEWEB%"}%"
-}%%ENDSECTION{"topic"}%
+}%]%ENDSECTION{"topic"}%
 </verbatim>
 
 ---+++ Example
@@ -143,13 +141,13 @@ Jump to specific topics.
 %STARTSECTION{"jumpbox"}%<!-- jumpbox -->
 <input type="text" class="foswikiInputField jqJumpBox {%IF{
   "$GLOBAL = 'on'"
-  then="global: true, baseweb:'all', format:'$web.$topic'"
+  then="global: true, baseweb:'all, -%TRASHWEB%', format:'$web.$topic'"
   else="global: false, baseweb:'%BASEWEB%', format:'$topic'"
 }%}" name="topic" autocomplete="off" size="60" />
 %ADDTOZONE{"script"
   tag="jumpbox::js"
   section="jumpbox::js"
-  requires="JQUERYPLUGIN::AUTOCOMPLETE"
+  requires="JQUERYPLUGIN::UI::AUTOCOMPLETE"
 }%
 <!-- //jumpbox -->%ENDSECTION{"jumpbox"}%
 </verbatim>
@@ -162,9 +160,13 @@ jQuery(function($){
     var $this = $(this), 
         opts = $.extend({}, $this.metadata());
     $this.autocomplete({
-      source: "%SCRIPTURL{"view"}%/%SYSTEMWEB%/JQueryAjaxHelper?section=topic;skin=text"+
-              ";baseweb="+opts.baseweb+
-              ";format="+opts.format
+      source: "%SCRIPTURL{"view"}%/%SYSTEMWEB%/JQueryAjaxHelper?section=topic;skin=text;baseweb="+opts.baseweb,
+      select: function(event, ui) {
+        if (opts.global) {
+          $this.val(ui.item.webtopic);
+          return false;
+        }
+      }
     });
   });
 });
@@ -195,6 +197,7 @@ Uses the =[[#Topic_selector][topic]]= server section, defined above.
 </form>
 
 ---++ User selector 
+<div class="foswikiHelp">%X% *Note:* This example obtains user information with the %<nop>USERINFO% macro.   If the wiki is configured to hide user details (=$Foswiki::cfg{AntiSpam}{HideUserDetails}=), then this tool will only list the user's !WikiName unless you are an administrator.</div>
 ---+++ Client section
 *INCLUDE Parameters*
    * =INPUT_NAME=: name of text input field
@@ -237,7 +240,7 @@ jQuery(function($){
      type="regex"
      scope="topic"
      format="$percntIF{\"'$percntGROUPINFO{\"$topic\" format=\"$dollarname, \" limit=\"1\"}$percnt'=''\"
-          then=\"$percntUSERINFO{\"$topic\" format=\"$dollarwikiname, \"}$percnt\"
+          then=\"$topic, \"
           else=\"$percntGROUPINFO{\"$topic\" format=\"$dollarname, \" limit=\"1\"}$percnt\"
         }$percnt"
      separator=""

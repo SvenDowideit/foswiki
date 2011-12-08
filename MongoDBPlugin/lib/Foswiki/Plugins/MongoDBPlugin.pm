@@ -596,15 +596,17 @@ sub _MONGODB {
 
 sub writeDebug {
     my ( $msg, $level ) = @_;
-    my ( $package, $filename, $line, $subroutine ) = caller(1);
+    my ( $package, $filename, undef, $subroutine ) = caller(1);
+    my ( undef, undef, $line ) = caller(0);
     ( undef, undef, $filename ) = File::Spec->splitpath($filename);
     my @pack       = split( '::', $subroutine );
     my $abbr       = '';
     my $context    = Foswiki::Func::getContext();
     my $requestObj = Foswiki::Func::getRequestObject();
 
+    ( undef, undef, $filename ) = File::Spec->splitpath($filename);
     if ( $pack[0] eq 'Foswiki' ) {
-        $abbr = '..';
+        $abbr = '::';
         shift(@pack);
         if ( $pack[0] eq 'Plugins' || $pack[0] eq 'Contrib' ) {
             shift(@pack);
@@ -624,6 +626,7 @@ sub writeDebug {
     }
     else {
         Foswiki::Func::writeDebug($msg);
+        print STDERR $msg . "\n";
         if ( defined $level ) {
             ASSERT( $level =~ /^[-]?\d+$/ ) if DEBUG;
             if ( $level == -1 ) {

@@ -9,7 +9,7 @@ use strict;
 use warnings;
 
 our $VERSION = '$Rev$';
-our $RELEASE = '1.135';
+our $RELEASE = '1.137';
 our $SHORTDESCRIPTION =
   'Control attributes of tables and sorting of table columns';
 our $NO_PREFS_IN_TOPIC = 1;
@@ -24,6 +24,7 @@ our $initialised;
 my $DEFAULT_TABLE_SETTINGS =
 'tableborder="1" valign="top" headercolor="#000000" headerbg="#d6d3cf" headerbgsorted="#c4c1ba" databg="#ffffff,#edf4f9" databgsorted="#f1f7fc,#ddebf6" tablerules="rows" headerrules="cols"';
 my $styles = {};    # hash to keep track of web->topic
+my $readyForHandler;
 our $writtenToHead = 0;
 
 sub initPlugin {
@@ -42,6 +43,7 @@ sub initPlugin {
     return 0 unless $cgi;
 
     $initialised      = 0;
+    $readyForHandler  = 0;
     $writtenToHead    = 0;
     %pluginAttributes = ();
 
@@ -62,8 +64,11 @@ sub preRenderingHandler {
     _readPluginSettings() if !%pluginAttributes;
 
     # on-demand inclusion
-    eval "use Foswiki::Plugins::TablePlugin::Core ()";
-    die $@ if $@;
+    require Foswiki::Plugins::TablePlugin::Core;
+    if ( !$readyForHandler ) {
+        Foswiki::Plugins::TablePlugin::Core::_init();
+        $readyForHandler = 1;
+    }
     Foswiki::Plugins::TablePlugin::Core::handler(@_);
 }
 

@@ -14,11 +14,16 @@ input[type='file'] {
 	color: @fw_color_text;
 }
 
-input,
+input[type='text'],
+input[type='password'],
 textarea,
 select,
 .uneditable-input {
 	width: 0px + @fw_strand1_ratio_up_9;
+}
+
+form {
+	margin-bottom: 0;
 }
 
 
@@ -32,6 +37,11 @@ select,
     }
   }
 }
+.nav {
+	&.secondary-nav {
+		margin-left: 6px;
+	}
+}
 
 .btn {
 	.border-radius(@fw_block_corner);
@@ -44,6 +54,14 @@ select,
   }
 }
 
+.topbar {
+	input[type='text'] {
+		&:hover {
+			background-color: @white;
+			color: @black;
+		}
+	}
+}
 
 
 /* override reset.less */

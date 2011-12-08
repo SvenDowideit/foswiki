@@ -1,16 +1,20 @@
 data/System/BaseajaxSkinAttachAgainTemplate.txt 0644
 data/System/BasecssSkinFoswikiTemplate.txt 0644
 data/System/BasejsSkinFoswikiTemplate.txt 0644
+data/System/BasejsSkinEditTemplate.txt 0644
 data/System/BaseSkin.txt 0644
 data/System/BaseSkinAttachAgainTemplate.txt 0644
 data/System/BaseSkinAttachNewTemplate.txt 0644
 data/System/BaseSkinAttachtablesTemplate.txt 0644
 data/System/BaseSkinAttachTemplate.txt 0644
-data/System/BaseSkinCommonTemplate.txt 0644
+data/System/BaseSkinEditTemplate.txt 0644
 data/System/BaseSkinFormtablesTemplate.txt 0644
 data/System/BaseSkinFoswikiTemplate.txt 0644
 data/System/BaseSkinTestPage.txt 0644 # for testing the skin in the browser
+data/System/BaseSkinTinyMCEPlugin.txt 0644 # custom setup for TinyMCE editor
 data/System/BaseSkinViewTemplate.txt 0644
+data/System/BaseSkinWebBottomBarExample.txt 0644
+data/System/BaseSkinWebBottomBarTemplate.txt 0644
 data/System/BaseSkinWebTopBarExample.txt 0644
 data/System/BaseSkinWebTopBarTemplate.txt 0644
 pub/System/BaseSkin/foswiki-logo-top.png 0644
@@ -105,6 +109,9 @@ pub/System/BaseSkinFileIcons/zip-large.png 0644
 pub/System/BaseSkinJs/base_attachments_src.js 0644
 pub/System/BaseSkinJs/base_attachments.js 0644
 pub/System/BaseSkinJs/base_attachments.js.gz 0644
+pub/System/BaseSkinJs/base_edit_src.js 0644
+pub/System/BaseSkinJs/base_edit.js 0644
+pub/System/BaseSkinJs/base_edit.js.gz 0644
 pub/System/BaseSkinJs/base_src.js 0644
 pub/System/BaseSkinJs/base.js 0644
 pub/System/BaseSkinJs/base.js.gz 0644

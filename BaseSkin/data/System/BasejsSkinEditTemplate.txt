@@ -1,0 +1,15 @@
+%{<verbatim class="tml">
+===================================================
+    Base Skin topic template
+    
+    The basejs edit template adds JavaScript files to the html head for the edit page
+===================================================
+}%%TMPL:INCLUDE{"edit"}%%{
+---------------------------------------------------
+}%%TMPL:DEF{"head:script"}%%TMPL:PREV%%TMPL:P{
+	"LIBJS"
+	id="BaseSkinJs/base_edit"
+	requires="JQUERYPLUGIN"
+}%%TMPL:END%%{
+===================================================
+</verbatim>}%

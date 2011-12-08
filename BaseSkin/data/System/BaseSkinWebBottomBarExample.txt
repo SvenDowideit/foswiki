@@ -1,0 +1,5 @@
+<noautolink><div class="foswikiBar foswikiBottomBar foswikiColorGray">
+	<div class="foswikiContainer">
+		Bottom bar
+	</div>
+</div></noautolink>

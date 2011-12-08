@@ -2,6 +2,12 @@
 FORM ELEMENTS
 */
 
+input[type='text'] {
+	@tmp_baseline: 13px;
+	height: @tmp_baseline * 1.5; // In IE7, the height of the select element cannot be changed by height, only font-size
+	line-height: @tmp_baseline * 1.5;
+	.border-radius(@fw_block_corner);
+}
 input[type='image'] {
 	width: auto;
 	border: none;
@@ -17,15 +23,27 @@ input[type='radio'].foswikiRadioButton {
 	padding:0 0 0 .5em;
 	border:0;
 }
-
+.foswikiButton,
+.foswikiSubmit,
+.jqButton,
+.jqButton:hover {
+	padding: @fw_button_padding;
+}
 .foswikiButton,
 .jqButton,
 .jqButton:hover {
 	.btn();
 }
+a.foswikiButton,
+a.jqButton,
+a.jqButton:hover {
+	padding: @fw_button_padding;
+//	line-height: 1;
+}
 .jqButton {
 	height: auto;
 	float: none;
+	margin: 0;
 }
 .jqButton span {
 	background: none;
@@ -36,7 +54,9 @@ input[type='radio'].foswikiRadioButton {
 	margin: 0;
 }
 .jqButton .jqButtonIcon,
-.jqButton:active .jqButtonIcon{
+.jqButton:active .jqButtonIcon,
+.foswikiButton .foswikiButtonIcon,
+.foswikiButton:active .foswikiButtonIcon {
 	background-position: 0 50%;
 }
 .foswikiSubmit {

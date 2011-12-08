@@ -8,10 +8,11 @@
 	
 ===================================================
 }%%TMPL:INCLUDE{"foswiki"}%
-%TMPL:INCLUDE{"common"}%
 %TMPL:INCLUDE{"baseskinwebtopbar"}%
+%TMPL:INCLUDE{"baseskinwebbottombar"}%
 %TMPL:INCLUDE{"topicactionbuttons"}%%{
-	Document structure
+-------------------------------------------------
+	Empty elements from the old default tmpl files
 -------------------------------------------------
 }%
 %TMPL:DEF{"standardheader"}%%TMPL:END%
@@ -20,7 +21,11 @@
 %TMPL:DEF{"copyright"}%%TMPL:END%
 %{
 ---------------------------------------------------
-
+	Empty elements that will be filled by other templates
+---------------------------------------------------
+}%%TMPL:DEF{"titleaction"}%%TMPL:END%%{
+-------------------------------------------------
+	Document structure
 ---------------------------------------------------
 }%%TMPL:DEF{"document"}%
 %TMPL:P{"htmldoctype"}%
@@ -92,8 +97,9 @@
 		- top bar
 		- controls
 		- content
+		- bottom bar
 ---------------------------------------------------
-}%%TMPL:DEF{"page"}%<div class="foswikiPage">%TMPL:P{"topbar"}%%TMPL:P{"controls"}%%TMPL:P{"content"}%</div>%TMPL:END%%{
+}%%TMPL:DEF{"page"}%<div class="foswikiPage">%TMPL:P{"topbar"}%%TMPL:P{"controls"}%%TMPL:P{"content"}%%TMPL:P{"bottombar"}%</div>%TMPL:END%%{
 ---------------------------------------------------
 	Provide empty defaults
 ---------------------------------------------------
@@ -103,76 +109,171 @@
 ---------------------------------------------------
 }%%TMPL:DEF{"body:class"}%foswikiNoJs%TMPL:END%%{
 ---------------------------------------------------
-	Controls:
-		- breadcrumbs
-		- topic actions
+	Topic action buttons
 ---------------------------------------------------
-}%%TMPL:DEF{"controls"}%<noautolink><div class="foswikiBar foswikiTopicActions foswikiColorLightGray" data-dropdown="dropdown">
+}%%TMPL:DEF{"controls:topicactionbuttons"}%<div class="foswikiTopicActionButtons">
+	<ul class="nav secondary-nav foswikiButtonGroup">
+		<li>%TMPL:P{"edit_or_create"}%</li>
+		<li class='dropdown foswikiSecondaryDropdown' data-dropdown='dropdown'>
+			<a href='#' class='dropdown-toggle nolabel'></a>
+			<ul class='dropdown-menu'>
+				<li><p>Topic</p></li>
+				<li><a href='#'>Edit topic</a></li>
+				<li><a href='#'>Edit plain wiki text</a></li>
+				<li><a href='#'>Attach files or images</a></li>
+				<li class='divider'></li>
+				<li><p>Data &amp; settings</p></li>
+				<li><a href='#'>Edit topic data</a></li>
+				<li><a href='#'>Edit topic settings</a></li>
+				<li><a href='#'>Select parent topic</a></li>
+				<li class='divider'></li>
+				<li><p>Manage</p></li>
+				<li><a href='#'>Restore to previous version</a></li>
+				<li><a href='#'>Rename topic</a></li>
+				<li><a href='#'>Move to different Web</a></li>
+				<li><a href='#'>Move to trash</a></li>
+			</ul>
+		</li>
+	</ul>
+	<ul class="nav secondary-nav">
+		<li>
+			<a href='#' class="menu">Info</a>
+			<ul class="menu-dropdown">
+				<li><p>Changes</p></li>
+				<li><a href='#'>Last changed</a></li>
+				<li><a href='#'>Compare versions</a></li>
+				<li class='divider'></li>
+				<li><p>Connections</p></li>
+				<li><a href='#'>Topics that link to here</a></li>
+				<li><a href='#'>Child topics</a></li>
+			</ul>
+		</li>
+	</ul>
+	<ul class="nav secondary-nav">
+		<li>
+			<a href='#' class="menu">View as</a>
+			<ul class="menu-dropdown">
+				<li><a href='#'>Print version</a></li>
+				<li><a href='#'>PDF version</a></li>
+				<li><a href='#'>Wiki text</a></li>
+			</ul>
+		</li>
+	</ul><!--
+	<ul class="nav secondary-nav foswikiButtonGroup">
+		<li>%TMPL:P{"subscribe_link"}%</li>
+	</ul>-->
+</div>%TMPL:END%%{
+---------------------------------------------------
+	Controls:
+		- topic actions
+		- contextual zone
+---------------------------------------------------
+}%%TMPL:DEF{"controls"}%<noautolink><div class="foswikiBar foswikiFixed">
+%TMPL:P{"controls:topicactions"}%%TMPL:P{"controls:contextual"}%</div>
+</noautolink>%TMPL:END%%{
+---------------------------------------------------
+	Controls: topic actions
+---------------------------------------------------
+}%%TMPL:DEF{"controls:topicactions"}%<div class="foswikiBar foswikiTopicActions foswikiColorSilver" data-dropdown="dropdown" data-minpadding="2">
 	<div class="foswikiContainer">
-		<ul class="foswikiTitle">
-			<li>[[%BASEWEB%.%BASETOPIC%][%BASETOPIC%]]</li>
-		</ul>
-		<div class="foswikiTopicActionButtons">
-			<ul class="nav secondary-nav foswikiButtonGroup">
-				<li>%TMPL:P{"edit_or_create"}%</li>
-				<li class='dropdown foswikiSecondaryDropdown' data-dropdown='dropdown'>
-					<a href='#' class='dropdown-toggle nolabel'></a>
-					<ul class='dropdown-menu'>
-						<li><p>Topic</p></li>
-						<li><a href='#'>Edit topic</a></li>
-						<li><a href='#'>Edit plain wiki text</a></li>
-						<li><a href='#'>Attach files or images</a></li>
-						<li class='divider'></li>
-						<li><p>Data &amp; settings</p></li>
-						<li><a href='#'>Edit topic data</a></li>
-						<li><a href='#'>Edit topic settings</a></li>
-						<li><a href='#'>Select parent topic</a></li>
-						<li class='divider'></li>
-						<li><p>Manage</p></li>
-						<li><a href='#'>Restore to previous version</a></li>
-						<li><a href='#'>Rename topic</a></li>
-						<li><a href='#'>Move to different Web</a></li>
-						<li><a href='#'>Move to trash</a></li>
-					</ul>
-				</li>
-			</ul>
-			<ul class="nav secondary-nav foswikiButtonGroup">
-				<li><a href='#'>Info</a></li>
-				<li class='dropdown foswikiSecondaryDropdown' data-dropdown='dropdown'>
-					<a href='#' class='dropdown-toggle nolabel'></a>
-					<ul class='dropdown-menu'>
-						<li><p>Changes</p></li>
-						<li><a href='#'>Last changed</a></li>
-						<li><a href='#'>Compare versions</a></li>
-						<li class='divider'></li>
-						<li><p>Connections</p></li>
-						<li><a href='#'>Topics that link to here</a></li>
-						<li><a href='#'>Child topics</a></li>
-					</ul>
-				</li>
-			</ul>
-			<ul class="nav secondary-nav  foswikiButtonGroup">
-				<li><a href='#'>Views</a></li>
-				<li class='dropdown foswikiSecondaryDropdown' data-dropdown='dropdown'>
-					<a href='#' class='dropdown-toggle nolabel'></a>
-					<ul class='dropdown-menu'>
-						<li><p>Print & Export</p></li>
-						<li><a href='#'>Print version</a></li>
-						<li><a href='#'>PDF version</a></li>
-						<li class='divider'></li>
-						<li><p>Topic parts</p></li>
-						<li><a href='#'>Wiki text</a></li>
-						<li><a href='#'>Attachments</a></li>
-						<li><a href='#'>Topic data</a></li>
-						<li><a href='#'>Topic settings</a></li>
-					</ul>
-				</li>
-			</ul>
-			<ul class="nav secondary-nav foswikiButtonGroup">
-				<li>%TMPL:P{"subscribe_link"}%</li>
-			</ul>
-		</div>
+		%TMPL:P{"controls:title"}%%TMPL:P{"controls:topicactionbuttons"}%
+		<div class="foswikiClear"></div>
 	</div>
-</div></noautolink>%TMPL:END%%{
+</div>%TMPL:END%%{
+---------------------------------------------------
+	Controls: title
+---------------------------------------------------
+}%%TMPL:DEF{"controls:title"}%<ul class="foswikiTitle">
+	<li>[[%BASEWEB%.%BASETOPIC%][%BASETOPIC%]]</li>%TMPL:P{"controls:title:titleaction"}%
+</ul>%TMPL:END%%{
+---------------------------------------------------
+	Title action item
+---------------------------------------------------
+}%%TMPL:DEF{"controls:title:titleaction"}%<li class='foswikiSeparator'>/</li>
+<li><p>%TMPL:P{"titleaction"}%</p></li>%TMPL:END%%{
+---------------------------------------------------
+	Controls: contextual
+---------------------------------------------------
+}%%TMPL:DEF{"controls:contextual"}%%TMPL:END%%{
+---------------------------------------------------
+	Macro for including JavaScript files from system paths
+	Takes as arguments:
+		- id
+		- file url, must NOT include .css extension
+		- requires
+---------------------------------------------------
+}%%TMPL:DEF{"LIBJS"}%%ADDTOZONE{
+	"script"
+	id="%id%"
+	text="<script type='text/javascript' src='%PUBURLPATH%/%SYSTEMWEB%/%id%%FWSRC%.js'></script>"
+	requires="%requires%"
+}%%TMPL:END%%{
+---------------------------------------------------
+	Macro for including CSS files from *system* paths
+	Takes as arguments:
+		- id
+		- file url, must NOT include .css extension
+		- requires
+---------------------------------------------------
+}%%TMPL:DEF{"LIBCSS"}%%ADDTOZONE{
+	"head-base"
+	id="%id%"
+	text="<link rel='stylesheet' href='%PUBURLPATH%/%SYSTEMWEB%/%id%%FWSRC%.css' />"
+	requires="%requires%"
+}%%TMPL:END%%{
+---------------------------------------------------
+	Macro for including CSS files from other paths
+	Takes as arguments:
+		- id
+		- file url, must include .css extension
+		- requires
+---------------------------------------------------
+}%%TMPL:DEF{"CSS"}%%ADDTOZONE{
+	"head-base"
+	id="%id%"
+	text="$percntFORMAT{
+		\"%url%\"
+		type=\"string\"
+		format=\"<link rel='stylesheet' href='$item' />\"
+	}$percnt"
+	requires="%requires%"
+}%%{
+---------------------------------------------------
+	Macro for including Less files from *system* paths
+	Takes as arguments:
+		- id
+		- file url, must NOT include .css extension
+		- requires
+---------------------------------------------------
+}%%TMPL:DEF{"LIBLESS"}%%ADDTOZONE{
+	"head-base"
+	id="%id%"
+	text="<link rel='stylesheet/less' href='%PUBURLPATH%/%SYSTEMWEB%/%id%%FWSRC%.less' />"
+	requires="%requires%"
+}%%TMPL:END%%{
+---------------------------------------------------
+	Topic actions
+---------------------------------------------------
+}%%TMPL:DEF{"topicaction"}%<div class="foswikiTopicActions" >
+topicactionbuttons
+</div>%TMPL:END%%{
+---------------------------------------------------
+	Note: non-wikiword
+---------------------------------------------------
+}%%TMPL:DEF{"nonwikiwordwarning"}%<p class="foswikiAllowNonWikiWord"><label><input type="checkbox" class="foswikiCheckbox" name="nonwikiword" %IF{
+	"$ 'URLPARAM{nonwikiword}'='on'"
+	then="checked=\"checked\""
+}% />%MAKETEXT{"Allow non <nop>WikiWord for the new topic name"}%</label> %TMPL:P{"nonwikiwordhelp"}%</p>%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{"nonwikiwordhelp"}%%TWISTY{
+	mode="span"
+}% %MAKETEXT{"It's usually best to choose a [_1] for the new topic name, otherwise automatic linking may not work. Characters not allowed in topic names, such as spaces will automatically be removed." args="%POPUPWINDOW{
+	"%SYSTEMWEB%.WikiWord"
+	label="WikiWord"
+}%"}%%JQREQUIRE{"popupwindow"}%%ENDTWISTY%%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{"nonwikiwordallowed"}%<input type="hidden" name="nonwikiword" value="%URLPARAM{"nonwikiword" default="on"}%" />%TMPL:END%%{
+---------------------------------------------------
+}%%TMPL:DEF{"nonwikiword"}%%IF{"$HIDE_NON_WIKI_WORD_WARNINGS!='on'" then="$percntTMPL:P{$quotnonwikiwordwarning$quot}$percnt" else="$percntTMPL:P{$quotnonwikiwordallowed$quot}$percnt"}%%TMPL:END%%{
 ===================================================
 </verbatim>}%
