@@ -23,15 +23,20 @@ sub set_up {
     $this->SUPER::set_up();
     $Foswiki::cfg{EnableHierarchicalWebs} = 1;
     my $webObject =
-      Foswiki::Store->create(address=>{web=>"$this->{test_web}/SubWeb"});
+      Foswiki::Store->create(
+        address => { web => "$this->{test_web}/SubWeb" } );
     $webObject->populateNewWeb();
 
     my $webObjectH =
-      Foswiki::Store->create(address=>{web=> "$this->{test_web}Hidden"});
+      Foswiki::Store->create( address => { web => "$this->{test_web}Hidden" } );
     $webObjectH->populateNewWeb();
 
-    my $webPrefsObj =
-      Foswiki::Store::load(address=>{web=>"$this->{test_web}Hidden", topic=>$Foswiki::cfg{WebPrefsTopicName}});
+    my $webPrefsObj = Foswiki::Store::load(
+        address => {
+            web   => "$this->{test_web}Hidden",
+            topic => $Foswiki::cfg{WebPrefsTopicName}
+        }
+    );
     $webPrefsObj->text(<<THIS);
 If ALLOW is set to a list of wikiname
    * people not in the list are DENIED access
@@ -43,7 +48,7 @@ THIS
 
     @allTopics       = Foswiki::Func::getTopicList( $this->{test_web} );
     @allSubwebTopics = Foswiki::Func::getTopicList("$this->{test_web}/SubWeb");
-    @allTopicsH      = Foswiki::Func::getTopicList("$this->{test_web}Hidden" );
+    @allTopicsH      = Foswiki::Func::getTopicList("$this->{test_web}Hidden");
 }
 
 sub tear_down {
@@ -58,41 +63,40 @@ sub test_hidden_web_list {
 
     # Item10690:   If the entire web is hidden, TOPICLIST should not reveal the
     # contents of the web.
-    my $text = $this->{test_topicObject}->expandMacros(
-        "%TOPICLIST{ web=\"$this->{test_web}Hidden\"}%");
+    my $text =
+      $this->{test_topicObject}
+      ->expandMacros("%TOPICLIST{ web=\"$this->{test_web}Hidden\"}%");
     $this->assert_str_equals( '', $text );
 }
-
 
 sub test_no_format_no_separator {
     my $this = shift;
 
-    my $text = $this->{test_topicObject}->expandMacros(
-        '%TOPICLIST{}%');
+    my $text = $this->{test_topicObject}->expandMacros('%TOPICLIST{}%');
     $this->assert_str_equals( join( "\n", @allTopics ), $text );
 }
 
 sub test_no_format_with_separator {
     my $this = shift;
 
-    my $text = $this->{test_topicObject}->expandMacros(
-        '%TOPICLIST{separator=";"}%');
+    my $text =
+      $this->{test_topicObject}->expandMacros('%TOPICLIST{separator=";"}%');
     $this->assert_str_equals( join( ';', @allTopics ), $text );
 }
 
 sub test_with_format_no_separator {
     my $this = shift;
 
-    my $text = $this->{test_topicObject}->expandMacros(
-        '%TOPICLIST{"$topic"}%');
+    my $text = $this->{test_topicObject}->expandMacros('%TOPICLIST{"$topic"}%');
     $this->assert_str_equals( join( "\n", @allTopics ), $text );
 }
 
 sub test_with_format_with_separator {
     my $this = shift;
 
-    my $text = $this->{test_topicObject}->expandMacros(
-        '%TOPICLIST{"$topic" separator=";"}%');
+    my $text =
+      $this->{test_topicObject}
+      ->expandMacros('%TOPICLIST{"$topic" separator=";"}%');
     $this->assert_str_equals( join( ';', @allTopics ), $text );
 }
 
@@ -108,8 +112,13 @@ sub test_otherWeb {
 sub test_otherWeb_NOSEARCHALL {
     my $this = shift;
 
-    my $to = Foswiki::Store::load(address=>{web=>"$this->{test_web}/SubWeb", topic=>$Foswiki::cfg{WebPrefsTopicName}});
-    $to->text($to->text()."\n   * Set NOSEARCHALL = on\n");
+    my $to = Foswiki::Store::load(
+        address => {
+            web   => "$this->{test_web}/SubWeb",
+            topic => $Foswiki::cfg{WebPrefsTopicName}
+        }
+    );
+    $to->text( $to->text() . "\n   * Set NOSEARCHALL = on\n" );
     $to->save();
 
     my $text =

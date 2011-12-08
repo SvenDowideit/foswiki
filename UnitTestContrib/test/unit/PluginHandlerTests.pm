@@ -69,8 +69,9 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
 
-    my $testWebObject = Foswiki::Store->load(address=>{web=>$this->{test_web}});
-        $testWebObject->populateNewWeb();
+    my $testWebObject =
+      Foswiki::Store->load( address => { web => $this->{test_web} } );
+    $testWebObject->populateNewWeb();
 
     # Disable all plugins
     foreach my $key ( keys %{ $Foswiki::cfg{Plugins} } ) {
@@ -90,7 +91,7 @@ sub set_up {
     }
     die "Can't find code" unless $found;
     $this->{code_root} = "$found/Foswiki/Plugins/";
-    my $webObject = Foswiki::Store->create(address=>{web=>$systemWeb});
+    my $webObject = Foswiki::Store->create( address => { web => $systemWeb } );
     $webObject->populateNewWeb( $Foswiki::cfg{SystemWebName} );
     $Foswiki::cfg{SystemWebName} = $systemWeb;
     $Foswiki::cfg{Plugins}{WebSearchPath} = $systemWeb;
@@ -134,8 +135,12 @@ HERE
     print F $code;
     close(F);
     try {
-        my $topicObject =
-          Foswiki::Store::create(address=>{web=>$Foswiki::cfg{SystemWebName}, topic=>$this->{plugin_name}}, data=>{_text=><<'EOF'});
+        my $topicObject = Foswiki::Store::create(
+            address => {
+                web   => $Foswiki::cfg{SystemWebName},
+                topic => $this->{plugin_name}
+            },
+            data => { _text => <<'EOF'} );
    * Set PLUGINVAR = Blah
 EOF
         $topicObject->save();
@@ -169,7 +174,9 @@ sub test_saveHandlers {
 
     my $user = $this->{session}->{user};
     $this->assert_not_null($user);
-    my $topicObject = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'Tropic' });
+    my $topicObject =
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => 'Tropic' } );
     my $text = $topicObject->text() || '';
     $text =~ s/^\s*\* Set BLAH =.*$//gm;
     $text .= "\n\t* Set BLAH = BEFORE\n";
@@ -224,24 +231,27 @@ sub afterSaveHandler {
 }
 HERE
 
-    # Test to ensure that the before and after save handlers are both called,
-    # and that modifications made to the text are actaully written to the topic file
-    my $meta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> "Tropic" });
+# Test to ensure that the before and after save handlers are both called,
+# and that modifications made to the text are actaully written to the topic file
+    my $meta =
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => "Tropic" } );
     $meta->put( 'WIBBLE', { wibble => 'Wibble' } );
     $meta->save();
     $this->checkCalls( 1, 'beforeSaveHandler' );
     $this->checkCalls( 1, 'afterSaveHandler' );
 
-    my $newMeta = Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> "Tropic" });
-    $this->assert_matches( qr\B4SAVE\, $newMeta->text());
-    $this->assert_str_equals('Wibble', $newMeta->get('WIBBLE')->{wibble});
-    $this->assert_str_equals( "AFTER",
-            $newMeta->getPreference("BLAH"));
+    my $newMeta =
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => "Tropic" } );
+    $this->assert_matches( qr\B4SAVE\, $newMeta->text() );
+    $this->assert_str_equals( 'Wibble', $newMeta->get('WIBBLE')->{wibble} );
+    $this->assert_str_equals( "AFTER",  $newMeta->getPreference("BLAH") );
 
     #SMELL: Without this call, getPreferences returns BEFORE
     Foswiki::Func::pushTopicContext( $this->{test_web}, 'Tropic' );
     $this->assert_str_equals( "AFTER",
-            Foswiki::Func::getPreferencesValue("BLAH") );
+        Foswiki::Func::getPreferencesValue("BLAH") );
 
 }
 
@@ -282,7 +292,8 @@ HERE
 
     # Crude test to ensure all handlers are called, and in the right order.
     # Doesn't verify that they are called at the right time
-    my $meta = Foswiki::Store->load(address=>{web=> "Werb", topic=> "Tropic" });
+    my $meta =
+      Foswiki::Store->load( address => { web => "Werb", topic => "Tropic" } );
     $meta->put( 'WIBBLE', { wibble => 'Wibble' } );
     Foswiki::Func::expandCommonVariables( "Zero", "Tropic", "Werb", $meta );
     $this->checkCalls( 1, 'beforeCommonTagsHandler' );
@@ -593,7 +604,6 @@ sub beforeUploadHandler {
 }
 HERE
 }
-
 
 sub test_beforeEditHandler {
     my $this = shift;

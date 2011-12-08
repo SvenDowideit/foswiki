@@ -24,7 +24,6 @@ targeting single classes).
 
 =cut
 
-
 use FoswikiTestCase;
 our @ISA = qw( FoswikiTestCase );
 
@@ -62,7 +61,7 @@ to add extra stuff to Foswiki::cfg.
 sub loadExtraConfig {
     my $this = shift;
     $this->SUPER::loadExtraConfig(@_);
-    
+
     $Foswiki::cfg{Store}{Implementation}    = "Foswiki::Store::RcsLite";
     $Foswiki::cfg{RCS}{AutoAttachPubFiles}  = 0;
     $Foswiki::cfg{Register}{AllowLoginName} = 1;
@@ -91,9 +90,11 @@ sub set_up {
     $Foswiki::Plugins::SESSION = $this->{session};
     @mails                     = ();
     $this->{session}->net->setMailHandler( \&FoswikiFnTestCase::sentMail );
-    my $webObject = Foswiki::Store->create( address=>{web=>$this->{test_web}} );
+    my $webObject =
+      Foswiki::Store->create( address => { web => $this->{test_web} } );
     $webObject->populateNewWeb();
-    $webObject = Foswiki::Store->create( address=>{web=>$this->{users_web}} );
+    $webObject =
+      Foswiki::Store->create( address => { web => $this->{users_web} } );
     $webObject->populateNewWeb();
 
     $this->{test_user_forename} = 'Scum';
@@ -109,9 +110,10 @@ sub set_up {
     $this->{test_user_cuid} =
       $this->{session}->{users}->getCanonicalUserID( $this->{test_user_login} );
 
-    $this->{test_topicObject} = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}});
+    $this->{test_topicObject} = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => $this->{test_topic} } );
     $this->{test_topicObject}->text("BLEEGLE\n");
-    $this->{test_topicObject}->save(forcedate=>(time()+60));
+    $this->{test_topicObject}->save( forcedate => ( time() + 60 ) );
 }
 
 sub tear_down {
@@ -180,12 +182,18 @@ sub registerUser {
     $query->path_info("/$this->{users_web}/UserRegistration");
 
     my $fatwilly = new Foswiki( undef, $query );
-    $this->assert($fatwilly->topicExists(
-        $this->{test_web}, $Foswiki::cfg{WebPrefsTopicName}));
+    $this->assert(
+        $fatwilly->topicExists(
+            $this->{test_web}, $Foswiki::cfg{WebPrefsTopicName}
+        )
+    );
 
     $fatwilly->net->setMailHandler( \&FoswikiFnTestCase::sentMail );
     try {
-        $this->captureWithKey( register_cgi => \&Foswiki::UI::Register::register_cgi, $fatwilly);
+        $this->captureWithKey(
+            register_cgi => \&Foswiki::UI::Register::register_cgi,
+            $fatwilly
+        );
     }
     catch Foswiki::OopsException with {
         my $e = shift;

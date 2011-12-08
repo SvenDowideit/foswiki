@@ -54,7 +54,6 @@ sub loadExtraConfig {
 
     $this->SUPER::loadExtraConfig( $context, @args );
 
-
     return;
 }
 
@@ -80,7 +79,8 @@ sub set_up {
     $this->SUPER::set_up();
 
     #the test web is made using the '_empty' web - not so useful here
-    my $webObject = Foswiki::Store->load(address=>{web=>$this->{test_web}});
+    my $webObject =
+      Foswiki::Store->load( address => { web => $this->{test_web} } );
     $webObject->populateNewWeb(
         '_default',
         {
@@ -111,7 +111,7 @@ sub fixture_groups {
                 context  => $array[2],
             };
         }
-        next unless (ref($dispatcher) eq 'HASH');#bad switchboard entry.
+        next unless ( ref($dispatcher) eq 'HASH' );    #bad switchboard entry.
 
         my $package  = $dispatcher->{package} || 'Foswiki::UI';
         my $function = $dispatcher->{function};
@@ -311,7 +311,8 @@ sub put_field {
 
 sub add_form_and_data {
     my ( $this, $web, $topic, $form ) = @_;
-    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
+    my $meta =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
     $meta->put( 'FORM', { name => $form } );
     put_field( $meta, 'IssueName', 'M', 'Issue Name', '_An issue_' );
     put_field(

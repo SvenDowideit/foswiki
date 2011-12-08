@@ -34,7 +34,9 @@ sub set_up_topic {
     my $text  = "hi";
 
     my $topicObject =
-      Foswiki::Store->create(address=>{web=> $this->{test_web}, topic => $topic, _text => $text });
+      Foswiki::Store->create(
+        address => { web => $this->{test_web}, topic => $topic, _text => $text }
+      );
     $topicObject->save();
 }
 
@@ -49,7 +51,8 @@ sub addMissingAttachment {
     $this->assert( $this->{session}->topicExists( $this->{test_web}, $topic ) );
 
     my $topicObject =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => $topic } );
 
     $topicObject->putKeyed(
         'FILEATTACHMENT',
@@ -193,7 +196,8 @@ sub verify_normal_attachment {
     my $doUnlock        = 1;
 
     my $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topic });
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => $topic } );
     $meta->attach(
         name    => $attachment,
         file    => "$TWiki::cfg{TempfileDir}/$attachment",
@@ -217,7 +221,8 @@ sub simulate_view {
     $this->{session}->{webName}   = $web;
     $this->{session}->{topicName} = $topic;
 
-    my $meta = Foswiki::Store->load(address=>{web=> $web, topic=> $topic });
+    my $meta =
+      Foswiki::Store->load( address => { web => $web, topic => $topic } );
 
     $this->{session}->{webName}   = $oldWebName;
     $this->{session}->{topicName} = $oldTopicName;

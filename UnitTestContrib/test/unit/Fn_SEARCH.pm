@@ -51,18 +51,26 @@ sub set_up {
 
     my $timestamp = time();
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'OkTopic'}, data=>{_text=>"BLEEGLE blah/matchme.blah" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'OkTopic' },
+        data    => { _text => "BLEEGLE blah/matchme.blah" }
+    );
     $topicObject->save( forcedate => $timestamp + 120 );
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'OkATopic'}, data=>{_text=>"BLEEGLE dontmatchme.blah" });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'OkATopic' },
+        data    => { _text => "BLEEGLE dontmatchme.blah" }
+    );
     $topicObject->save( forcedate => $timestamp + 240 );
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'OkBTopic'}, data=>{_text=>"BLEEGLE dont.matchmeblah" });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'OkBTopic' },
+        data    => { _text => "BLEEGLE dont.matchmeblah" }
+    );
     $topicObject->save( forcedate => $timestamp + 480 );
 
-    $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'InvisibleTopic'}, data=>{_text=>"BLEEGLE dont.matchmeblah"
-    });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'InvisibleTopic' },
+        data => { _text => "BLEEGLE dont.matchmeblah" }
+    );
     $topicObject->putKeyed( 'PREFERENCE',
         { name => 'ALLOWTOPICVIEW', value => 'OnlySuperman' } );
     $topicObject->save( forcedate => $timestamp + 480 );
@@ -305,17 +313,26 @@ sub verify_word {
 sub verify_scope_all_type_word {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualBeer'}, data=>{_text=>"There are alot of Virtual Beers to go around" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'VirtualBeer' },
+        data => { _text => "There are alot of Virtual Beers to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'RealBeer'}, data=>{_text=>"There are alot of Virtual Beer to go around" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'RealBeer' },
+        data => { _text => "There are alot of Virtual Beer to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'FamouslyBeered' },
+        data =>
+          { _text => "Virtually speaking there could be alot of famous Beers" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'VirtualLife' },
+        data    => { _text => "In a all life" }
+    );
     $topicObject->save();
 
     my $result =
@@ -336,17 +353,26 @@ EXPECT
 sub verify_scope_all_type_keyword {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualBeer'}, data=>{_text=>"There are alot of Virtual Beers to go around" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'VirtualBeer' },
+        data => { _text => "There are alot of Virtual Beers to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'RealBeer'}, data=>{_text=>"There are alot of Virtual Beer to go around" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'RealBeer' },
+        data => { _text => "There are alot of Virtual Beer to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'FamouslyBeered' },
+        data =>
+          { _text => "Virtually speaking there could be alot of famous Beers" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'VirtualLife' },
+        data    => { _text => "In a all life" }
+    );
     $topicObject->save();
 
     my $result =
@@ -368,17 +394,26 @@ EXPECT
 sub verify_scope_all_type_literal {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualBeer'}, data=>{_text=>"There are alot of Virtual Beers to go around" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'VirtualBeer' },
+        data => { _text => "There are alot of Virtual Beers to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'RealBeer'}, data=>{_text=>"There are alot of Virtual Beer to go around" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'RealBeer' },
+        data => { _text => "There are alot of Virtual Beer to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'FamouslyBeered' },
+        data =>
+          { _text => "Virtually speaking there could be alot of famous Beers" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'VirtualLife' },
+        data    => { _text => "In a all life" }
+    );
     $topicObject->save();
 
     my $result =
@@ -1183,8 +1218,11 @@ This text is fill in text which is there to ensure that the unique word below do
 %META:FIELD{name="Name" attributes="" title="Name" value="!AnnaAnchor"}%
 HERE
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FormattedSearchTopic1'}, data=>{_text=>$text });
+    my $topicObject = Foswiki::Store::create(
+        address =>
+          { web => $this->{test_web}, topic => 'FormattedSearchTopic1' },
+        data => { _text => $text }
+    );
     $topicObject->save();
 
     return;
@@ -1391,8 +1429,10 @@ somethig after
 %META:TOPICMOVED{by="TopicUserMapping_guest" date="1176311052" from="Sandbox.TestETP" to="Sandbox.TestEarlyTimeProtocol"}%
 %META:FILEATTACHMENT{name="README" comment="Blah Blah" date="1157965062" size="5504"}%
 HERE
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopic'}, data=>{_text=>$text });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'QueryTopic' },
+        data    => { _text => $text }
+    );
     $topicObject->save();
 
     $text = <<'HERE';
@@ -1412,8 +1452,10 @@ third line
 %META:FILEATTACHMENT{name="porn.gif" comment="Cor" date="15062" size="15504"}%
 %META:FILEATTACHMENT{name="flib.xml" comment="Cor" date="1157965062" size="1"}%
 HERE
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo'}, data=>{_text=>$text });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'QueryTopicTwo' },
+        data    => { _text => $text }
+    );
     $topicObject->save();
 
     $this->{session}->finish();
@@ -1424,8 +1466,8 @@ HERE
     $this->assert_str_equals( $this->{test_web}, $this->{session}->{webName} );
     $Foswiki::Plugins::SESSION = $this->{session};
 
-    $this->{test_topicObject} =
-      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+    $this->{test_topicObject} = Foswiki::Store::load(
+        address => { web => $this->{test_web}, topic => $this->{test_topic} } );
 
     return;
 }
@@ -1706,8 +1748,10 @@ We have committed to take steps towards $vE reinventing our cyber-key players an
 %META:FIELD{name="FieldD" attributes="" title="Banother Field" value="$vD"}%
 %META:FIELD{name="FieldE" attributes="" title="Banother Field" value="$vE"}%
 HERE
-        my $topicObject =
-          Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"QueryTopic$n"}, data=>{_text=>$text });
+        my $topicObject = Foswiki::Store::create(
+            address => { web   => $this->{test_web}, topic => "QueryTopic$n" },
+            data    => { _text => $text }
+        );
         $topicObject->save();
     }
     require Benchmark;
@@ -1763,14 +1807,14 @@ sub verify_likeQuery {
       ->expandMacros( '%SEARCH{"text ~ \'*QueryTopicTwo*\'" ' . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
 
-    my $topicObject =
-      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
+    my $topicObject = Foswiki::Store::load(
+        address => { web => $this->{test_web}, topic => 'QueryTopicTwo' } );
     $result =
       $topicObject->expandMacros( '%SEARCH{"text ~ \'*SMONG*\'" ' . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
 
-    $topicObject =
-      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
+    $topicObject = Foswiki::Store::load(
+        address => { web => $this->{test_web}, topic => 'QueryTopicTwo' } );
     $result = $topicObject->expandMacros(
         '%SEARCH{"text ~ \'*QueryTopicTwo*\'" ' . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
@@ -1797,24 +1841,24 @@ sub verify_likeQuery2 {
           . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'QueryTopicTwo' } );
     $result =
       $topicObject->expandMacros( '%SEARCH{"text ~ \'*SMONG*\'" web="'
           . $this->{test_web} . '" '
           . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
 
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'QueryTopicTwo' } );
     $result =
       $topicObject->expandMacros( '%SEARCH{"text ~ \'*QueryTopicTwo*\'" web="'
           . $this->{test_web} . '" '
           . $stdCrap );
     $this->assert_str_equals( 'QueryTopicTwo', $result );
 
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo' });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'QueryTopicTwo' } );
     $result =
       $topicObject->expandMacros( '%SEARCH{"text ~ \'*Notinthetopics*\'" web="'
           . $this->{test_web} . '" '
@@ -1908,11 +1952,15 @@ sub test_validatepattern {
 sub test_formatOfLinks {
     my $this = shift;
 
-    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Item977'}, data=>{_text=>"---+ Apache
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'Item977' },
+        data    => {
+            _text => "---+ Apache
 
 Apache is the [[http://www.apache.org/httpd/][well known web server]].
 "
-    });
+        }
+    );
     $topicObject->save();
 
     my $result =
@@ -1965,7 +2013,7 @@ sub _getTopicList {
     #        excludeTopics  => $excludeTopic,
     #    };
 
-    my $webObject = Foswiki::Store->load(address=>{web=>$web});
+    my $webObject = Foswiki::Store->load( address => { web => $web } );
 
     # Run the search on topics in this web
     my $search = $this->{session}->search();
@@ -2291,15 +2339,17 @@ sub verify_casesensitivesetting {
 sub verify_Item6082_Search {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name*         | *Type* | *Size* | *Value*   | *Tooltip message* | *Attributes* |
 | Why | text | 32 | | Mandatory field | M |
 | Ecks | select | 1 | %SEARCH{"TestForm.Ecks~'Blah*'" type="query" order="topic" separator="," format="$topic;$formfield(Ecks)" nonoise="on"}% | | |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeOne'}, data=>{_text=><<'FORM'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeOne' },
+        data    => { _text => <<'FORM'} );
 %META:FORM{name="TestForm"}%
 %META:FIELD{name="Ecks" attributes="" title="X" value="Blah"}%
 FORM
@@ -2317,15 +2367,17 @@ FORM
 sub verify_quotemeta {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name*         | *Type* | *Size* | *Value*   | *Tooltip message* | *Attributes* |
 | Why | text | 32 | | Mandatory field | M |
 | Ecks | select | 1 | %SEARCH{"TestForm.Ecks~'Blah*'" type="query" order="topic" separator="," format="$topic;$formfield(Ecks)" nonoise="on"}% | | |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeOne'}, data=>{_text=><<'FORM'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeOne' },
+        data    => { _text => <<'FORM'} );
 %META:FORM{name="TestForm"}%
 %META:FIELD{name="Ecks" attributes="" title="X" value="Blah"}%
 FORM
@@ -2997,28 +3049,33 @@ sub test_groupby_none_using_subwebs {
     my $this = shift;
 
     my $webObject =
-      Foswiki::Store->load(address=>{web=> "$this->{test_web}/A"});
+      Foswiki::Store->load( address => { web => "$this->{test_web}/A" } );
     $webObject->populateNewWeb();
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>"$this->{test_web}/A", topic=>'TheTopic'}, data=>{_text=><<'CRUD'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => "$this->{test_web}/A", topic => 'TheTopic' },
+        data    => { _text => <<'CRUD'} );
 %META:FORM{name="TestForm"}%
 %META:FIELD{name="Order" title="Order" value="3"}%
 CRUD
     $topicObject->save( forcedate => 1000 );
 
-    $webObject = Foswiki::Store->load(address=>{web=>"$this->{test_web}/B"});
+    $webObject =
+      Foswiki::Store->load( address => { web => "$this->{test_web}/B" } );
     $webObject->populateNewWeb();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>"$this->{test_web}/B", topic=>'TheTopic'}, data=>{_text=><<'CRUD'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => "$this->{test_web}/B", topic => 'TheTopic' },
+        data    => { _text => <<'CRUD'} );
 %META:FORM{name="TestForm"}%
 %META:FIELD{name="Order" title="Order" value="1"}%
 CRUD
     $topicObject->save( forcedate => 100 );
 
-    $webObject = Foswiki::Store->load(address=>{web=> "$this->{test_web}/C"});
+    $webObject =
+      Foswiki::Store->load( address => { web => "$this->{test_web}/C" } );
     $webObject->populateNewWeb();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>"$this->{test_web}/C", topic=>'TheTopic'}, data=>{_text=><<'CRUD'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => "$this->{test_web}/C", topic => 'TheTopic' },
+        data    => { _text => <<'CRUD'} );
 %META:FORM{name="TestForm"}%
 %META:FIELD{name="Order" title="Order" value="2"}%
 CRUD
@@ -3155,7 +3212,8 @@ GNURF
     my %testWebs = ( Main => 0, System => 10, Sandbox => 100 );
     while ( my ( $web, $delay ) = each %testWebs ) {
         my $topicObject =
-          Foswiki::Store->load(address=>{web=> "$web", 'TheTopic', topic=> <<'CRUD'});
+          Foswiki::Store->load(
+            address => { web => "$web", 'TheTopic', topic => <<'CRUD'} );
 Just some dummy search topic.
 CRUD
         $topicObject->save( forcedate => $delay );
@@ -3225,8 +3283,11 @@ CRUD
     # Now we create the WikiGuest user topic, to test both outputs
     my $session = $this->{session};
     if ( !$session->topicExists( 'TemporarySEARCHUsersWeb', 'WikiGuest' ) ) {
-        my $userTopic = Foswiki::Store::create(address=>{web=>'TemporarySEARCHUsersWeb', topic=>'WikiGuest'}, data=>{_text=>'Just this poor old WikiGuest'
-        });
+        my $userTopic = Foswiki::Store::create(
+            address =>
+              { web => 'TemporarySEARCHUsersWeb', topic => 'WikiGuest' },
+            data => { _text => 'Just this poor old WikiGuest' }
+        );
         $userTopic->save();
     }
     $this->assert(
@@ -3663,10 +3724,12 @@ sub verify_stop_words_search_word {
     Foswiki::Func::setPreferencesValue( 'SEARCHSTOPWORDS',
         'xxx luv ,kiss, bye' );
 
-    my $TEST_TEXT  = "xxx Shamira";
-    my $TEST_TOPIC = 'StopWordTestTopic';
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$TEST_TOPIC}, data=>{_text=>$TEST_TEXT });
+    my $TEST_TEXT   = "xxx Shamira";
+    my $TEST_TOPIC  = 'StopWordTestTopic';
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => $TEST_TOPIC },
+        data    => { _text => $TEST_TEXT }
+    );
     $topicObject->save();
 
     my $result =
@@ -3715,8 +3778,10 @@ sub createSummaryTestTopic {
 
 	Alan says: 'Oh yes; I knew I'd seen them somewhere before! But how do I know I won't go mad and do something to you? I just thought of something, just then.' Alan is now very agitated. 'It makes my blood boil the way analysts never defend themselves when they are attacked in the press. You hear one slander after another about Freud and psychoanalysis, and what do your lot do? Nothing!'";
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topicName}, data=>{_text=>$TEST_SUMMARY_TEXT });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => $topicName },
+        data    => { _text => $TEST_SUMMARY_TEXT }
+    );
     $topicObject->save();
 
     return;
@@ -3958,8 +4023,10 @@ sub verify_date_param {
 A Symbol Interpreted In American Architecture. Meta-Physics Of Marxism & Poverty In The American Landscape. Exploration Of Crime In Mexican Sculptures: A Study Seen In American Literature. Brief Survey Of Suicide In Italian Art: The Big Picture. Special Studies In Bisexual Female Architecture. Brief Survey Of Suicide In Polytheistic Literature: Analysis, Analysis, and Critical Thinking. Radical Paganism: Modern Theories. Liberal Mexican Religion In The Modern Age.
 
 HERE
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"VeryOldTopic"}, data=>{_text=>$text });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => "VeryOldTopic" },
+        data    => { _text => $text }
+    );
     my $rev = $topicObject->save( forcedate => 86420 ); # > 86400, see Item10389
     $this->assert_num_equals( 1, $rev );
 
@@ -3995,8 +4062,10 @@ Suicide
 Paganism.
 %META:FIELD{name="Name" attributes="" title="Name" value="Meta-Physics%0aMarxism%0aCrime%0aSuicide%0aPaganism."}%
 HERE
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"OffColour"}, data=>{_text=>$text });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => "OffColour" },
+        data    => { _text => $text }
+    );
     $topicObject->save();
 
     my $result;
@@ -4507,8 +4576,10 @@ HERE
 
 #    $this->{twiki}->{store}->saveTopic( 'simon',
 #        $this->{test_web}, 'QueryTopic', $text, undef, {forcedate=>1178612772} );
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopic'}, data=>{_text=>$text });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'QueryTopic' },
+        data    => { _text => $text }
+    );
     $topicObject->save(
         forcedate        => 1178412772,
         author           => 'admin',
@@ -4541,8 +4612,10 @@ HERE
 
     #$this->{twiki}->{store}->saveTopic( 'admin',
     #    $this->{test_web}, 'QueryTopicTwo', $text, undef, {forcedate=>12} );
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicTwo'}, data=>{_text=>$text });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'QueryTopicTwo' },
+        data    => { _text => $text }
+    );
     $topicObject->save(
         forcedate        => 1108312772,
         author           => 'admin',
@@ -4575,8 +4648,10 @@ HERE
 
     #$this->{twiki}->{store}->saveTopic( 'Gerald',
     #    $this->{test_web}, 'QueryTopicThree', $text, undef, {forcedate=>14} );
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'QueryTopicThree'}, data=>{_text=>$text });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'QueryTopicThree' },
+        data    => { _text => $text }
+    );
     $topicObject->save( forcedate => 1108413782, author => 'Gerald' );
 
     $this->{session}->finish();
@@ -4587,8 +4662,8 @@ HERE
     $this->assert_str_equals( $this->{test_web}, $this->{session}->{webName} );
     $Foswiki::Plugins::SESSION = $this->{session};
 
-    $this->{test_topicObject} =
-      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+    $this->{test_topicObject} = Foswiki::Store::load(
+        address => { web => $this->{test_web}, topic => $this->{test_topic} } );
 
     return;
 }
@@ -4927,8 +5002,10 @@ sub test_format_tokens {
 %META:TOPICPARENT{name="WebHome"}%
 %META:FIELD{name="Option" attributes="" title="Some option" value="Some long test I can truncate later"}%
 METADATA
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$testTopic}, data=>{_text=>"---++ $header\n$body\n$meta\n" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => $testTopic },
+        data => { _text => "---++ $header\n$body\n$meta\n" }
+    );
     $topicObject->save();
 
     my $testUser        = 'WikiGuest';
@@ -5029,8 +5106,10 @@ sub test_format_percent_tokens {
       . 'expandvariables="on" nonoise="on" format="$pattern(.*?begin (.*?) end.*)"}%';
 
     Foswiki::Func::createWeb($testWeb);
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$testWeb, topic=>$testTopic}, data=>{_text=>"begin $body end\n" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $testWeb, topic => $testTopic },
+        data    => { _text => "begin $body end\n" }
+    );
     $topicObject->save();
     my $expected     = $topicObject->expandMacros($body);
     my $expectedFail = $expected;
@@ -5075,26 +5154,41 @@ sub test_search_scope_topic {
 sub test_minus_scope_all {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualBeer'}, data=>{_text=>"There are alot of Virtual Beers to go around" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'VirtualBeer' },
+        data => { _text => "There are alot of Virtual Beers to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'RealBeer'}, data=>{_text=>"There are alot of Virtual Beer to go around" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'RealBeer' },
+        data => { _text => "There are alot of Virtual Beer to go around" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'FamouslyBeered'}, data=>{_text=>"Virtually speaking there could be alot of famous Beers" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'FamouslyBeered' },
+        data =>
+          { _text => "Virtually speaking there could be alot of famous Beers" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'VirtualLife'}, data=>{_text=>"In a all life"});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'VirtualLife' },
+        data    => { _text => "In a all life" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoLife'}, data=>{_text=>"In a all life"});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'NoLife' },
+        data    => { _text => "In a all life" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'NoBeer'}, data=>{_text=>"In a all life"});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'NoBeer' },
+        data    => { _text => "In a all life" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SomeBeer'}, data=>{_text=>"In a all life"});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SomeBeer' },
+        data    => { _text => "In a all life" }
+    );
     $topicObject->save();
 
     my $result =
@@ -5180,8 +5274,10 @@ sub verify_Item10398 {
 
     $this->set_up_for_queries();
 
-    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Trash.MainBobTest'}, data=>{_text=>"BLEEGLE blah/matchme.blah"
-    });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => 'Trash.MainBobTest' },
+        data => { _text => "BLEEGLE blah/matchme.blah" }
+    );
     $topicObject->save();
 
     my $result =
@@ -5214,8 +5310,9 @@ sub verify_Item10491 {
 
     #$this->set_up_for_queries();
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Item10491'}, data=>{_text=><<'TOPICTEXT' });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'Item10491' },
+        data    => { _text => <<'TOPICTEXT' } );
 Search on Foswiki.org has been showing some signs of corruption.   The topic Tasks/Item968 appeared to be related, however it can be created  From IRC:
 
  SomeString.txt
@@ -5434,8 +5531,8 @@ HERE
     $this->{session} = Foswiki->new( $Foswiki::cfg{AdminUserLogin}, $query );
     $this->assert_str_equals( $this->{test_web}, $this->{session}->{webName} );
     $Foswiki::Plugins::SESSION = $this->{session};
-    $this->{test_topicObject} =
-      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+    $this->{test_topicObject} = Foswiki::Store::load(
+        address => { web => $this->{test_web}, topic => $this->{test_topic} } );
     require Foswiki::Address;
     while ( my ( $fwaddress, $metatext ) = each %topics ) {
         my $addrObj = Foswiki::Address->new( string => $fwaddress );

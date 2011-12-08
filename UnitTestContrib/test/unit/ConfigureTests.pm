@@ -35,17 +35,28 @@ sub set_up {
     $this->{user}     = $Foswiki::cfg{AdminUserLogin};
     $this->{session}  = Foswiki->new( $this->{user} );
     $this->{test_web} = 'Testsystemweb1234';
-    my $webObject = Foswiki::Store->load(address=>{web=>$this->{test_web}}, create => 1);
+    my $webObject = Foswiki::Store->load(
+        address => { web => $this->{test_web} },
+        create  => 1
+    );
     $webObject->populateNewWeb();
     $this->{trash_web} = 'Testtrashweb1234';
-    $webObject = Foswiki::Store->load(address=>{web=>$this->{trash_web}}, create => 1);
+    $webObject = Foswiki::Store->load(
+        address => { web => $this->{trash_web} },
+        create  => 1
+    );
     $webObject->populateNewWeb();
     $this->{sandbox_web} = 'Testsandboxweb1234';
-    $webObject = Foswiki::Store->load(address=>{web=>$this->{sandbox_web}}, create => 1);
+    $webObject = Foswiki::Store->load(
+        address => { web => $this->{sandbox_web} },
+        create  => 1
+    );
     $webObject->populateNewWeb();
     $this->{sandbox_subweb} = 'Testsandboxweb1234/Subweb';
-    $webObject =
-      Foswiki::Store->load(address=>{web=>$this->{sandbox_subweb}}, create => 1);
+    $webObject = Foswiki::Store->load(
+        address => { web => $this->{sandbox_subweb} },
+        create  => 1
+    );
     $webObject->populateNewWeb();
     $this->{tempdir} = $Foswiki::cfg{TempfileDir} . '/test_ConfigureTests';
     rmtree( $this->{tempdir} )

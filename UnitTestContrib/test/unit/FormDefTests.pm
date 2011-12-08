@@ -15,8 +15,9 @@ use Error qw( :try );
 sub test_minimalForm {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name* | *Type* | *Size* |
 | Date | date | 30 |
 FORM
@@ -41,8 +42,9 @@ FORM
 sub test_allCols {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name*     | *Type*   | *Size* | *Value* | *Tooltip* | *Attributes* |
 | Select     | select   | 2..4   | a,b,c   | Tippity   | M            |
 | Checky Egg | checkbox | 1      | 1,2,3,4   | Blip      |              |
@@ -120,14 +122,16 @@ FORM
 sub test_valsFromOtherTopic {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name*         | *Type* | *Size* | *Value*   |
 | Vals Elsewhere | select |        |           |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'ValsElsewhere'}, data=>{_text=><<'FORM'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'ValsElsewhere' },
+        data    => { _text => <<'FORM'} );
 | *Name* |
 | ValOne |
 | RowName |
@@ -156,14 +160,16 @@ FORM
 sub test_squabValRef {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<"FORM"});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<"FORM"} );
 | *Name*         | *Type* | *Size* | *Value*   |
 | [[$this->{test_web}.Splodge][Vals Elsewhere]] | select |        |           |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Splodge'}, data=>{_text=><<'FORM'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'Splodge' },
+        data    => { _text => <<'FORM'} );
 | *Name* |
 | ValOne |
 | RowName |
@@ -189,19 +195,22 @@ FORM
 sub test_searchForOptions {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name*         | *Type* | *Size* | *Value*   |
 | Ecks | select | 1 | %SEARCH{"^\\| (Age\|Beauty)" type="regex" nonoise="on" separator="," format="$topic"}% |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeOne'}, data=>{_text=><<'FORM'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeOne' },
+        data    => { _text => <<'FORM'} );
 | Age |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeTwo'}, data=>{_text=><<'FORM'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeTwo' },
+        data    => { _text => <<'FORM'} );
 | Beauty |
 FORM
     $topicObject->save();
@@ -219,19 +228,22 @@ FORM
 sub test_searchForOptionsQuery {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name*         | *Type* | *Size* | *Value*   |
 | Ecks | select | 1 | %SEARCH{"text=~'^\\| (Age\|Beauty)'" type="query" nonoise="on" separator="," format="$topic"}% |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeOne'}, data=>{_text=><<FORM});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeOne' },
+        data    => { _text => <<FORM} );
 | Age |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeTwo'}, data=>{_text=><<FORM});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeTwo' },
+        data    => { _text => <<FORM} );
 | Beauty |
 FORM
     $topicObject->save();
@@ -249,15 +261,17 @@ sub test_Item6082 {
 
     # Form definition that requires the form definition to be loaded before
     # it can be loaded.
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name*         | *Type* | *Size* | *Value*   | *Tooltip message* | *Attributes* |
 | Why | text | 32 | | Mandatory field | M |
 | Ecks | select | 1 | %SEARCH{"TestForm.Ecks~'Blah*'" type="query" order="topic" separator="," format="$topic;$formfield(Ecks)" nonoise="on"}% | | |
 FORM
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeOne'}, data=>{_text=><<'FORM'});
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeOne' },
+        data    => { _text => <<'FORM'} );
 %META:FORM{name="TestForm"}%
 %META:FIELD{name="Ecks" attributes="" title="X" value="Blah"}%
 FORM
@@ -271,22 +285,25 @@ FORM
         join( ',', sort @{ $f->getOptions() } ) );
 
     my $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'TestForm' });
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => 'TestForm' } );
     $meta->renderFormForDisplay();
 
     return;
 }
 
 sub test_makeFromMeta {
-    my $this = shift;
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'SplodgeOne'}, data=>{_text=><<'FORM'});
+    my $this        = shift;
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'SplodgeOne' },
+        data    => { _text => <<'FORM'} );
 %META:FORM{name="NonExistantForm"}%
 %META:FIELD{name="Ecks" attributes="" title="X" value="Blah"}%
 FORM
     $topicObject->save();
     my $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'SplodgeOne' });
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => 'SplodgeOne' } );
     my $form =
       Foswiki::Form->new( $this->{session}, $this->{test_web},
         'NonExistantForm', $meta );
@@ -302,8 +319,9 @@ FORM
 sub test_Item972_selectPlusValues {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'TestForm'}, data=>{_text=><<'FORM'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'TestForm' },
+        data    => { _text => <<'FORM'} );
 | *Name* | *Type*   | *Size* | *Value* | *Tooltip* | *Attributes* |
 | Select | select+values | 5 | , =0, One, Two=2, Three=III, Four | Various values |
 FORM

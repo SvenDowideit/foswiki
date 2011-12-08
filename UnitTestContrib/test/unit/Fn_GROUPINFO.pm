@@ -19,33 +19,53 @@ sub new {
 sub set_up {
     my $this = shift;
     $this->SUPER::set_up(@_);
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GropeGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{users_web}, topic => "GropeGroup" },
+        data    => {
+            _text => "   * Set GROUP = ScumBag});
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"PopGroup"}, data=>{_text=>"   * Set GROUP = WikiGuest\n" });
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"
+              PopGroup "}, data=>{_text=>" * Set GROUP =
+              WikiGuest \n " });
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"NestingGroup"}, data=>{_text=>"   * Set GROUP = GropeGroup\n" });
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"
+              NestingGroup "}, data=>{_text=>" * Set GROUP =
+              GropeGroup \n " });
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"OnlyAdminCanChangeGroup"}, data=>{_text=>"   * Set GROUP = WikiGuest\n   * Set TOPICCHANGE = AdminGroup\n" });
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"
+              OnlyAdminCanChangeGroup "}, data=>{_text=>" * Set GROUP =
+              WikiGuest \n * Set TOPICCHANGE =
+              AdminGroup \n " });
     $topicObject->save();
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GroupWithHiddenGroup"}, data=>{_text=>"   * Set GROUP = HiddenGroup});
+      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"
+              GroupWithHiddenGroup "}, data=>{_text=>" * Set GROUP = HiddenGroup
+        }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenGroup"}, data=>{_text=>"   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n" });
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{users_web}, topic => "HiddenGroup" },
+        data    => {
+            _text =>
+              "   * Set GROUP = ScumBag\n   * Set ALLOWTOPICVIEW = AdminUser\n"
+        }
+    );
+    $topicObject->save();
+
+    $topicObject = Foswiki::Store::create(
+        address => { web => $this->{users_web}, topic => "HiddenUserGroup" },
+        data    => {
+            _text => "   * Set GROUP = ScumBag});
     $topicObject->save();
 
     $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"HiddenUserGroup"}, data=>{_text=>"   * Set GROUP = ScumBag});
-    $topicObject->save();
-
-    $topicObject =
-      Foswiki::Store->load(address=>{web=> $this->{users_web}, topic=> "HidemeGood"});
+      Foswiki::Store->load(address=>{web=> $this->{users_web}, topic=> "
+              HidemeGood "});
     my $topText = $topicObject->text();
-    $topText .= "   * Set ALLOWTOPICVIEW = AdminUser\n";
+    $topText .= " * Set ALLOWTOPICVIEW = AdminUser \n ";
     $topText = $topicObject->text($topText);
     $topicObject->save();
 
@@ -65,7 +85,8 @@ sub test_basic {
 sub test_withName {
     my $this = shift;
 
-    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"GropeGroup"}%');
+    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{" GropeGroup
+              "}%');
     $this->assert_matches( qr/\b$this->{users_web}.ScumBag\b/, $ui);
     $this->assert_matches( qr/\b$this->{users_web}.WikiGuest\b/, $ui);
     my @u = split(',', $ui);
@@ -75,10 +96,12 @@ sub test_withName {
 sub test_noExpand {
     my $this = shift;
 
-    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"NestingGroup" expand="off"}%');
+    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{" NestingGroup
+              " expand=" off "}%');
     $this->assert_matches( qr/^$this->{users_web}.GropeGroup$/, $ui);
 
-    $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"NestingGroup"}%');
+    $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{" NestingGroup
+              "}%');
     $this->assert_matches( qr/\b$this->{users_web}.ScumBag\b/, $ui);
     $this->assert_matches( qr/\b$this->{users_web}.WikiGuest\b/, $ui);
     my @u = split(',', $ui);
@@ -88,7 +111,8 @@ sub test_noExpand {
 sub test_noExpandHidden {
     my $this = shift;
 
-    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"GroupWithHiddenGroup" expand="off"}%');
+    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"
+              GroupWithHiddenGroup " expand=" off "}%');
     $this->assert_matches( qr/\b$this->{users_web}.WikiGuest\b/, $ui);
     $this->assert_does_not_match( qr/\b$this->{users_web}.HiddenGroup\b/, $ui);
     my @u = split(',', $ui);
@@ -98,7 +122,8 @@ sub test_noExpandHidden {
 sub test_expandHidden {
     my $this = shift;
 
-    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"GroupWithHiddenGroup" expand="on"}%');
+    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"
+              GroupWithHiddenGroup " expand=" on "}%');
     $this->assert_matches( qr/\b$this->{users_web}.WikiGuest\b/, $ui);
     $this->assert_does_not_match( qr/\b$this->{users_web}.HiddenGroup\b/, $ui, 'HiddenGroup revealed');
 
@@ -114,7 +139,8 @@ sub test_expandHidden {
 sub test_expandHiddenUser {
     my $this = shift;
 
-    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"HiddenUserGroup" expand="on"}%');
+    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"
+              HiddenUserGroup " expand=" on "}%');
     $this->assert_matches( qr/\b$this->{users_web}.ScumBag\b/, $ui, 'ScumBag missing from HiddenUserGroup');
     $this->assert_does_not_match( qr/\b$this->{users_web}.HidemeGood\b/, $ui, 'HidemeGood revealed');
     my @u = split(',', $ui);
@@ -126,11 +152,13 @@ sub test_expandHiddenUserAsAdmin {
 
     $this->{session}->finish();
     $this->{session} = new Foswiki( $Foswiki::cfg{AdminUserLogin} );
-    $this->{test_topicObject} = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"BLEEGLE\n"
+    $this->{test_topicObject} = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>"
+              BLEEGLE \n "
     });
     $this->{test_topicObject}->save();
 
-    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"HiddenUserGroup" expand="on"}%');
+    my $ui = $this->{test_topicObject}->expandMacros('%GROUPINFO{"
+              HiddenUserGroup " expand=" on "}%');
     $this->assert_matches( qr/$this->{users_web}.ScumBag/, $ui);
     $this->assert_matches( qr/$this->{users_web}.HidemeGood/, $ui);
     my @u = split(',', $ui);
@@ -142,30 +170,36 @@ sub test_formatted {
 
     my $ui =
       $this->{test_topicObject}->expandMacros(
-'%GROUPINFO{"GropeGroup" format="WU$wikiusernameU$usernameW$wikiname"}%'
+'%GROUPINFO{" GropeGroup " format=" WU $wikiusernameU$usernameW$wikiname "}%'
       );
     $this->assert_str_equals(
-"WU$Foswiki::cfg{UsersWebName}.ScumBagUscumWScumBag, WU$Foswiki::cfg{UsersWebName}.WikiGuestUguestWWikiGuest",
+" WU $Foswiki::cfg{UsersWebName} . ScumBagUscumWScumBag,
+            WU $Foswiki::cfg{UsersWebName} . WikiGuestUguestWWikiGuest ",
         $ui
     );
     $ui = $this->{test_topicObject}->expandMacros(
-        '%GROUPINFO{format="<$name>"}%');
+        '%GROUPINFO{format=" < $name > "}%');
     $this->assert_matches(qr/^<\w+>(, <\w+>)+$/, $ui);
 
     $ui = $this->{test_topicObject}->expandMacros(
-        '%GROUPINFO{"GropeGroup" format="<$username>" separator=";"}%');
+        '%GROUPINFO{" GropeGroup " format=" < $username > " separator=";
+              "}%');
     $this->assert_matches(qr/^<\w+>(;<\w+>)+$/, $ui);
 
     $ui = $this->{test_topicObject}->expandMacros(
-        '%GROUPINFO{"GropeGroup" format="<$name>" separator=";"}%');
+        '%GROUPINFO{" GropeGroup " format=" < $name > " separator=";
+              "}%');
     $this->assert_matches(qr/^<GropeGroup>(;<GropeGroup>)+$/, $ui);
 
     $ui = $this->{test_topicObject}->expandMacros(
-        '%GROUPINFO{"GropeGroup" header="H" footer="F" format="<$username>" separator=";"}%');
+        '%GROUPINFO{" GropeGroup " header=" H " footer=" F " format=" <
+              $username > " separator=";
+              "}%');
     $this->assert_matches(qr/^H<\w+>(;<\w+>)+F$/, $ui);
 
     $ui = $this->{test_topicObject}->expandMacros(
-        '%GROUPINFO{"GropeGroup" limit="1" limited="L" footer = "F" format="<$username>"}%');
+        '%GROUPINFO{" GropeGroup " limit=" 1 " limited=" L " footer = " F
+              " format=" < $username > "}%');
     $this->assert_matches(qr/^<\w+>LF$/, $ui);
 }
 

@@ -27,8 +27,11 @@ sub set_up {
     $EDIT_UI_FN ||= $this->getUIFn('edit');
     $VIEW_UI_FN ||= $this->getUIFn('view');
     my $topicObject = Foswiki::Store->load(
-        address=>{web=>$this->{test_web},
-        topic=>$this->{test_topic}}, data=>{_text=><<CONSTRAINT});
+        address => {
+            web   => $this->{test_web},
+            topic => $this->{test_topic}
+        },
+        data => { _text => <<CONSTRAINT} );
    * Set ALLOWTOPICCHANGE = AdminGroup
 CONSTRAINT
     $topicObject->save();
@@ -132,6 +135,7 @@ sub verify_edit {
 
     $this->{session}->finish();
     $query = new Unit::Request();
+
     #$query->setUrl("/$this->{test_web}/$this->{test_topic}?breaklock=1");
     $query->setUrl("/$this->{test_web}/WebHome?breaklock=1");
     $this->{session} = new Foswiki( undef, $query );
@@ -181,8 +185,7 @@ sub verify_sudo_login {
     $query->path_info("/$this->{test_web}/$this->{test_topic}");
 
     $this->{session} = new Foswiki( undef, $query );
-    $this->{session}->getLoginManager()
-      ->login( $query, $this->{session} );
+    $this->{session}->getLoginManager()->login( $query, $this->{session} );
     my $script = $Foswiki::cfg{LoginManager} =~ /Apache/ ? 'viewauth' : 'view';
     my $surly =
       $this->{session}

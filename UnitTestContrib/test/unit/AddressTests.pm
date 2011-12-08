@@ -279,8 +279,11 @@ sub set_up {
         #$this->{session}->{webName} = $this->{test_web};
 
         $this->{test_topicObject} = Foswiki::Store->create(
-            address=>{web=>$this->{test_web},
-            topic=>$this->{test_topic}}, data=>{_text=>"BLEEGLE\n"}
+            address => {
+                web   => $this->{test_web},
+                topic => $this->{test_topic}
+            },
+            data => { _text => "BLEEGLE\n" }
         );
 
         $this->gendata( \%testrange );

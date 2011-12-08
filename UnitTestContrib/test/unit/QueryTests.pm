@@ -39,7 +39,8 @@ sub set_up {
       'Foswiki::Store::SearchAlgorithms::PurePerl';
 
     my $meta =
-      Foswiki::Store->create(address=>{web=> $this->{test_web}, topic=> 'HitTopic' });
+      Foswiki::Store->create(
+        address => { web => $this->{test_web}, topic => 'HitTopic' } );
     $meta->putKeyed(
         'FILEATTACHMENT',
         {
@@ -126,7 +127,8 @@ sub set_up {
     $meta->save();
 
     $meta =
-      Foswiki::Store::load(address=>{web=>$this->{test_web}, topic=>'AnotherTopic', rev=>1 });
+      Foswiki::Store::load( address =>
+          { web => $this->{test_web}, topic => 'AnotherTopic', rev => 1 } );
     $meta->text("Singularity");
     $meta->putKeyed( 'FIELD',
         { name => 'SillyFuel', title => 'Silly fuel', value => 'Petroleum' } );
@@ -137,7 +139,9 @@ sub set_up {
     $meta->save( forcenewrevision => 1 );
 
     $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=>'HitTopic', rev=> 1 });
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => 'HitTopic', rev => 1 }
+      );
     $meta->text("Green ideas sleep furiously");
     $meta->save( forcenewrevision => 1 );
     $this->{meta} = $meta;
@@ -335,7 +339,8 @@ sub verify_meta_dot {
 
     #longhand to a topic that as more than one rev
     my $anotherTopic =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> 'AnotherTopic' });
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => 'AnotherTopic' } );
     my $anotherTopicInfo = $anotherTopic->getRevisionInfo();
     $this->check(
         "'AnotherTopic'/META:TOPICINFO.date",
@@ -777,7 +782,7 @@ sub verify_versions_on_other_topic_fail {
 
     # These aren't working :( - PH
     $this->expect_failure(
-        'Item10121: OP_ref does\'nt play nice with versions queries' );
+        'Item10121: OP_ref does\'nt play nice with versions queries');
     $this->check( "'AnotherTopic'/versions.META:FIELD[name='SillyFuel'].value",
         eval => [qw(Diesel Petroleum Petrol)] );
     $this->check( "'AnotherTopic'/versions[META:FIELD.name='SillyFuel'].value",
@@ -830,8 +835,8 @@ sub test_match_fields_longhand {
 sub test_nomatch_fields_longhand {
     my $this = shift;
 
-    $this->expect_failure(
-        "in Javascript/MongoDB, undef != ''", using => 'MongoDBPlugin' );
+    $this->expect_failure( "in Javascript/MongoDB, undef != ''",
+        using => 'MongoDBPlugin' );
     $this->check( "fields[name='string' AND value=~'^qSt.(i|n).*'].name!=''",
         eval => 0 );
 }

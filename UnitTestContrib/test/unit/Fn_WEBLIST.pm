@@ -22,19 +22,22 @@ sub set_up {
     $this->SUPER::set_up();
     $Foswiki::cfg{EnableHierarchicalWebs} = 1;
     my $webObject =
-      Foswiki::Store->create(address=>{web=>"$this->{test_web}/Dive1"});
+      Foswiki::Store->create( address => { web => "$this->{test_web}/Dive1" } );
     $webObject->populateNewWeb();
 
     $webObject =
-      Foswiki::Store->create(address=>{web=>"$this->{test_web}/Dive1/Dive2"});
+      Foswiki::Store->create(
+        address => { web => "$this->{test_web}/Dive1/Dive2" } );
     $webObject->populateNewWeb();
 
     $webObject =
-      Foswiki::Store->create(address=>{web=>"$this->{test_web}/Dive1/Dive2/Dive3"});
+      Foswiki::Store->create(
+        address => { web => "$this->{test_web}/Dive1/Dive2/Dive3" } );
     $webObject->populateNewWeb();
 
     $webObject =
-      Foswiki::Store->create(address=>{web=>"$this->{test_web}/Dive1/_Dive2tmpl"});
+      Foswiki::Store->create(
+        address => { web => "$this->{test_web}/Dive1/_Dive2tmpl" } );
     $webObject->populateNewWeb();
 
     Foswiki::Func::readTemplate('foswiki');
@@ -68,8 +71,9 @@ sub test_public {
 sub test_template {
     my $this = shift;
 
-    foreach my $tweb ( @templateWebs ) {
-        $this->assert_matches( qr#^_|\/_#, $tweb, "non-template web returned from Func\n");
+    foreach my $tweb (@templateWebs) {
+        $this->assert_matches( qr#^_|\/_#, $tweb,
+            "non-template web returned from Func\n" );
     }
 
     my $text =
@@ -77,7 +81,8 @@ sub test_template {
     $this->assert_str_equals( join( "\n", @templateWebs ), $text );
 
     $text =
-      $this->{test_topicObject}->expandMacros("%WEBLIST{webs=\"webtemplate\" subwebs=\"$this->{test_web}\"}%");
+      $this->{test_topicObject}->expandMacros(
+        "%WEBLIST{webs=\"webtemplate\" subwebs=\"$this->{test_web}\"}%");
     $this->assert_str_equals( "$this->{test_web}/Dive1/_Dive2tmpl", $text );
 
 }
@@ -86,8 +91,7 @@ sub test_no_format_no_separator {
     my $this = shift;
 
     # separator=", " 	Line separator Default: "$n" (new line)
-    my $text =
-      $this->{test_topicObject}->expandMacros('%WEBLIST{}%');
+    my $text = $this->{test_topicObject}->expandMacros('%WEBLIST{}%');
     $this->assert_str_equals( join( "\n", @allWebs ), $text );
 }
 
@@ -113,8 +117,7 @@ sub test_with_format_no_separator {
     my $this = shift;
 
     # separator=", " 	Line separator Default: "$n" (new line)
-    my $text =
-      $this->{test_topicObject}->expandMacros('%WEBLIST{"$name"}%');
+    my $text = $this->{test_topicObject}->expandMacros('%WEBLIST{"$name"}%');
     $this->assert_str_equals( join( "\n", @allWebs ), $text );
 }
 
@@ -123,7 +126,8 @@ sub test_with_format_with_separator {
 
     # separator=", " 	Line separator Default: "$n" (new line)
     my $text =
-      $this->{test_topicObject}->expandMacros('%WEBLIST{"$name" separator=";"}%');
+      $this->{test_topicObject}
+      ->expandMacros('%WEBLIST{"$name" separator=";"}%');
     $this->assert_str_equals( join( ';', @allWebs ), $text );
 }
 
@@ -132,7 +136,8 @@ sub test_with_format_empty_separator {
 
     # separator=", " 	Line separator Default: "$n" (new line)
     my $text =
-      $this->{test_topicObject}->expandMacros('%WEBLIST{"$name" separator=""}%');
+      $this->{test_topicObject}
+      ->expandMacros('%WEBLIST{"$name" separator=""}%');
     $this->assert_str_equals( join( "\n", @allWebs ), $text );
 }
 
@@ -183,7 +188,7 @@ sub test_indentedname {
     my $text =
       $this->{test_topicObject}->expandMacros(
         '%WEBLIST{"$indentedname" subwebs="' . $this->{test_web} . '"}%' );
-    $this->assert_str_equals( <<THIS, "$text\n");
+    $this->assert_str_equals( <<THIS, "$text\n" );
 <span class='foswikiWebIndent'></span>Dive1
 <span class='foswikiWebIndent'></span><span class='foswikiWebIndent'></span>Dive2
 <span class='foswikiWebIndent'></span><span class='foswikiWebIndent'></span><span class='foswikiWebIndent'></span>Dive3

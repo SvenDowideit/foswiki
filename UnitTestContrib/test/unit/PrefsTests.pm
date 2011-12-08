@@ -39,11 +39,21 @@ sub set_up {
     $topicquery = new Unit::Request("");
     $topicquery->path_info("/$this->{test_web}/$this->{test_topic}");
 
-    my $webObject = Foswiki::Store->create( address=>{web=>$TWiki::cfg{SystemWebName}} );
+    my $webObject =
+      Foswiki::Store->create(
+        address => { web => $TWiki::cfg{SystemWebName} } );
     $webObject->populateNewWeb($original);
 
-    my $orig_sitepref = Foswiki::Store::load(address=>{web=>$original, topic=>$Foswiki::cfg{SitePrefsTopicName}});
-    my $m = Foswiki::Store::create(address=>{web=>$TWiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{SitePrefsTopicName}}, data=>{_text=>$orig_sitepref->text()});
+    my $orig_sitepref =
+      Foswiki::Store::load( address =>
+          { web => $original, topic => $Foswiki::cfg{SitePrefsTopicName} } );
+    my $m = Foswiki::Store::create(
+        address => {
+            web   => $TWiki::cfg{SystemWebName},
+            topic => $Foswiki::cfg{SitePrefsTopicName}
+        },
+        data => { _text => $orig_sitepref->text() }
+    );
     $m->save();
 
     #GROUPs are cached, so we need to go again
@@ -69,7 +79,10 @@ sub _set {
 
     my $user = $fatwilly->{user};
     $this->assert_not_null($user);
-    my $topicObject = Foswiki::Store::load(create=>1, address=>{web=>$web, topic=>$topic});
+    my $topicObject = Foswiki::Store::load(
+        create  => 1,
+        address => { web => $web, topic => $topic }
+    );
 
     my $text = $topicObject->text() || '';
     $text =~ s/^\s*\* $type $pref =.*$//gm;
@@ -159,7 +172,8 @@ sub test_web {
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "WEB", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -174,7 +188,8 @@ sub test_user {
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "USER", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -188,7 +203,8 @@ sub test_topic {
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "TOPIC", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -206,7 +222,8 @@ sub test_order {
     $this->_setSitePref( "FINALPREFERENCES", "" );
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "TOPIC", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -225,7 +242,8 @@ sub test_finalSystem {
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "DEFAULT", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -244,7 +262,8 @@ sub test_finalSite {
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "SITE", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -263,7 +282,8 @@ sub test_finalWeb {
     $this->_setWebPref( "FINALPREFERENCES", "SOURCE" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "WEB", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -282,7 +302,8 @@ sub test_finalUser {
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "SOURCE" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "USER", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -300,7 +321,8 @@ sub test_nouser {
     $this->_setWebPref( "FINALPREFERENCES", "" );
     $this->_setUserPref( "FINALPREFERENCES", "" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "WEB",
         $t->{prefs}->getPreference( "SOURCE", undef, 1 ) );
 
@@ -312,13 +334,15 @@ sub test_local_to_default {
     $this->_setDefaultPref( "SOURCE", "GLOBAL" );
     $this->_setDefaultPref( "SOURCE", "LOCAL", "Local" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "GLOBAL", $t->{prefs}->getPreference("SOURCE") );
 
     my $localquery = new Unit::Request("");
     $localquery->path_info("/$testSysWeb/$Foswiki::cfg{SitePrefsTopicName}");
 
-    $t = $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
+    $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
     $this->assert_str_equals( "LOCAL", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -329,14 +353,16 @@ sub test_local_to_site {
     $this->_setSitePref( "SOURCE", "GLOBAL" );
     $this->_setSitePref( "SOURCE", "LOCAL", "Local" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "GLOBAL", $t->{prefs}->getPreference("SOURCE") );
     my ( $tw, $tt ) =
       $t->normalizeWebTopicName( '', $Foswiki::cfg{LocalSitePreferences} );
     my $localquery = new Unit::Request("");
     $localquery->path_info("/$tw/$tt");
 
-    $t = $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
+    $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
     $this->assert_str_equals( "LOCAL", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -347,14 +373,16 @@ sub test_local_to_user {
     $this->_setUserPref( "SOURCE", "GLOBAL" );
     $this->_setUserPref( "SOURCE", "LOCAL", "Local" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "GLOBAL", $t->{prefs}->getPreference("SOURCE") );
 
     my $localquery = new Unit::Request("");
     $localquery->path_info(
         "/$Foswiki::cfg{UsersWebName}/$this->{test_user_wikiname}");
 
-    $t = $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
+    $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
     $this->assert_str_equals( "LOCAL", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -365,14 +393,16 @@ sub test_local_to_web {
     $this->_setWebPref( "SOURCE", "GLOBAL" );
     $this->_setWebPref( "SOURCE", "LOCAL", "Local" );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "GLOBAL", $t->{prefs}->getPreference("SOURCE") );
 
     my $localquery = new Unit::Request("");
     $localquery->path_info(
         "/$this->{test_web}/$Foswiki::cfg{WebPrefsTopicName}");
 
-    $t = $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
+    $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $localquery );
     $this->assert_str_equals( "LOCAL", $t->{prefs}->getPreference("SOURCE") );
 
 }
@@ -384,7 +414,8 @@ sub test_whitespace {
     $this->_setTopicPref( "TWO",   "   VAL\n   U\n   E" );
     $this->_setTopicPref( "THREE", "VAL\n   " );
 
-    my $t = $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
+    my $t =
+      $this->createNewFoswikiSession( $this->{test_user_login}, $topicquery );
     $this->assert_str_equals( "VAL ", $t->{prefs}->getPreference("ONE") );
     $this->assert_str_equals( "VAL\n   U\n   E",
         $t->{prefs}->getPreference("TWO") );

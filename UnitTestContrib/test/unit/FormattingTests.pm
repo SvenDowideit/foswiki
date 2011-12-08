@@ -20,17 +20,26 @@ sub set_up {
 
     $this->SUPER::set_up();
     $this->{sup} = $this->{session}->getScriptUrl( 0, 'view' );
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'H_'}, data=>{_text=>"BLEEGLE" });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'H_' },
+        data    => { _text => "BLEEGLE" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Underscore_topic'}, data=>{_text=>"BLEEGLE" });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'Underscore_topic' },
+        data    => { _text => "BLEEGLE" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$Foswiki::cfg{HomeTopicName}}, data=>{_text=>"BLEEGLE" });
+    $topicObject = Foswiki::Store::create(
+        address =>
+          { web => $this->{test_web}, topic => $Foswiki::cfg{HomeTopicName} },
+        data => { _text => "BLEEGLE" }
+    );
     $topicObject->save();
-    $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>'Numeric1Wikiword'}, data=>{_text=>"BLEEGLE" });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => 'Numeric1Wikiword' },
+        data    => { _text => "BLEEGLE" }
+    );
     $topicObject->save();
     $Foswiki::cfg{AntiSpam}{RobotsAreWelcome} = 1;
     $Foswiki::cfg{AntiSpam}{EmailPadding}     = 'STUFFED';
@@ -1119,7 +1128,7 @@ sub test_render_PlainText {
 # Test mixes of :, * and 1 lists
 # SMELL: extend to dl's, and make it more thorough!
 sub test_lists {
-    my $this = shift;
+    my $this     = shift;
     my $expected = <<EXPECTED;
 <div class='foswikiIndent'> Para
 </div> <div class='foswikiIndent'> Para

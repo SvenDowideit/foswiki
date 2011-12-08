@@ -19,7 +19,8 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
     $this->{other_web} = "$this->{test_web}other";
-    my $webObject = Foswiki::Store->create(address=>{web=>$this->{other_web}});
+    my $webObject =
+      Foswiki::Store->create( address => { web => $this->{other_web} } );
     $webObject->populateNewWeb();
 }
 
@@ -37,8 +38,9 @@ sub test_webExpansion {
 
     # Create topic to include
     my $includedTopic = "TopicToInclude";
-    my $inkyDink =
-      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=><<THIS});
+    my $inkyDink      = Foswiki::Store::create(
+        address => { web   => $this->{other_web}, topic => $includedTopic },
+        data    => { _text => <<THIS} );
 <literal>
 1 [[$includedTopic][one]] $includedTopic
 </literal>
@@ -64,8 +66,8 @@ THIS
     $inkyDink->save();
 
     # Expand an include in the context of the test web
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => $this->{test_topic} } );
     my $text = $topicObject->expandMacros(
         "%INCLUDE{$this->{other_web}.$includedTopic}%");
     my @get    = split( /\n/, $text );
@@ -103,8 +105,9 @@ THIS
 sub test_3158 {
     my $this          = shift;
     my $includedTopic = "TopicToInclude";
-    my $inkyDink =
-      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=><<THIS});
+    my $inkyDink      = Foswiki::Store::create(
+        address => { web   => $this->{other_web}, topic => $includedTopic },
+        data    => { _text => <<THIS} );
 Snurfle
 %STARTSECTION{"suction"}%
 Such a section!
@@ -164,8 +167,10 @@ THIS
     my $handledTopicText = $topicText;
     $handledTopicText =~ s/%(START|END)SECTION{"suction"}%//g;
 
-    my $inkyDink =
-      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
+    my $inkyDink = Foswiki::Store::create(
+        address => { web   => $this->{other_web}, topic => $includedTopic },
+        data    => { _text => $topicText }
+    );
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -178,7 +183,7 @@ sub test_singlequoted_params {
     my $this = shift;
     my $text =
       $this->{test_topicObject}
-      ->expandMacros( "%INCLUDE{'Oneweb.SomeTopic' section='suction'}%" );
+      ->expandMacros("%INCLUDE{'Oneweb.SomeTopic' section='suction'}%");
     $this->assert_str_equals(
         "<span class='foswikiAlert'>
    Warning: Can't INCLUDE '<nop>'Oneweb.SomeTopic' section='suction'', path is empty or contains illegal characters. 
@@ -187,7 +192,7 @@ sub test_singlequoted_params {
 
     $text =
       $this->{test_topicObject}
-      ->expandMacros( '%INCLUDE{"I can\'t beleive its not butter"}%' );
+      ->expandMacros('%INCLUDE{"I can\'t beleive its not butter"}%');
     $this->assert_str_equals(
         "<span class='foswikiAlert'>
    Warning: Can't INCLUDE '<nop>I can't beleive its not butter', path is empty or contains illegal characters. 
@@ -205,8 +210,10 @@ Yes sir, yes sir
 But only in acrylic
 THIS
 
-    my $inkyDink =
-      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
+    my $inkyDink = Foswiki::Store::create(
+        address => { web   => $this->{other_web}, topic => $includedTopic },
+        data    => { _text => $topicText }
+    );
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -225,8 +232,10 @@ Yes sir, yes sir
 But only in acrylic
 THIS
 
-    my $inkyDink =
-      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
+    my $inkyDink = Foswiki::Store::create(
+        address => { web   => $this->{other_web}, topic => $includedTopic },
+        data    => { _text => $topicText }
+    );
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -246,8 +255,10 @@ Yes sir, yes sir
 But only in acrylic
 THIS
 
-    my $inkyDink =
-      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
+    my $inkyDink = Foswiki::Store::create(
+        address => { web   => $this->{other_web}, topic => $includedTopic },
+        data    => { _text => $topicText }
+    );
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(
@@ -266,8 +277,10 @@ Yes sir, yes sir
 But only in acrylic
 THIS
 
-    my $inkyDink =
-      Foswiki::Store::create(address=>{web=>$this->{other_web}, topic=>$includedTopic}, data=>{_text=>$topicText });
+    my $inkyDink = Foswiki::Store::create(
+        address => { web   => $this->{other_web}, topic => $includedTopic },
+        data    => { _text => $topicText }
+    );
     $inkyDink->save();
     my $text =
       $this->{test_topicObject}->expandMacros(

@@ -10,7 +10,7 @@ our @ISA = qw( FoswikiFnTestCase );
 use Foswiki;
 use Error qw( :try );
 use Assert;
-use Foswiki::Query::Node ();
+use Foswiki::Query::Node           ();
 use Foswiki::Configure::Dependency ();
 
 my $post11;
@@ -18,10 +18,10 @@ my $post11;
 sub new {
     my $self = shift()->SUPER::new( 'IF', @_ );
     my $dep = new Foswiki::Configure::Dependency(
-            type    => "perl",
-            module  => "Foswiki",
-            version => ">=1.2"
-           );
+        type    => "perl",
+        module  => "Foswiki",
+        version => ">=1.2"
+    );
     ( $post11, my $message ) = $dep->check();
     return $self;
 }
@@ -89,6 +89,7 @@ sub test_8a {
 sub test_9 {
     my $this = shift;
     $this->simpleTest( test => 'defined EDITBOXHEIGHT', then => 1, else => 0 );
+
     # See test_96* for other 'defined' tests
 }
 
@@ -105,8 +106,8 @@ sub test_9a {
         else => 0
     );
 
-    #Item10625: one has to wonder why the groups IF appeared to work for 1.1.0, but now does not
-    # especially in light of the fact the OP_if::evaluate code can't handle braces, or any nested ops at all
+#Item10625: one has to wonder why the groups IF appeared to work for 1.1.0, but now does not
+# especially in light of the fact the OP_if::evaluate code can't handle braces, or any nested ops at all
     $this->simpleTest(
         test => 'defined preferences[name=\'EDITBOXHEIGHT\']',
         then => 0,
@@ -123,11 +124,11 @@ sub test_9a {
         else => 1
     );
     $this->simpleTest(
-        test => 'defined(\'%WEB%.%TOPIC%\'/preferences[name=\'EDITBOXHEIGHT\'])',
+        test =>
+          'defined(\'%WEB%.%TOPIC%\'/preferences[name=\'EDITBOXHEIGHT\'])',
         then => 0,
         else => 1
     );
-
 
     $this->simpleTest(
         test => 'defined \'RANDOM\'',
@@ -140,7 +141,6 @@ sub test_9a {
         else => 1
     );
 }
-
 
 sub test_10 {
     my $this = shift;
@@ -991,6 +991,7 @@ sub test_95 {
 sub test_96 {
     my $this = shift;
     $this->simpleTest( test => 'defined SYSTEMWEB', then => 1, else => 0 );
+
     # see also test_9 and test_96*
 }
 
@@ -1027,10 +1028,15 @@ sub test_98 {
 sub test_107 {
     my $this = shift;
     try {
-      $this->simpleTest( test => "'foo'=~'*illegal regex'", then => 'does not matter', else => 'does not matter either' );
+        $this->simpleTest(
+            test => "'foo'=~'*illegal regex'",
+            then => 'does not matter',
+            else => 'does not matter either'
+        );
     }
     catch Error::Simple with {
-      #print STDERR "catched error ".shift."\n";
+
+        #print STDERR "catched error ".shift."\n";
     };
 }
 
@@ -1038,24 +1044,31 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up(@_);
 
-    my $topicObject = Foswiki::Store::create(address=>{web=>$this->{users_web}, topic=>"GropeGroup"}, data=>{_text=>"   * Set GROUP = "
-          . Foswiki::Func::getWikiName( $this->{session}->{user} ) . "\n"
-    });
+    my $topicObject = Foswiki::Store::create(
+        address => { web => $this->{users_web}, topic => "GropeGroup" },
+        data    => {
+            _text => "   * Set GROUP = "
+              . Foswiki::Func::getWikiName( $this->{session}->{user} ) . "\n"
+        }
+    );
     $topicObject->save();
 
     # Create WebHome topic to trap existance errors related to
     # normalizeWebTopicName
-    $topicObject = Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"WebHome"}, data=>{_text=>"Gormless gimboid\n"
-    });
+    $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => "WebHome" },
+        data    => { _text => "Gormless gimboid\n" }
+    );
     $topicObject->save();
 }
 
 sub simpleTest {
     my ( $this, %test ) = @_;
     $this->{session}->enterContext('test');
+
     # reset the cache
     undef $Foswiki::Query::Node::isAccessibleCfg;
-    push(@{$Foswiki::cfg{AccessibleCFG}}, '{Fnargle}', '{A}{B}');
+    push( @{ $Foswiki::cfg{AccessibleCFG} }, '{Fnargle}', '{A}{B}' );
     $Foswiki::cfg{Fnargle} = 'Fleeble';
     $Foswiki::cfg{A}{B} = 'C';
     $this->{request}->param( 'notempty', 'v' );
@@ -1081,8 +1094,9 @@ sub simpleTest {
 sub test_INCLUDEparams {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadHerring"}, data=>{_text=><<'SMELL'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => "DeadHerring" },
+        data    => { _text => <<'SMELL'} );
 one %IF{ "defined NAME" then="1" else="0" }%
 two %IF{ "$ NAME='%NAME%'" then="1" else="0" }%
 three %IF{ "$ NAME=$ 'NAME{}'" then="1" else="0" }%
@@ -1104,7 +1118,8 @@ sub test_badIF {
         { test => "'A' 'B'", expect => "Missing operator in ''A' 'B''" },
     );
 
-    push @tests, ({ test => ' ',       expect => "Empty expression" },) unless ( $post11 );
+    push @tests, ( { test => ' ', expect => "Empty expression" }, )
+      unless ($post11);
 
     foreach my $test (@tests) {
         my $text   = '%IF{"' . $test->{test} . '" then="1" else="0"}%';
@@ -1119,8 +1134,9 @@ sub test_badIF {
 sub test_ContentAccessSyntax {
     my $this = shift;
 
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadHerring"}, data=>{_text=><<'SMELL'});
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => "DeadHerring" },
+        data    => { _text => <<'SMELL'} );
 one %IF{ "BleaghForm.Wibble='Woo'" then="1" else="0" }%
 %META:FORM{name="BleaghForm"}%
 %META:FIELD{name="Wibble" title="Wobble" value="Woo"}%
@@ -1136,8 +1152,9 @@ PONG
 sub test_ALLOWS_and_EXISTS {
     my $this = shift;
     my $wn   = Foswiki::Func::getWikiName( $this->{session}->{user} );
-    my $meta =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>"DeadDog"}, data=>{_text=><<PONG});
+    my $meta = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => "DeadDog" },
+        data    => { _text => <<PONG} );
    * Set ALLOWTOPICVIEW = WibbleFloon
    * Set ALLOWTOPICCHANGE = $wn
 PONG
@@ -1283,8 +1300,8 @@ PONG
     my $request = new Unit::Request( {} );
     $request->path_info("/$this->{test_web}/$this->{test_topic}");
     $this->{session} = new Foswiki( undef, $request );
-    $meta =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic} });
+    $meta = Foswiki::Store::create(
+        address => { web => $this->{test_web}, topic => $this->{test_topic} } );
 
     foreach my $test (@tests) {
         my $text   = '%IF{"' . $test->{test} . '" then="1" else="0"}%';
@@ -1299,8 +1316,10 @@ sub test_DOS {
     my $text = <<'PONG';
    * Set LOOP = %IF{"$ LOOP = '1'" then="ping" else="pong"}%
 PONG
-    my $topicObject =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$this->{test_topic}}, data=>{_text=>$text });
+    my $topicObject = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => $this->{test_topic} },
+        data    => { _text => $text }
+    );
     $topicObject->save();
     my $result = $this->{test_topicObject}->expandMacros($text);
     $this->assert_str_equals( "   * Set LOOP = pong\n", $result );
@@ -1311,14 +1330,16 @@ sub test_TOPICINFO {
 
     my $topicName = 'TopicInfo';
 
-    my $meta =
-      Foswiki::Store::create(address=>{web=>$this->{test_web}, topic=>$topicName}, data=>{_text=><<PONG});
+    my $meta = Foswiki::Store::create(
+        address => { web   => $this->{test_web}, topic => $topicName },
+        data    => { _text => <<PONG} );
 oneapeny twoapenny we all fall down
 PONG
     $meta->save();
 
     $meta =
-      Foswiki::Store->load(address=>{web=> $this->{test_web}, topic=> $topicName });
+      Foswiki::Store->load(
+        address => { web => $this->{test_web}, topic => $topicName } );
     $meta->getRevisionInfo();
     my $ti = $meta->get('TOPICINFO');
 
@@ -1678,10 +1699,10 @@ sub test_d2n {
 
 sub test_atomic {
     my $this = shift;
-    
+
     #nope, parse failure (empty Expression) :/
     $this->simpleTest( test => "0", then => 0, else => 1 );
-    
+
     $this->simpleTest( test => "1", then => 1, else => 0 );
     $this->simpleTest( test => "9", then => 1, else => 0 );
 
@@ -1689,16 +1710,17 @@ sub test_atomic {
     $this->simpleTest( test => "-0", then => 0, else => 1 );
 
     $this->simpleTest( test => "0.0", then => 0, else => 1 );
-    
+
     ##and again as strings..
     $this->simpleTest( test => "'1'", then => 1, else => 0 );
     $this->simpleTest( test => "'9'", then => 1, else => 0 );
+
     #surprisingly..
     $this->simpleTest( test => "'-1'", then => 1, else => 0 );
     $this->simpleTest( test => "'-0'", then => 1, else => 0 );
 
     $this->simpleTest( test => "'0.0'", then => 1, else => 0 );
-    $this->simpleTest( test => "''", then => 0, else => 1 );
+    $this->simpleTest( test => "''",    then => 0, else => 1 );
 }
 
 1;
