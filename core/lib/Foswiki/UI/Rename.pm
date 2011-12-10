@@ -235,7 +235,8 @@ sub _renameTopicOrAttachment {
         Foswiki::UI::checkAccess( $session, 'CHANGE', $old );
     }
 
-    my $new = Foswiki::Store::create(
+    my $new = Foswiki::Store::load(
+        create  => 1,
         address => {
             web   => $newWeb   || $old->web,
             topic => $newTopic || $old->topic
@@ -1359,8 +1360,8 @@ sub _getReferringTopics {
     my @webs = ( $om->web );
 
     if ($allWebs) {
-        my $root = Foswiki::Meta->new($session);
-        my $it   = $root->eachWeb(1);
+        my $root = Foswiki::Store->load( address => { root => 1 } );
+        my $it = $root->eachWeb(1);
         while ( $it->hasNext() ) {
             push( @webs, $it->next() );
         }

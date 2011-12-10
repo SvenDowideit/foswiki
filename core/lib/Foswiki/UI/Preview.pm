@@ -26,8 +26,10 @@ sub preview {
 
     $topic = Foswiki::UI::Save::expandAUTOINC( $session, $web, $topic );
 
-    my $topicObject =
-      Foswiki::Store->create( address => { web => $web, topic => $topic } );
+    my $topicObject = Foswiki::Store->load(
+        create  => 1,
+        address => { web => $web, topic => $topic }
+    );
 
     my ( $saveOpts, $merged ) =
       Foswiki::UI::Save::buildNewTopic( $session, $topicObject, 'preview' );

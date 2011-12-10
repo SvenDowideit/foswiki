@@ -400,9 +400,10 @@ sub init_edit {
     # Take a copy of the new topic in case the rendering process
     # reloads it. This can happen if certain macros are present, and
     # will damage the object.
-    my $tmplObject =
-      Foswiki::Store->load(
-        address => { web => $topicObject->web, topic => $topicObject->topic } );
+    my $tmplObject = Foswiki::Store->load(
+        create  => 1,
+        address => { web => $topicObject->web, topic => $topicObject->topic }
+    );
     $tmplObject->copyFrom($topicObject);
 
     $tmpl = $tmplObject->expandMacros($tmpl);

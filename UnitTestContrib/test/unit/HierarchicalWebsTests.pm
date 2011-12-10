@@ -86,14 +86,14 @@ sub test_createSubSubWeb {
 
     my $webTest = 'Item0';
     my $webObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => "$testWebSubWebPath/$webTest" } );
     $webObject->populateNewWeb();
     $this->assert( $this->{session}->webExists("$testWebSubWebPath/$webTest") );
 
     $webTest = 'Item0_';
     $webObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => "$testWebSubWebPath/$webTest" } );
     $webObject->populateNewWeb();
     $this->assert( $this->{session}->webExists("$testWebSubWebPath/$webTest") );
@@ -180,7 +180,7 @@ sub test_create_subweb_with_same_name_as_a_topic {
 
     # create the subweb with the same name as the page
     my $webObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => "$testWebSubWebPath/$testTopic" } );
     $webObject->populateNewWeb();
     $this->assert(
@@ -191,7 +191,7 @@ sub test_create_subweb_with_same_name_as_a_topic {
         address => { web => $testWebSubWebPath, topic => $testTopic } );
     $this->assert_matches( qr/$testText\s*$/, $topicObject->text );
 
-    $webObject->removeFromStore();
+    Foswiki::Store::remove( address => $webObject );
 
     $this->assert(
         !$this->{session}->webExists("$testWebSubWebPath/$testTopic") );
@@ -202,15 +202,13 @@ sub test_createSubweb_missingParent {
     use Error qw( :try );
     use Foswiki::AccessControlException;
 
-    $this->{session}->finish();
-    $this->{session} = new Foswiki();
+    $this->createNewFoswikiSession();
 
     my $user = $this->{session}->{user};
 
-    my $webObject =
-      Foswiki::Store->load( address => { web => "Missingweb/Subweb" } );
-
     try {
+        my $webObject =
+          Foswiki::Store->create( address => { web => "Missingweb/Subweb" } );
         $webObject->populateNewWeb();
         $this->assert('No error thrown from populateNewWe() ');
     }
@@ -228,14 +226,13 @@ sub test_createWeb_InvalidBase {
     use Error qw( :try );
     use Foswiki::AccessControlException;
 
-    $this->{session}->finish();
-    $this->{session} = new Foswiki();
+    $this->createNewFoswikiSession();
 
     my $user = $this->{session}->{user};
 
     my $webTest = 'Item0';
     my $webObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => "$testWebSubWebPath/$webTest" } );
 
     try {
@@ -257,14 +254,14 @@ sub test_createWeb_hierarchyDisabled {
     use Foswiki::AccessControlException;
     $Foswiki::cfg{EnableHierarchicalWebs} = 0;
 
-    $this->{session}->finish();
-    $this->{session} = new Foswiki();
+    $this->{test_web} = '$testWeb';
+    $this->createNewFoswikiSession();
 
     my $user = $this->{session}->{user};
 
     my $webTest = 'Item0';
     my $webObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => "$testWebSubWebPath/$webTest" . 'x' } );
 
     try {
@@ -283,8 +280,7 @@ sub test_createWeb_hierarchyDisabled {
 
 sub test_url_parameters {
     my $this = shift;
-    $this->{session}->finish();
-    $this->{session} = new Foswiki();
+    $this->createNewFoswikiSession();
     my $user = $this->{session}->{user};
 
     my $topicquery;
@@ -297,9 +293,8 @@ sub test_url_parameters {
         }
     );
 
-    $this->{session}->finish();
-    $this->{session} =
-      new Foswiki( $Foswiki::cfg{DefaultUserName}, $topicquery );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName},
+        $topicquery );
 
     # Item3243:  PTh and haj suggested to change the spec
     $this->assert_str_equals( $testWeb,       $this->{session}->{webName} );
@@ -307,9 +302,10 @@ sub test_url_parameters {
 
     # make a topic with the same name as the subweb. Now the previous
     # query should hit that topic
-    my $topicObject =
-      Foswiki::Store->load(
-        address => { web => $testWeb, $testWebSubWeb, topic => "nowt" } );
+    my $topicObject = Foswiki::Store->create(
+        address => { web   => $testWeb, topic => $testWebSubWeb },
+        data    => { _text => "nowt" }
+    );
     $topicObject->save();
 
     $topicquery = new Unit::Request(
@@ -319,9 +315,8 @@ sub test_url_parameters {
         }
     );
 
-    $this->{session}->finish();
-    $this->{session} =
-      new Foswiki( $Foswiki::cfg{DefaultUserName}, $topicquery );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName},
+        $topicquery );
 
     $this->assert_str_equals( $testWeb,       $this->{session}->{webName} );
     $this->assert_str_equals( $testWebSubWeb, $this->{session}->{topicName} );
@@ -334,9 +329,8 @@ sub test_url_parameters {
         }
     );
 
-    $this->{session}->finish();
-    $this->{session} =
-      new Foswiki( $Foswiki::cfg{DefaultUserName}, $topicquery );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName},
+        $topicquery );
 
     $this->assert_str_equals( $testWebSubWebPath, $this->{session}->{webName} );
     $this->assert_str_equals( 'NonExistant', $this->{session}->{topicName} );
@@ -352,12 +346,11 @@ sub test_squab_simple {
 
     my $query = new Unit::Request("");
     $query->path_info("/$testWeb/NonExistant");
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName}, $query );
 
     my $text = "[[$testWeb]]";
     my $topicObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => $testWeb, topic => 'NonExistant' } );
     $text = $topicObject->renderTML($text);
     $this->assert_matches(
@@ -375,12 +368,11 @@ sub test_squab_subweb {
     # Make a query that should set topic=$testSubWeb
     my $query = new Unit::Request("");
     $query->path_info("/$testWeb/NonExistant");
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName}, $query );
 
     my $text = "[[$testWebSubWeb]]";
     my $topicObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => $testWeb, topic => 'NonExistant' } );
     $text = $topicObject->renderTML($text);
     $this->assert_matches(
@@ -397,12 +389,11 @@ sub test_squab_subweb_full_path {
     # Make a query that should set topic=$testSubWeb
     my $query = new Unit::Request("");
     $query->path_info("/$testWeb/NonExistant");
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName}, $query );
 
     my $text = "[[$testWeb.$testWebSubWeb]]";
     my $topicObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => $testWeb, topic => 'NonExistant' } );
     $text = $topicObject->renderTML($text);
     $this->assert_matches(
@@ -419,18 +410,18 @@ sub test_squab_subweb_wih_topic {
     # Make a query that should set topic=$testSubWeb
     my $query = new Unit::Request("");
     $query->path_info("/$testWeb/NonExistant");
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName}, $query );
 
-    my $topicObject =
-      Foswiki::Store->load(
-        address => { web => $testWeb, $testWebSubWeb, topic => "" } );
+    my $topicObject = Foswiki::Store->create(
+        address => { web   => $testWeb, topic => $testWebSubWeb },
+        data    => { _text => "" }
+    );
     $topicObject->save();
     $this->assert( $this->{session}->topicExists( $testWeb, $testWebSubWeb ) );
 
     my $text = "[[$testWebSubWeb]]";
     $topicObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => $testWeb, topic => 'NonExistant' } );
     $text = $topicObject->renderTML($text);
     my $scripturl =
@@ -456,15 +447,16 @@ sub test_squab_full_path_with_topic {
 
     $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
 
-    my $topicObject =
-      Foswiki::Store->load(
-        address => { web => $testWeb, $testWebSubWeb, topic => "" } );
+    my $topicObject = Foswiki::Store->create(
+        address => { web   => $testWeb, topic => $testWebSubWeb },
+        data    => { _text => "" }
+    );
     $topicObject->save();
     $this->assert( $this->{session}->topicExists( $testWeb, $testWebSubWeb ) );
 
     my $text = "[[$testWeb.$testWebSubWeb]]";
     $topicObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => $testWeb, topic => 'NonExistant' } );
     $text = $topicObject->renderTML($text);
 
@@ -480,18 +472,18 @@ sub test_squab_path_to_topic_in_subweb {
     # Make a query that should set topic=$testSubWeb
     my $query = new Unit::Request("");
     $query->path_info("/$testWeb/NonExistant");
-    $this->{session}->finish();
-    $this->{session} = new Foswiki( $Foswiki::cfg{DefaultUserName}, $query );
+    $this->createNewFoswikiSession( $Foswiki::cfg{DefaultUserName}, $query );
 
-    my $topicObject =
-      Foswiki::Store->load(
-        address => { web => $testWeb, $testWebSubWeb, topic => "" } );
+    my $topicObject = Foswiki::Store->create(
+        address => { web   => $testWeb, topic => $testWebSubWeb },
+        data    => { _text => "" }
+    );
     $topicObject->save();
     $this->assert( $this->{session}->topicExists( $testWeb, $testWebSubWeb ) );
 
     my $text = "[[$testWeb.$testWebSubWeb.WebHome]]";
     $topicObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => $testWeb, topic => 'NonExistant' } );
     $text = $topicObject->renderTML($text);
 

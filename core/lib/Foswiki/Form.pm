@@ -334,7 +334,10 @@ sub _link {
 
     my $link;
 
-    if ( $this->session->topicExists( $web, $topic ) ) {
+    if (   defined($web)
+        && defined($topic)
+        && $this->session->topicExists( $web, $topic ) )
+    {
         $link = CGI::a(
             {
                 target => $topic,

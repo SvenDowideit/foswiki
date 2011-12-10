@@ -135,19 +135,16 @@ sub set_up {
     my $this = shift;
     $this->SUPER::set_up();
 
-    my $query = new Unit::Request();
-    $this->{session}  = new Foswiki( undef, $query );
-    $this->{request}  = $query;
-    $this->{response} = new Unit::Response();
-    $user             = $this->{session}->{user};
+    $this->{test_web}   = $testweb;
+    $this->{test_topic} = $testform;
+    $this->createNewFoswikiSession();
 
-    $aurl = $this->{session}->getPubUrl( 1, $testweb, $testform );
-    $surl = $this->{session}->getScriptUrl(1);
+    $aurl = $Foswiki::Plugins::SESSION->getPubUrl( 1, $testweb, $testform );
+    $surl = $Foswiki::Plugins::SESSION->getScriptUrl(1);
 
     my $webObject = Foswiki::Store->create( address => { web => $testweb } );
     $webObject->populateNewWeb();
 
-    $Foswiki::Plugins::SESSION = $this->{session};
     Foswiki::Func::saveTopicText( $testweb, $testtopic1, $testtext1, 1, 1 );
     Foswiki::Func::saveTopicText( $testweb, $testtopic2, $testtext2, 1, 1 );
     Foswiki::Func::saveTopicText( $testweb, $testtopic3, $testtext3, 1, 1 );
@@ -155,13 +152,12 @@ sub set_up {
     Foswiki::Func::saveTopicText( $testweb, $testtmpl,   $testtmpl1, 1, 1 );
     Foswiki::Func::saveTopicText( $testweb, "MyeditTemplate", $edittmpl1, 1,
         1 );
-    $this->{session}->enterContext('edit');
+    $Foswiki::Plugins::SESSION->enterContext('edit');
 }
 
 sub tear_down {
     my $this = shift;
-    $this->removeWebFixture( $this->{session}, $testweb );
-    $this->{session}->finish();
+    $this->removeWebFixture( $Foswiki::Plugins::SESSION, $testweb );
     $this->SUPER::tear_down();
 }
 
@@ -178,9 +174,9 @@ sub get_formfield {
 sub setup_formtests {
     my ( $this, $web, $topic, $params ) = @_;
 
-    $this->{session}->{webName}   = $web;
-    $this->{session}->{topicName} = $topic;
-    my $render = $this->{session}->renderer;
+    $Foswiki::Plugins::SESSION->{webName}   = $web;
+    $Foswiki::Plugins::SESSION->{topicName} = $topic;
+    my $render = $Foswiki::Plugins::SESSION->renderer;
 
     use Foswiki::Attrs;
     my $attr = new Foswiki::Attrs($params);
@@ -192,7 +188,7 @@ sub setup_formtests {
     # Now generate the form. We pass a template which throws everything away
     # but the form to allow for simpler analysis.
     my ( $text, $tmpl ) =
-      Foswiki::UI::Edit::init_edit( $this->{session}, 'myedit' );
+      Foswiki::UI::Edit::init_edit( $Foswiki::Plugins::SESSION, 'myedit' );
 
     return $tmpl;
 

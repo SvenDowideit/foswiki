@@ -2409,8 +2409,9 @@ sub getDifferences {
     ASSERT( $this->{web} && $this->{topic}, 'this is not a topic object' )
       if DEBUG;
     return Foswiki::Store->getRevisionDiff(
-        from         => $this,
-        address      => $rev2,
+        from => $this,
+        address =>
+          { web => $this->{web}, topic => $this->{topic}, rev => $rev2 },
         contextLines => $contextLines
     );
 }

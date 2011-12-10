@@ -301,8 +301,11 @@ sub getRevisionDiff {
     ASSERT( defined( $args{contextLines} ) ) if DEBUG;
 
     my $rcs = $this->getHandler( $args{address} );
-    return $rcs->revisionDiff( $args{address}->getLoadedRev(),
-        $args{rev}, $args{contextLines} );
+    return $rcs->revisionDiff(
+        $args{address}->getLoadedRev(),
+        $args{from}->{rev},
+        $args{contextLines}
+    );
 }
 
 sub DELETED_getAttachmentVersionInfo {
