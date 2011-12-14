@@ -147,7 +147,7 @@ sub load {
 
     my $result;
     $args{address} =
-      $singleton->getResourceAddressOrCachedResource( $args{address} );
+      $singleton->getResourceAddressOrCachedResource( $args{address}, $args{attachment} );
 
     #print STDERR "-call: load ".($args{address}->getPath())."\n";
 
@@ -752,6 +752,20 @@ sub openAttachment {
     return template_function( 'openAttachment', @_ );
 }
 
+
+=pod
+
+=head2 ClassMethod testAttachment( address=>$address, attachment=>, test=>) -> mumble.
+
+open the attachments
+TODO: sven would like to replace this with a F::O::Attachment class - we'll see
+
+=cut
+
+sub testAttachment {
+    return template_function( 'testAttachment', @_ );
+}
+
 =pod
 
 =head2 ClassMethod query($query, $inputTopicSet, $session, \%options) -> $outputTopicSet
@@ -906,7 +920,7 @@ sub template_function {
     }
     else {
         $args{address} =
-          $singleton->getResourceAddressOrCachedResource( $args{address} );
+          $singleton->getResourceAddressOrCachedResource( $args{address}, $args{attachment} );
     }
 
 #die "recursion? - $functionname(".$singleton->{count}{$functionname}{$args{address}->getPath()}.") ".$args{address}->getPath() if ($singleton->{count}{$functionname}{$args{address}->getPath()}++ > 10);
@@ -1051,6 +1065,7 @@ sub cacheResource {
 sub getResourceAddressOrCachedResource {
     my $self    = shift;
     my $address = shift;
+    my $attachment = shift; #need to mush this in for now - #TODO: replace with die one day for new F::Address based API
 
     #TODO: this should be in the Foswiki::Address constructor
     $address = Foswiki::Address->new( string => $address )
@@ -1059,6 +1074,15 @@ sub getResourceAddressOrCachedResource {
       if ( ref($address) eq 'ARRAY' );
     $address = Foswiki::Address->new(%$address)
       if ( ref($address) eq 'HASH' );
+      
+    ASSERT($address->isa('Foswiki::Address')) if DEBUG;
+    if (defined($attachment)) {
+        if ($address->isa('Foswiki::Meta')) {
+            #make an address pointing to the topic..
+            $address = Foswiki::Address->new($address);
+        }
+        $address->attachment($attachment);
+    }
 
     my $name = $address->getPath();
 
