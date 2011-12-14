@@ -184,7 +184,7 @@ sub renderParent {
         # rapid access to parent meta (as in TWiki) accept the hit
         # of reading the whole topic.
         my $topicObject =
-          Foswiki::Store::load( address => { web => $pWeb, topic => $pTopic } );
+          Foswiki::Store::load( create=>1, address => { web => $pWeb, topic => $pTopic } );
         my $parentMeta = $topicObject->get('TOPICPARENT');
         $parent = $parentMeta->{name} if $parentMeta;
     }

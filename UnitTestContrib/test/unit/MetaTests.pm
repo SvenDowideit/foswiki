@@ -619,7 +619,7 @@ GOOD
 sub test_registerMETA {
     my $this = shift;
 
-    my $o = Foswiki::Meta->new( $this->{session} );
+    my $o = Foswiki::Store->load( address=>{web=>$this->{test_web}, topic=>$this->{test_topic}} );
 
     # Check an unregistered tag
     $this->assert(
@@ -707,6 +707,7 @@ A property: %QUERY{"slug[name='PreyOf'].values"}%
 Values: %QUERY{"META:SLPROPERTYVALUE.value"}%
 TEST
     my $text = <<'HERE';
+some text in the topic
 %META:SLPROPERTYVALUE{name="System.SemanticIsPartOf__1" value="System.UserDocumentationCategory"}%
 %META:SLPROPERTYVALUE{name="Example.Property__1" value="UserDocumentationCategory"}%
 %META:SLPROPERTYVALUE{name="PreyOf__1" value="Snakes"}%
@@ -735,6 +736,9 @@ HERE
           { web => $this->{test_web}, topic => "registerArrayMetaTest" },
         data => { _text => $text }
     );
+    #TODO: need a test that shows what (doesn't) happen to metadata in a call to ->text($text)
+    #TODO: also needs to test what text is expected to become
+    #$topicObject->text($text); 
     $topicObject->save();
 
     # All meta should have found its way into text

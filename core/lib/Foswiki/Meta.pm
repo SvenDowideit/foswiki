@@ -459,6 +459,18 @@ sub NEWnew {
 #@{$this}{keys(%{$args{data}})} = values(%{$args{data}}) if (defined($args{data}));
 
     if ( defined( $args{data} ) ) {
+        if (defined($args{data}->{_text})) {
+            #need to extract the META from it :/
+            if($args{data}->{_text} =~ /^%META.*/m) {
+                my $parsedObj =
+                    Foswiki::Serialise::deserialise( $Foswiki::Plugins::SESSION, $args{data}->{_text}, 'embedded' );
+                
+                #over-ride the data in %{ $args{data} }
+                @{ $args{data} }{keys(%$parsedObj)} = values(%$parsedObj);
+            }
+            #set the topic text
+            $this->{_text} = $args{data}->{_text};
+        }
 
     #TODO: temporarily using the _indicies to validate the ::Store changes first
         foreach my $type ( keys( %{ $args{data} } ) ) {
@@ -466,6 +478,7 @@ sub NEWnew {
             my $key_array_ref = $args{data}->{$type};
 
             foreach my $keys (@$key_array_ref) {
+
                 if ( $this->isValidEmbedding( $type, $keys ) ) {
                     if ( defined( $keys->{name} ) ) {
 
@@ -491,7 +504,6 @@ sub NEWnew {
                 }
             }
         }
-        $this->{_text} = $args{data}->{_text};
     }
 
 #TODO: er, this is dumb.
