@@ -19,6 +19,11 @@ sub set_up {
 
     $this->SUPER::set_up();
     $this->{test_user} = 'scum';
+    
+    Foswiki::Func::saveTopic( $this->{test_web}, 'WebHome', undef,
+        <<'HERE');
+need a simple webhome topic so that Foswiki::Func::renderText works.
+HERE
 }
 
 sub tear_down {
