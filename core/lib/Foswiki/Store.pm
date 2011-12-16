@@ -501,6 +501,23 @@ sub move {
       * Foswiki::Object impl
    * cuid=>$cuid (canonical user id) - if undefined, presume 'admin' (or no perms check) access
 
+
+not currently implemented - also from PluginHandlerTests
+
+    #TODO: I'm only copying the DefaultPreferences because the Prefs code (now) doesn't like it when its missing
+    #BROKEN
+    #my $default = Foswiki::Store->create(address=>{web => $systemWeb, topic=>$Foswiki::cfg{SitePrefsTopicName}}, from=>{web => $Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{SitePrefsTopicName}});
+    #BROKEN
+    #my $default = Foswiki::Store->load(address=>{web => $Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{SitePrefsTopicName}});
+    #$default->web($systemWeb);
+    #WORKS - but probably shouldn't work quite this way.
+    my $default = Foswiki::Store->load(
+                                create=>1,
+                                address=>{web => $systemWeb, topic=>$Foswiki::cfg{SitePrefsTopicName}},
+                                from=>{web => $Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{SitePrefsTopicName}}
+                                    );
+    Foswiki::Store->save(address=>$default);
+
 =cut
 
 sub copy {

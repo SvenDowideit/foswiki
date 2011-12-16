@@ -365,8 +365,8 @@ sub loadDefaultPreferences {
     my $this = shift;
     my $back = $this->_getBackend( $Foswiki::cfg{SystemWebName},
         $Foswiki::cfg{SitePrefsTopicName} );
-    ASSERT($back) if DEBUG;
-    $this->{main}->newLevel($back);
+    ASSERT($back) if DEBUG; #This triggers if the SYSTEMWEB.DefaultPreferences topic is missing.
+    $this->{main}->newLevel($back) if ($back);
 }
 
 =begin TML

@@ -1929,7 +1929,8 @@ sub save {
         if ( $text ne $pretext ) {
 
             # Create a new object to parse the changed text
-            my $after = Foswiki::Store::create(
+            my $after = Foswiki::Store::load(
+                create=>1,
                 address => $this,
                 data    => Foswiki::Serialise::deserialise(
                     $this->{session}, $text, 'Embedded'

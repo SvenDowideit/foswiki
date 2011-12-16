@@ -93,6 +93,21 @@ sub set_up {
     $this->{code_root} = "$found/Foswiki/Plugins/";
     my $webObject = Foswiki::Store->create( address => { web => $systemWeb } );
     $webObject->populateNewWeb( $Foswiki::cfg{SystemWebName} );
+
+    #TODO: I'm only copying the DefaultPreferences because the Prefs code (now) doesn't like it when its missing
+    #BROKEN
+    #my $default = Foswiki::Store->create(address=>{web => $systemWeb, topic=>$Foswiki::cfg{SitePrefsTopicName}}, from=>{web => $Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{SitePrefsTopicName}});
+    #BROKEN
+    #my $default = Foswiki::Store->load(address=>{web => $Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{SitePrefsTopicName}});
+    #$default->web($systemWeb);
+    #WORKS - but probably shouldn't work quite this way.
+    my $default = Foswiki::Store->load(
+                                create=>1,
+                                address=>{web => $systemWeb, topic=>$Foswiki::cfg{SitePrefsTopicName}},
+                                from=>{web => $Foswiki::cfg{SystemWebName}, topic=>$Foswiki::cfg{SitePrefsTopicName}}
+                                    );
+    Foswiki::Store->save(address=>$default);
+        
     $Foswiki::cfg{SystemWebName} = $systemWeb;
     $Foswiki::cfg{Plugins}{WebSearchPath} = $systemWeb;
 }
@@ -175,7 +190,7 @@ sub test_saveHandlers {
     my $user = $this->{session}->{user};
     $this->assert_not_null($user);
     my $topicObject =
-      Foswiki::Store->load(
+      Foswiki::Store->create(
         address => { web => $this->{test_web}, topic => 'Tropic' } );
     my $text = $topicObject->text() || '';
     $text =~ s/^\s*\* Set BLAH =.*$//gm;
@@ -241,6 +256,13 @@ HERE
     $this->checkCalls( 1, 'beforeSaveHandler' );
     $this->checkCalls( 1, 'afterSaveHandler' );
 
+    #Need to register the WIBBLE type
+    Foswiki::Meta::registerMETA(
+        'WIBBLE',
+        #alias => 'WIBBLE',
+        require => [qw(wibble)],
+    );
+
     my $newMeta =
       Foswiki::Store->load(
         address => { web => $this->{test_web}, topic => "Tropic" } );
@@ -293,7 +315,7 @@ HERE
     # Crude test to ensure all handlers are called, and in the right order.
     # Doesn't verify that they are called at the right time
     my $meta =
-      Foswiki::Store->load( address => { web => "Werb", topic => "Tropic" } );
+      Foswiki::Store->create( address => { web => "Werb", topic => "Tropic" } );
     $meta->put( 'WIBBLE', { wibble => 'Wibble' } );
     Foswiki::Func::expandCommonVariables( "Zero", "Tropic", "Werb", $meta );
     $this->checkCalls( 1, 'beforeCommonTagsHandler' );
