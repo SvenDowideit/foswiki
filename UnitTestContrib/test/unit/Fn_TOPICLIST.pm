@@ -43,6 +43,7 @@ If ALLOW is set to a list of wikiname
    * Set ALLOWWEBVIEW = $this->{users_web}.AdminUser
 THIS
     $webPrefsObj->save();
+    $this->createNewFoswikiSession();
 
     Foswiki::Func::readTemplate('foswiki');
 

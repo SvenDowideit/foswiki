@@ -241,9 +241,6 @@ sub load {
 
         #print STDERR "..cUID isa ".ref($args{cuid})." ($args{cuid})\n";
 
-        throw Foswiki::AccessControlException( $access_type, $args{cuid},
-            $result->web(), $result->topic(),
-            $singleton->{access}->getReason() )
           if (
             not(
                 Foswiki::Store::haveAccess(
@@ -252,7 +249,11 @@ sub load {
                     address     => $result
                 )
             )
-          );
+          ) {
+            throw Foswiki::AccessControlException( $access_type, $args{cuid},
+                $result->web(), $result->topic(),
+                $singleton->{access}->getReason() )
+          }
     }
 
     $singleton->{count}{load}{ $args{address}->getPath() }--;
@@ -382,6 +383,8 @@ sub save {
                     $args{address}->{_loadedRev} = $currentRev;
 
                     $singleton->unCacheResource(%args);
+                    #if we saved a webprefs, uncache the web meta too
+                    #$singleton->unCacheResource(address=>{web=>$args{address}->{web}}) if ($args{address}->{topic} eq 'WebPreferences');
 
                     return $currentRev;
                 }
@@ -404,6 +407,10 @@ sub save {
         $args{address}->{_loadedRev}      = $nextRev;
         $args{address}->{_latestIsLoaded} = 1;
         $singleton->unCacheResource(%args);
+
+        #if we saved a webprefs, uncache the web meta too
+        #$singleton->unCacheResource(address=>{web=>$args{address}->{web}}) if ($args{address}->{topic} eq 'WebPreferences');
+
     }
     finally {
         $args{address}->_atomicUnlock($cUID);
@@ -1058,12 +1065,26 @@ sub template_function {
 sub unCacheResource {
     my $self = shift;
     my %args = @_;
+    
+    my $address = $args{address};
+
+    $address = Foswiki::Address->new( string => $address )
+      if ( ref($address) eq '' );    #justa string/scalar
+    $address = Foswiki::Address->new(@$address)
+      if ( ref($address) eq 'ARRAY' );
+    $address = Foswiki::Address->new(%$address)
+      if ( ref($address) eq 'HASH' );
+      
+    ASSERT($address->isa('Foswiki::Address')) if DEBUG;
 
 #ASSERT(defined($obj->{_text})) if DEBUG; #if itsa topic.
 #print STDERR "cacheResource(".$args{functionname}.", ".$args{return}->getPath().") \n";
 
-    my $name = $args{address}->getPath();
-    undef $self->{cache}{$name};
+    my $name = $address->getPath();
+    
+    #can't finish this obj - it is being used by the caller of the store :/
+    #$self->{cache}{$name}->finish() if (exists($self->{cache}{$name}));
+    delete $self->{cache}{$name};
 }
 
 sub cacheResource {
@@ -1104,7 +1125,7 @@ sub getResourceAddressOrCachedResource {
     my $name = $address->getPath();
 
     #print STDERR "getResourceAddressOrCachedResource($name)\n";
-    return $self->{cache}{$name} if ( defined( $self->{cache}{$name} ) );
+    $address = $self->{cache}{$name} if ( exists( $self->{cache}{$name} ) );
 
 #print STDERR "notincache --- getResourceAddressOrCachedResource($name) --> root:".(defined($address->{root})?$address->{root}:'undef')."\n";
     return $address;

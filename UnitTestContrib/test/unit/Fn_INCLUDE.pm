@@ -66,7 +66,7 @@ THIS
     $inkyDink->save();
 
     # Expand an include in the context of the test web
-    my $topicObject = Foswiki::Store::create(
+    my $topicObject = Foswiki::Store::load(
         address => { web => $this->{test_web}, topic => $this->{test_topic} } );
     my $text = $topicObject->expandMacros(
         "%INCLUDE{$this->{other_web}.$includedTopic}%");

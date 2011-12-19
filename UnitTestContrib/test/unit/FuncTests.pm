@@ -2050,14 +2050,14 @@ sub test_eachChangeSince {
     my $mid = time();
 
     $this->createNewFoswikiSession($user2);
-    $meta = Foswiki::Store::create(
+    $meta = Foswiki::Store::load(
         address => { web   => $this->{test_web}, topic => "ClutterBuck" },
         data    => { _text => "One" }
     );
     $meta->save();
 
     $this->createNewFoswikiSession($user2);
-    $meta = Foswiki::Store::create(
+    $meta = Foswiki::Store::load(
         address => { web   => $this->{test_web}, topic => "PiggleNut" },
         data    => { _text => "Two" }
     );

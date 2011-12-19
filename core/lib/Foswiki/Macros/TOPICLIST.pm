@@ -17,6 +17,7 @@ sub TOPICLIST {
     my $web = $params->{web} || $this->{webName};
     $web =~ s#\.#/#go;
 
+    return '' unless Foswiki::Store::haveAccess( address => { web => $web } );
     my $webObject = Foswiki::Store::load( address => { web => $web } );
     my $thisWebNoSearchAll =
       Foswiki::isTrue( $webObject->getPreference('NOSEARCHALL') );
@@ -24,8 +25,6 @@ sub TOPICLIST {
       if !defined( $params->{web} )
           && $web ne $this->{webName}
           && $thisWebNoSearchAll;
-
-    return '' unless $webObject->haveAccess();
 
     my @items;
     my $it = $webObject->eachTopic();
