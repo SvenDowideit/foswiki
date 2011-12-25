@@ -140,6 +140,7 @@ sub verify_view {
     my $p2end = new Benchmark();
     print STDERR "R2 " . timestr( timediff( $p2end, $p2start ) ) . "\n";
     $fatwilly->finish();
+    $this->createNewFoswikiSession();
 
     # Massage the HTML for comparison
     for ( $one, $two ) {

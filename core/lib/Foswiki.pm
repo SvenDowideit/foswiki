@@ -3434,6 +3434,7 @@ sub _renderZone {
     unless ( defined $topicObject ) {
         $topicObject =
           Foswiki::Store->load(
+            create=>1,
             address => { web => $this->{webName}, topic => $this->{topicName} }
           );
     }

@@ -132,6 +132,7 @@ sub test_oopsScript {
     $this->assert_matches( qr/^phlegm$/m,           $output );
 
     $session->finish();
+    $this->createNewFoswikiSession();
 }
 
 1;
